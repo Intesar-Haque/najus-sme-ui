@@ -1,0 +1,142 @@
+
+// Then import the full NG-ZORRO theme
+@import "../node_modules/ng-zorro-antd/ng-zorro-antd.less";
+@font-face {
+  font-family: 'Votrag-SemiBold';
+  src: url('/assets/fonts/Votrag-SemiBold.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Roboto-Regular';
+  src: url('/assets/fonts/Roboto-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+// Override NG-ZORRO theme variables BEFORE importing
+@primary-color: #28a745;     // A strong green
+@link-color: #ff7a00;        // Orange accent (for links/buttons)
+@success-color: #28a745;
+@warning-color: #ff7a00;
+@info-color: #17a2b8;
+@border-radius-base: 8px;
+@body-background: #ffffff;
+@component-background: #ffffff;
+@text-color: #333;
+
+body {
+  font-family: 'Roboto-Regular', sans-serif;
+}
+
+.base-container {
+  width: 100%;
+  min-height: 75vh;
+  //padding: 0 5%;
+  background-color: #f6f8fa;
+  @media (max-width: 768px) {
+    padding: 0;
+    justify-content: center;
+  }
+}
+.primary{
+  color: #2d754d;
+}
+
+// Font
+.heading {
+  font-family: 'Votrag-SemiBold', sans-serif;
+  line-height: .8;
+  letter-spacing: .1rem
+}
+
+:root {
+  /* Base sizes for mobile */
+  --font-size-h1: 2rem;
+  --font-size-h2: 1.5rem;
+  --font-size-h3: 1.25rem;
+  --font-size-nav: 1rem;
+  --line-height-tight: 1.2;
+}
+
+/* Tablet breakpoint */
+@media (min-width: 768px) {
+  :root {
+    --font-size-h1: 3rem;
+    --font-size-h2: 2rem;
+    --font-size-h3: 1.5rem;
+    --font-size-nav: 1.0625rem;
+  }
+}
+
+/* Desktop breakpoint */
+@media (min-width: 1024px) {
+  :root {
+    --font-size-h1: 4rem;
+    --font-size-h2: 2.5rem;
+    --font-size-h3: 1.75rem;
+    --font-size-nav: 1.125rem;
+  }
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+}
+
+h3 {
+  font-size: var(--font-size-h3);
+}
+
+/* Bengali language adjustments */
+.lang-bn .nav-link {
+  font-size: var(--font-size-nav);
+}
+
+/* Mobile Bengali */
+.lang-bn h1 {
+  font-size: 1.75rem !important;
+  line-height: var(--line-height-tight) !important;
+}
+
+.lang-bn h2 {
+  font-size: 1.35rem !important;
+  line-height: var(--line-height-tight) !important;
+}
+
+.lang-bn h3 {
+  font-size: 1.125rem !important;
+  line-height: var(--line-height-tight) !important;
+}
+
+/* Tablet Bengali */
+@media (min-width: 768px) {
+  .lang-bn h1 {
+    font-size: 2.25rem !important;
+  }
+
+  .lang-bn h2 {
+    font-size: 1.65rem !important;
+  }
+
+  .lang-bn h3 {
+    font-size: 1.3rem !important;
+  }
+}
+
+/* Desktop Bengali */
+@media (min-width: 1024px) {
+  .lang-bn h1 {
+    font-size: 3rem !important;
+  }
+
+  .lang-bn h2 {
+    font-size: 2rem !important;
+  }
+
+  .lang-bn h3 {
+    font-size: 1.5rem !important;
+  }
+}
