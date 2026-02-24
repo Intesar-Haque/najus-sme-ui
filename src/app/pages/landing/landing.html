@@ -1,0 +1,366 @@
+<!-- ═══════════════════════════════════════════════════════
+     HERO SECTION
+════════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero__bg"></div>
+
+  <div class="container hero__inner">
+    <!-- Left: copy + search -->
+    <div class="hero__content">
+      <span class="hero__eyebrow">
+        <span nz-icon nzType="safety-certificate" nzTheme="fill"></span>
+        100+ Verified Local Businesses
+      </span>
+
+      <h1 class="hero__headline">
+        Discover Bangladesh's
+        <span class="hero__headline-accent">Finest Local Entrepreneurs</span>
+      </h1>
+
+      <p class="hero__sub">
+        Shop authentic products, attend events, and support the
+        small businesses that power Bangladesh's economy.
+      </p>
+
+      <!-- Search -->
+      <div class="hero__search">
+        <nz-input-group [nzPrefix]="searchPfx" [nzSuffix]="searchSfx" class="hero-search-group">
+          <input
+            nz-input
+            placeholder="Search products, businesses, categories…"
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="onSearch()"
+            class="hero-search-input"
+          />
+        </nz-input-group>
+        <ng-template #searchPfx>
+          <span nz-icon nzType="search" style="color: #aaa"></span>
+        </ng-template>
+        <ng-template #searchSfx>
+          <button nz-button nzType="primary" class="search-btn" (click)="onSearch()">Search</button>
+        </ng-template>
+      </div>
+
+      <!-- Popular tags -->
+      <div class="hero__tags">
+        <span class="hero__tags-label">Popular:</span>
+        @for (term of popular; track term) {
+          <nz-tag class="hero-tag" (click)="onPopularSearch(term)">{{ term }}</nz-tag>
+        }
+      </div>
+
+      <!-- CTAs -->
+      <div class="hero__actions">
+        <a routerLink="/products">
+          <button nz-button nzType="primary" nzSize="large" class="cta-primary">
+            <span nz-icon nzType="shopping"></span>
+            Explore Products
+          </button>
+        </a>
+        <a routerLink="/join">
+          <button nz-button nzSize="large" class="cta-secondary">
+            Join NAJUS SME
+            <span nz-icon nzType="arrow-right"></span>
+          </button>
+        </a>
+      </div>
+    </div>
+
+    <!-- Right: product showcase grid -->
+    <div class="hero__visual">
+      <div class="hero-grid">
+        @for (p of products.slice(0, 4); track p.id; let i = $index) {
+          <a [routerLink]="['/products', p.id]" class="hero-grid__item"
+             [class.hero-grid__item--tall]="i === 0">
+            <img [src]="p.images[0]" [alt]="p.name" loading="lazy" />
+            <div class="hero-grid__overlay">
+              <span class="hero-grid__name">{{ p.name }}</span>
+              <span class="hero-grid__price">৳ {{ p.price | number }}</span>
+            </div>
+          </a>
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     STATS BAR
+════════════════════════════════════════════════════════ -->
+<section class="stats-bar">
+  <div class="container stats-bar__grid">
+    <div class="stat-pill">
+      <span nz-icon nzType="team" nzTheme="fill" class="stat-icon"></span>
+      <div>
+        <div class="stat-num">{{ stats.members }}+</div>
+        <div class="stat-label">Member SMEs</div>
+      </div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-pill">
+      <span nz-icon nzType="shopping" nzTheme="fill" class="stat-icon"></span>
+      <div>
+        <div class="stat-num">{{ stats.products | number }}+</div>
+        <div class="stat-label">Products Listed</div>
+      </div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-pill">
+      <span nz-icon nzType="appstore" nzTheme="fill" class="stat-icon"></span>
+      <div>
+        <div class="stat-num">{{ stats.categories }}</div>
+        <div class="stat-label">Categories</div>
+      </div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-pill">
+      <span nz-icon nzType="environment" nzTheme="fill" class="stat-icon"></span>
+      <div>
+        <div class="stat-num">{{ stats.districts }}</div>
+        <div class="stat-label">Districts</div>
+      </div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-pill">
+      <span nz-icon nzType="calendar" nzTheme="fill" class="stat-icon"></span>
+      <div>
+        <div class="stat-num">{{ stats.yearsActive }}+</div>
+        <div class="stat-label">Years Active</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     CATEGORIES
+════════════════════════════════════════════════════════ -->
+<section class="section categories-section">
+  <div class="container">
+    <div class="section-header d-flex-between">
+      <div>
+        <h2 class="section-title">Browse by Category</h2>
+        <p class="section-sub">Find exactly what you're looking for</p>
+      </div>
+      <a routerLink="/products" class="view-all-link hide-mobile">
+        View All <span nz-icon nzType="arrow-right"></span>
+      </a>
+    </div>
+
+    <div class="categories-grid">
+      @for (cat of categories; track cat.id) {
+        <button class="cat-card"
+                [class.cat-card--active]="activeCategory() === cat.id"
+                (click)="onCategoryClick(cat.id)">
+          <div class="cat-card__icon" [style.background]="cat.bgColor" [style.color]="cat.color">
+            <span nz-icon [nzType]="cat.icon" nzTheme="outline"></span>
+          </div>
+          <div class="cat-card__name">{{ cat.name }}</div>
+          <div class="cat-card__count">{{ cat.productCount }} items</div>
+        </button>
+      }
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     FEATURED PRODUCTS
+════════════════════════════════════════════════════════ -->
+<section class="section products-section">
+  <div class="container">
+    <div class="section-header d-flex-between">
+      <div>
+        <h2 class="section-title">Featured Products</h2>
+        <p class="section-sub">Hand-picked from our verified SME network</p>
+      </div>
+      <a routerLink="/products" class="view-all-link hide-mobile">
+        View All Products <span nz-icon nzType="arrow-right"></span>
+      </a>
+    </div>
+
+    <div class="products-grid">
+      @for (product of products; track product.id) {
+        <app-product-card [product]="product" (addToCart)="onAddToCart($event)" />
+      }
+    </div>
+
+    <div class="section-cta hide-desktop">
+      <a routerLink="/products">
+        <button nz-button nzType="primary" nzSize="large" nzBlock>
+          View All Products <span nz-icon nzType="arrow-right"></span>
+        </button>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     FEATURED SMEs
+════════════════════════════════════════════════════════ -->
+<section class="section vendors-section">
+  <div class="container">
+    <div class="section-header d-flex-between">
+      <div>
+        <h2 class="section-title">Meet Our SMEs</h2>
+        <p class="section-sub">{{ stats.members }}+ verified businesses ready to serve you</p>
+      </div>
+      <a routerLink="/businesses" class="view-all-link hide-mobile">
+        All Businesses <span nz-icon nzType="arrow-right"></span>
+      </a>
+    </div>
+
+    <div class="vendors-grid">
+      @for (vendor of vendors; track vendor.id) {
+        <app-vendor-card [vendor]="vendor" />
+      }
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     EVENTS
+════════════════════════════════════════════════════════ -->
+<section class="section events-section">
+  <div class="container">
+    <div class="section-header d-flex-between">
+      <div>
+        <h2 class="section-title">Upcoming Events</h2>
+        <p class="section-sub">Trade fairs, workshops, and exhibitions near you</p>
+      </div>
+      <a routerLink="/events" class="view-all-link hide-mobile">
+        All Events <span nz-icon nzType="arrow-right"></span>
+      </a>
+    </div>
+
+    <div class="events-grid">
+      @for (event of events; track event.id) {
+        <article class="event-card">
+          <div class="event-card__image">
+            <img [src]="event.image" [alt]="event.title" loading="lazy" />
+            <nz-tag [nzColor]="getEventTypeColor(event.type)" class="event-card__type-badge">
+              {{ formatEventType(event.type) }}
+            </nz-tag>
+          </div>
+          <div class="event-card__body">
+            <h3 class="event-card__title">{{ event.title }}</h3>
+            <p class="event-card__desc">{{ event.description }}</p>
+            <div class="event-card__meta">
+              <div class="meta-item">
+                <span nz-icon nzType="calendar" nzTheme="outline"></span>
+                {{ event.date | date:'mediumDate' }}
+              </div>
+              <div class="meta-item">
+                <span nz-icon nzType="environment" nzTheme="outline"></span>
+                {{ event.location }}
+              </div>
+            </div>
+            <div class="event-card__footer">
+              <span class="event-price">
+                @if (event.isFree) {
+                  <nz-tag nzColor="green">Free</nz-tag>
+                } @else {
+                  <nz-tag nzColor="orange">৳ {{ event.price }}</nz-tag>
+                }
+              </span>
+              @if (event.registrationOpen) {
+                <a [routerLink]="['/events', event.id]">
+                  <button nz-button nzType="primary" nzSize="small">Register</button>
+                </a>
+              } @else {
+                <button nz-button nzSize="small" disabled>Coming Soon</button>
+              }
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     BLOG
+════════════════════════════════════════════════════════ -->
+<section class="section blog-section">
+  <div class="container">
+    <div class="section-header d-flex-between">
+      <div>
+        <h2 class="section-title">From the Blog</h2>
+        <p class="section-sub">Stories, guides, and insights from the NAJUS SME community</p>
+      </div>
+      <a routerLink="/blog" class="view-all-link hide-mobile">
+        All Posts <span nz-icon nzType="arrow-right"></span>
+      </a>
+    </div>
+
+    <div class="blog-grid">
+      @for (post of posts; track post.id; let first = $first) {
+        <article class="blog-card" [class.blog-card--featured]="first">
+          <a [routerLink]="['/blog', post.id]" class="blog-card__image-wrap">
+            <img [src]="post.image" [alt]="post.title" loading="lazy" />
+            <div class="blog-card__category">{{ post.category }}</div>
+          </a>
+          <div class="blog-card__body">
+            <div class="blog-card__meta">
+              <nz-avatar [nzSrc]="post.authorImage" [nzSize]="24"></nz-avatar>
+              <span class="blog-meta-author">{{ post.author }}</span>
+              <span class="blog-meta-sep">·</span>
+              <span class="blog-meta-date">{{ post.date | date:'mediumDate' }}</span>
+              <span class="blog-meta-sep">·</span>
+              <span class="blog-meta-read">{{ post.readTime }} min read</span>
+            </div>
+            <a [routerLink]="['/blog', post.id]" class="blog-card__title">{{ post.title }}</a>
+            <p class="blog-card__excerpt">{{ post.excerpt }}</p>
+            <div class="blog-card__tags">
+              @for (tag of post.tags; track tag) {
+                <nz-tag>{{ tag }}</nz-tag>
+              }
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     JOIN CTA BANNER
+════════════════════════════════════════════════════════ -->
+<section class="cta-banner">
+  <div class="cta-banner__bg"></div>
+  <div class="container cta-banner__inner">
+    <div class="cta-banner__text">
+      <span class="cta-banner__eyebrow">Are you an entrepreneur?</span>
+      <h2 class="cta-banner__title">Join the NAJUS SME Network Today</h2>
+      <p class="cta-banner__sub">
+        Get your own storefront, reach thousands of customers, attend exclusive events,
+        and be part of a thriving community of 148+ local businesses.
+      </p>
+      <ul class="cta-banner__perks">
+        <li><span nz-icon nzType="check-circle" nzTheme="fill"></span> Free storefront setup</li>
+        <li><span nz-icon nzType="check-circle" nzTheme="fill"></span> NAJUS Verified badge</li>
+        <li><span nz-icon nzType="check-circle" nzTheme="fill"></span> Priority event access</li>
+        <li><span nz-icon nzType="check-circle" nzTheme="fill"></span> Business training & workshops</li>
+      </ul>
+    </div>
+    <div class="cta-banner__action">
+      <a routerLink="/join">
+        <button nz-button nzSize="large" class="cta-join-btn">
+          Become a Member
+          <span nz-icon nzType="arrow-right"></span>
+        </button>
+      </a>
+      <a routerLink="/login">
+        <button nz-button nzSize="large" class="cta-login-btn">
+          <span nz-icon nzType="user"></span>
+          Member Login
+        </button>
+      </a>
+    </div>
+  </div>
+</section>

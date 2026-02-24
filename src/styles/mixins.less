@@ -1,0 +1,111 @@
+@import 'variables';
+
+// ─── Layout ──────────────────────────────────────────────────────────────────
+.container() {
+  max-width: @container-max;
+  margin: 0 auto;
+  padding: 0 @container-pad;
+  width: 100%;
+}
+
+.section() {
+  padding: @section-py 0;
+}
+
+// ─── Flexbox helpers ─────────────────────────────────────────────────────────
+.flex-center() {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between() {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-col() {
+  display: flex;
+  flex-direction: column;
+}
+
+// ─── Card base ───────────────────────────────────────────────────────────────
+.card() {
+  background: @bg-card;
+  border-radius: @radius-lg;
+  box-shadow: @shadow-xs;
+  overflow: hidden;
+  transition: @transition-base;
+  &:hover {
+    box-shadow: @shadow-md;
+    transform: translateY(-3px);
+  }
+}
+
+// ─── Section heading ─────────────────────────────────────────────────────────
+.section-header() {
+  margin-bottom: @sp-10;
+  .section-title {
+    font-family: @font-heading;
+    font-size: @text-3xl;
+    color: @text-primary;
+    margin: 0 0 @sp-2;
+    line-height: 1.2;
+  }
+  .section-sub {
+    font-size: @text-lg;
+    color: @text-muted;
+    margin: 0;
+  }
+}
+
+// ─── Button overrides ────────────────────────────────────────────────────────
+.btn-primary() {
+  background: @primary !important;
+  border-color: @primary !important;
+  &:hover {
+    background: @primary-dark !important;
+    border-color: @primary-dark !important;
+  }
+}
+
+.btn-accent() {
+  background: @accent !important;
+  border-color: @accent !important;
+  color: #fff !important;
+  &:hover {
+    background: @accent-dark !important;
+    border-color: @accent-dark !important;
+  }
+}
+
+// ─── Grid helpers ────────────────────────────────────────────────────────────
+.grid-auto(@min: 260px, @gap: @sp-6) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(@min, 1fr));
+  gap: @gap;
+}
+
+// ─── Text truncation ─────────────────────────────────────────────────────────
+.clamp(@n: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: @n;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// ─── Overlay ─────────────────────────────────────────────────────────────────
+.overlay(@color: rgba(0,0,0,.5)) {
+  position: absolute;
+  inset: 0;
+  background: @color;
+}
+
+// ─── Responsive hide ─────────────────────────────────────────────────────────
+.hide-mobile() {
+  @media (max-width: @bp-md) { display: none !important; }
+}
+.hide-desktop() {
+  @media (min-width: @bp-md) { display: none !important; }
+}

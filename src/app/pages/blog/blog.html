@@ -1,0 +1,262 @@
+<!-- ═══ PAGE HEADER ════════════════════════════════════════════════════ -->
+<div class="page-header">
+  <div class="container page-header__inner">
+    <div class="page-header__copy">
+      <nz-breadcrumb nzSeparator=">">
+        <nz-breadcrumb-item><a routerLink="/">Home</a></nz-breadcrumb-item>
+        <nz-breadcrumb-item>Blog</nz-breadcrumb-item>
+      </nz-breadcrumb>
+      <h1 class="page-title">Stories & Insights</h1>
+      <p class="page-subtitle">
+        Success stories, business guides, and industry insights from the NAJUS SME community.
+      </p>
+    </div>
+
+    <div class="header-stats hide-mobile">
+      <div class="hstat">
+        <span class="hstat__num">{{ allPosts.length }}</span>
+        <span class="hstat__label">Articles</span>
+      </div>
+      <div class="hstat-divider"></div>
+      <div class="hstat">
+        <span class="hstat__num">{{ allCategories.length }}</span>
+        <span class="hstat__label">Categories</span>
+      </div>
+      <div class="hstat-divider"></div>
+      <div class="hstat">
+        <span class="hstat__num">{{ allTags.length }}</span>
+        <span class="hstat__label">Topics</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FEATURED POST ══════════════════════════════════════════════════ -->
+@if (featuredPost(); as fp) {
+  <div class="featured-wrap">
+    <div class="container">
+      <div class="featured-card">
+        <div class="featured-card__img-wrap">
+          <img [src]="fp.image" [alt]="fp.title" class="featured-card__img" />
+          <span class="featured-badge">
+            <span nz-icon nzType="star" nzTheme="fill"></span> Featured
+          </span>
+        </div>
+        <div class="featured-card__body">
+          <div class="post-meta">
+            <nz-tag [nzColor]="'purple'" class="cat-tag">{{ fp.category }}</nz-tag>
+            <span class="post-meta__date">{{ fp.date | date: 'dd MMM yyyy' }}</span>
+            <span class="post-meta__read">
+              <span nz-icon nzType="clock-circle"></span> {{ fp.readTime }} min read
+            </span>
+          </div>
+          <h2 class="featured-card__title">{{ fp.title }}</h2>
+          <p class="featured-card__excerpt">{{ fp.excerpt }}</p>
+          <div class="featured-card__footer">
+            <div class="post-author">
+              <nz-avatar [nzSrc]="fp.authorImage" [nzSize]="36"></nz-avatar>
+              <span class="post-author__name">{{ fp.author }}</span>
+            </div>
+            <div class="post-tags">
+              @for (tag of fp.tags; track tag) {
+                <button class="tag-btn" (click)="toggleTag(tag)">
+                  #{{ tag }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ═══ TOOLBAR ════════════════════════════════════════════════════════ -->
+<div class="toolbar">
+  <div class="container toolbar__inner">
+    <nz-input-group [nzPrefix]="searchPfx" class="toolbar__search">
+      <input nz-input placeholder="Search articles, authors, topics…"
+             [ngModel]="searchQuery()"
+             (ngModelChange)="searchQuery.set($event)" />
+    </nz-input-group>
+    <ng-template #searchPfx>
+      <span nz-icon nzType="search" style="color:#aaa"></span>
+    </ng-template>
+
+    <nz-badge [nzCount]="activeFilterCount()" class="hide-desktop">
+      <button nz-button (click)="filterDrawerOpen.set(true)" class="filter-btn">
+        <span nz-icon nzType="filter" nzTheme="fill"></span> Filters
+      </button>
+    </nz-badge>
+
+    <nz-select [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)" class="toolbar__sort">
+      @for (opt of sortOptions; track opt.value) {
+        <nz-option [nzValue]="opt.value" [nzLabel]="opt.label"></nz-option>
+      }
+    </nz-select>
+  </div>
+</div>
+
+<!-- ═══ ACTIVE CHIPS ═══════════════════════════════════════════════════ -->
+@if (activeChips().length) {
+  <div class="active-filters">
+    <div class="container active-filters__inner">
+      <span class="af-label">Active filters:</span>
+      @for (chip of activeChips(); track chip.label) {
+        <nz-tag nzMode="closeable" (nzOnClose)="removeChip(chip)" class="filter-chip">
+          {{ chip.label }}
+        </nz-tag>
+      }
+      <button class="clear-btn" (click)="clearAll()">Clear all</button>
+    </div>
+  </div>
+}
+
+<!-- ═══ BODY ════════════════════════════════════════════════════════════ -->
+<div class="blog-body container">
+
+  <!-- ── Sidebar ───────────────────────────────────────────────────── -->
+  <aside class="sidebar hide-mobile">
+    <ng-container [ngTemplateOutlet]="filterPanel"></ng-container>
+  </aside>
+
+  <!-- ── Main ─────────────────────────────────────────────────────── -->
+  <div class="blog-main">
+    <div class="result-bar">
+      <span class="result-count">
+        <strong>{{ totalCount() }}</strong> article{{ totalCount() !== 1 ? 's' : '' }} found
+      </span>
+    </div>
+
+    @if (filteredPosts().length) {
+      <div class="posts-grid">
+        @for (post of filteredPosts(); track post.id) {
+          <article class="post-card" [class.post-card--featured]="post.featured">
+
+            <!-- Image -->
+            <div class="post-card__img-wrap">
+              <img [src]="post.image" [alt]="post.title" class="post-card__img" loading="lazy" />
+              <nz-tag [nzColor]="'purple'" class="post-card__cat">{{ post.category }}</nz-tag>
+            </div>
+
+            <!-- Body -->
+            <div class="post-card__body">
+              <div class="post-meta">
+                <span class="post-meta__date">{{ post.date | date: 'dd MMM yyyy' }}</span>
+                <span class="post-meta__dot"></span>
+                <span class="post-meta__read">
+                  <span nz-icon nzType="clock-circle"></span> {{ post.readTime }} min
+                </span>
+              </div>
+
+              <h3 class="post-card__title">{{ post.title }}</h3>
+              <p class="post-card__excerpt">{{ post.excerpt }}</p>
+
+              <div class="post-card__tags">
+                @for (tag of post.tags; track tag) {
+                  <button class="tag-btn" (click)="toggleTag(tag)"
+                          [class.tag-btn--active]="selectedTags().includes(tag)">
+                    #{{ tag }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="post-card__footer">
+              <div class="post-author">
+                <nz-avatar [nzSrc]="post.authorImage" [nzSize]="28"></nz-avatar>
+                <span class="post-author__name">{{ post.author }}</span>
+              </div>
+              <button nz-button nzType="link" nzSize="small" class="read-btn">
+                Read more <span nz-icon nzType="arrow-right"></span>
+              </button>
+            </div>
+
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <nz-empty nzNotFoundImage="simple" nzNotFoundContent="No articles match your search.">
+          <ng-template #nzNotFoundFooter>
+            <button nz-button nzType="primary" (click)="clearAll()">Clear Filters</button>
+          </ng-template>
+        </nz-empty>
+      </div>
+    }
+  </div>
+
+</div>
+
+<!-- ═══ MOBILE DRAWER ══════════════════════════════════════════════════ -->
+<nz-drawer [nzVisible]="filterDrawerOpen()" nzPlacement="left" nzTitle="Filters"
+           [nzWidth]="300" (nzOnClose)="filterDrawerOpen.set(false)">
+  <ng-container *nzDrawerContent>
+    <div style="padding-bottom:16px">
+      <ng-container [ngTemplateOutlet]="filterPanel"></ng-container>
+      <button nz-button nzType="primary" nzBlock nzSize="large" style="margin-top:24px"
+              (click)="filterDrawerOpen.set(false)">
+        Show {{ totalCount() }} Article{{ totalCount() !== 1 ? 's' : '' }}
+      </button>
+    </div>
+  </ng-container>
+</nz-drawer>
+
+<!-- ═══ FILTER PANEL TEMPLATE ══════════════════════════════════════════ -->
+<ng-template #filterPanel>
+  <div class="filters">
+
+    <!-- Categories -->
+    <div class="filter-section">
+      <div class="filter-title">
+        Category
+        @if (selectedCategory()) {
+          <button class="filter-clear" (click)="selectedCategory.set('')">Clear</button>
+        }
+      </div>
+      <div class="cat-list">
+        <button class="cat-btn" [class.cat-btn--active]="!selectedCategory()"
+                (click)="selectedCategory.set('')">
+          <span class="cat-btn__label">All Posts</span>
+          <span class="cat-btn__count">{{ allPosts.length }}</span>
+        </button>
+        @for (cat of allCategories; track cat) {
+          <button class="cat-btn" [class.cat-btn--active]="selectedCategory() === cat"
+                  (click)="selectedCategory.set(cat)">
+            <span class="cat-btn__label">{{ cat }}</span>
+            <span class="cat-btn__count">{{ categoryPostCount(cat) }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <nz-divider></nz-divider>
+
+    <!-- Tags -->
+    <div class="filter-section">
+      <div class="filter-title">
+        Topics
+        @if (selectedTags().length) {
+          <button class="filter-clear" (click)="selectedTags.set([])">Clear</button>
+        }
+      </div>
+      <div class="tag-cloud">
+        @for (tag of allTags; track tag) {
+          <button class="tag-pill" [class.tag-pill--active]="selectedTags().includes(tag)"
+                  (click)="toggleTag(tag)">
+            #{{ tag }}
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (activeFilterCount() > 0) {
+      <nz-divider></nz-divider>
+      <button nz-button nzBlock nzDanger (click)="clearAll()">
+        <span nz-icon nzType="delete"></span> Clear All
+      </button>
+    }
+
+  </div>
+</ng-template>

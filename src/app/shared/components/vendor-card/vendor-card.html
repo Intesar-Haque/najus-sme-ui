@@ -1,0 +1,64 @@
+<article class="vendor-card">
+  <!-- Cover image -->
+  <div class="vendor-card__cover">
+    <img [src]="vendor().coverImage" [alt]="vendor().name" loading="lazy" />
+    @if (vendor().verified) {
+      <span class="vendor-card__verified-badge" nzTooltipTitle="NAJUS Verified Member" nz-tooltip>
+        <span nz-icon nzType="safety-certificate" nzTheme="fill"></span>
+        Verified
+      </span>
+    }
+  </div>
+
+  <!-- Logo -->
+  <div class="vendor-card__logo-wrap">
+    <nz-avatar [nzSrc]="vendor().logo" [nzSize]="72" class="vendor-card__logo"></nz-avatar>
+  </div>
+
+  <!-- Body -->
+  <div class="vendor-card__body">
+    <div class="vendor-card__name-row">
+      <h3 class="vendor-card__name">{{ vendor().name }}</h3>
+    </div>
+
+    <div class="vendor-card__location">
+      <span nz-icon nzType="environment" nzTheme="outline"></span>
+      {{ vendor().location }}
+    </div>
+
+    <p class="vendor-card__desc">{{ vendor().description }}</p>
+
+    <!-- Categories -->
+    <div class="vendor-card__cats">
+      @for (cat of vendor().categories; track cat) {
+        <nz-tag>{{ cat }}</nz-tag>
+      }
+    </div>
+
+    <!-- Stats Row -->
+    <div class="vendor-card__stats">
+      <div class="stat-item">
+        <span class="stat-value">{{ vendor().productCount }}</span>
+        <span class="stat-label">Products</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value">{{ vendor().rating }}</span>
+        <span class="stat-label">Rating</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value">{{ vendor().memberSince }}</span>
+        <span class="stat-label">Member Since</span>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <a [routerLink]="['/businesses', vendor().id]">
+      <button nz-button nzType="primary" nzBlock>
+        View Store
+        <span nz-icon nzType="arrow-right"></span>
+      </button>
+    </a>
+  </div>
+</article>

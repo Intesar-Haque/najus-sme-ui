@@ -1,0 +1,323 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+// ═══════════════════════════════════════════════════════════════════════
+// NOT FOUND
+// ═══════════════════════════════════════════════════════════════════════
+.not-found-wrap {
+  padding: @sp-24 0;
+  .flex-center();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// BREADCRUMB BAR
+// ═══════════════════════════════════════════════════════════════════════
+.breadcrumb-bar {
+  background: @bg-card;
+  border-bottom: 1px solid @border-light;
+  padding: @sp-3 0;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// COVER SECTION
+// ═══════════════════════════════════════════════════════════════════════
+.cover-section {
+  position: relative;
+}
+
+.cover-image {
+  height: 260px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+
+  @media (max-width: @bp-md) { height: 180px; }
+}
+
+.cover-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom,
+    rgba(0,0,0,.1) 0%,
+    rgba(0,0,0,.55) 100%
+  );
+}
+
+// ── Hero row (avatar + name) ──────────────────────────────────────────
+.profile-hero {
+  display: flex;
+  align-items: flex-end;
+  gap: @sp-5;
+  margin-top: -52px;
+  position: relative;
+  z-index: 2;
+  padding-bottom: @sp-5;
+
+  @media (max-width: @bp-sm) {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: -40px;
+  }
+}
+
+.vendor-avatar {
+  position: relative;
+  flex-shrink: 0;
+
+  &__img {
+    width: 104px;
+    height: 104px;
+    border-radius: @radius-xl;
+    border: 4px solid #fff;
+    box-shadow: @shadow-md;
+    object-fit: cover;
+    display: block;
+    background: @bg-subtle;
+
+    @media (max-width: @bp-sm) { width: 80px; height: 80px; }
+  }
+
+  &__badge {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 26px;
+    height: 26px;
+    background: #fff;
+    border-radius: @radius-full;
+    .flex-center();
+    font-size: 18px;
+    color: @primary;
+    cursor: default;
+  }
+}
+
+.vendor-meta {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: @sp-2;
+
+  &__top {
+    display: flex;
+    align-items: center;
+    gap: @sp-3;
+    flex-wrap: wrap;
+  }
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: @sp-3;
+    flex-wrap: wrap;
+    margin-top: @sp-2;
+  }
+}
+
+.vendor-name {
+  font-family: @font-heading;
+  font-size: @text-3xl;
+  color: @text-primary;
+  margin: 0;
+  line-height: 1.15;
+
+  @media (max-width: @bp-md) { font-size: @text-2xl; }
+}
+
+.verified-tag { font-size: @text-xs; }
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: @sp-1;
+  font-size: @text-sm;
+  color: @text-secondary;
+}
+
+.meta-divider {
+  width: 1px;
+  height: 14px;
+  background: @border-color;
+  flex-shrink: 0;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// STAT BAR
+// ═══════════════════════════════════════════════════════════════════════
+.stat-bar {
+  background: @bg-card;
+  border-bottom: 1px solid @border-light;
+  box-shadow: @shadow-xs;
+  padding: @sp-3 0;
+  position: sticky;
+  top: @navbar-height;
+  z-index: 50;
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    gap: @sp-5;
+    flex-wrap: wrap;
+  }
+
+  &__actions {
+    margin-left: auto;
+    display: flex;
+    gap: @sp-2;
+    flex-wrap: wrap;
+  }
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &__num {
+    font-family: @font-heading;
+    font-size: @text-xl;
+    font-weight: 700;
+    color: @text-primary;
+    line-height: 1;
+  }
+
+  &__label {
+    font-size: @text-xs;
+    color: @text-muted;
+    margin-top: 2px;
+    white-space: nowrap;
+  }
+}
+
+.stat-divider {
+  width: 1px;
+  height: 28px;
+  background: @border-color;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// TAB BODY
+// ═══════════════════════════════════════════════════════════════════════
+.tab-body {
+  padding-top: @sp-5;
+  padding-bottom: @sp-12;
+}
+
+// ─── Products grid ────────────────────────────────────────────────────
+.products-grid {
+  .grid-auto(260px, @sp-5);
+  padding-top: @sp-5;
+}
+
+.empty-tab {
+  padding: @sp-16 0;
+  .flex-center();
+}
+
+// ─── About grid ───────────────────────────────────────────────────────
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: @sp-5;
+  padding-top: @sp-5;
+}
+
+.about-card {
+  background: @bg-card;
+  border: 1px solid @border-light;
+  border-radius: @radius-xl;
+  padding: @sp-5 @sp-6;
+
+  &__title {
+    font-size: @text-sm;
+    font-weight: 700;
+    color: @text-primary;
+    margin: 0 0 @sp-3;
+    display: flex;
+    align-items: center;
+    gap: @sp-2;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+
+  &__body {
+    font-size: @text-sm;
+    color: @text-secondary;
+    line-height: 1.7;
+    margin: 0 0 @sp-3;
+  }
+
+  &--highlight {
+    border-color: rgba(40,167,69,.3);
+    background: @primary-bg;
+  }
+}
+
+.about-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: @sp-2;
+}
+
+// Rating display
+.rating-display {
+  display: flex;
+  align-items: center;
+  gap: @sp-4;
+}
+
+.rating-big {
+  font-family: @font-heading;
+  font-size: @text-4xl;
+  font-weight: 700;
+  color: @text-primary;
+  line-height: 1;
+}
+
+.rating-sub {
+  font-size: @text-xs;
+  color: @text-muted;
+  margin-top: @sp-1;
+}
+
+// Contact list
+.contact-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: @sp-3;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: @sp-2;
+    font-size: @text-sm;
+    color: @text-secondary;
+
+    a {
+      color: @primary-dark;
+      text-decoration: none;
+      &:hover { text-decoration: underline; }
+    }
+
+    [nz-icon] { color: @primary; flex-shrink: 0; }
+  }
+}
+
+// Verified note
+.verified-note {
+  display: flex;
+  align-items: flex-start;
+  gap: @sp-2;
+  font-size: @text-xs;
+  color: @primary-dark;
+  background: rgba(40,167,69,.08);
+  border: 1px solid rgba(40,167,69,.2);
+  border-radius: @radius-md;
+  padding: @sp-3;
+  margin-top: @sp-3;
+  line-height: 1.5;
+
+  [nz-icon] { margin-top: 2px; flex-shrink: 0; }
+}

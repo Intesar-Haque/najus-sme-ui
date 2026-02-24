@@ -1,0 +1,306 @@
+<!-- ═══ PAGE WRAPPER ═══════════════════════════════════════════════════ -->
+<div class="products-page">
+
+  <!-- ── Page Header ─────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="container page-header__inner">
+      <div>
+        <nz-breadcrumb>
+          <nz-breadcrumb-item><a routerLink="/">Home</a></nz-breadcrumb-item>
+          <nz-breadcrumb-item>{{ activeCategoryLabel() }}</nz-breadcrumb-item>
+        </nz-breadcrumb>
+        <h1 class="page-title">{{ activeCategoryLabel() }}</h1>
+        <p class="page-subtitle">
+          Authentic products from {{ totalCount() }} listings across NAJUS SME network
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Toolbar ─────────────────────────────────────────────────────── -->
+  <div class="toolbar">
+    <div class="container toolbar__inner">
+
+      <!-- Search -->
+      <nz-input-group [nzPrefix]="searchIcon" class="toolbar__search">
+        <input nz-input placeholder="Search products, brands…"
+               [ngModel]="searchQuery()"
+               (ngModelChange)="searchQuery.set($event); onSearchChange()" />
+      </nz-input-group>
+      <ng-template #searchIcon>
+        <span nz-icon nzType="search" style="color:#aaa"></span>
+      </ng-template>
+
+      <!-- Mobile: Filter button with badge -->
+      <nz-badge [nzCount]="activeFilterCount()" class="hide-desktop">
+        <button nz-button (click)="filterDrawerOpen.set(true)" class="filter-toggle-btn">
+          <span nz-icon nzType="filter" nzTheme="fill"></span>
+          Filters
+        </button>
+      </nz-badge>
+
+      <!-- Sort -->
+      <nz-select
+        [ngModel]="sortBy()"
+        (ngModelChange)="sortBy.set($event); onSortChange()"
+        class="toolbar__sort"
+        nzPlaceHolder="Sort by">
+        @for (opt of sortOptions; track opt.value) {
+          <nz-option [nzValue]="opt.value" [nzLabel]="opt.label"></nz-option>
+        }
+      </nz-select>
+
+      <!-- View toggle -->
+      <div class="view-toggle hide-mobile">
+        <button class="view-btn" [class.view-btn--active]="viewMode() === 'grid'"
+                (click)="viewMode.set('grid')" nzTooltipTitle="Grid view" nz-tooltip>
+          <span nz-icon nzType="appstore" nzTheme="fill"></span>
+        </button>
+        <button class="view-btn" [class.view-btn--active]="viewMode() === 'list'"
+                (click)="viewMode.set('list')" nzTooltipTitle="List view" nz-tooltip>
+          <span nz-icon nzType="unordered-list"></span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Active Filter Chips ─────────────────────────────────────────── -->
+  @if (activeChips().length) {
+    <div class="active-filters">
+      <div class="container active-filters__inner">
+        <span class="active-filters__label">Active filters:</span>
+        @for (chip of activeChips(); track chip.label) {
+          <nz-tag nzMode="closeable" (nzOnClose)="removeChip(chip)" class="filter-chip">
+            {{ chip.label }}
+          </nz-tag>
+        }
+        <button class="clear-all-btn" (click)="clearAllFilters()">
+          Clear all
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ── Body: Sidebar + Grid ────────────────────────────────────────── -->
+  <div class="products-body container">
+
+    <!-- ─── SIDEBAR (desktop) ─────────────────────────────────────────── -->
+    <aside class="sidebar hide-mobile">
+      <ng-container [ngTemplateOutlet]="filterContent"></ng-container>
+    </aside>
+
+    <!-- ─── MAIN ──────────────────────────────────────────────────────── -->
+    <div class="products-main">
+
+      <!-- Result count -->
+      <div class="result-bar">
+        <span class="result-count">
+          <strong>{{ totalCount() }}</strong> products found
+        </span>
+      </div>
+
+      <!-- Grid view -->
+      @if (viewMode() === 'grid') {
+        @if (paginatedProducts().length) {
+          <div class="products-grid">
+            @for (product of paginatedProducts(); track product.id) {
+              <app-product-card [product]="product" (addToCart)="onAddToCart($event)" />
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <nz-empty
+              nzNotFoundImage="simple"
+              nzNotFoundContent="No products match your filters."
+              [nzNotFoundFooter]="clearBtn">
+            </nz-empty>
+            <ng-template #clearBtn>
+              <button nz-button nzType="primary" (click)="clearAllFilters()">Clear Filters</button>
+            </ng-template>
+          </div>
+        }
+      }
+
+      <!-- List view -->
+      @if (viewMode() === 'list') {
+        @if (paginatedProducts().length) {
+          <div class="products-list">
+            @for (product of paginatedProducts(); track product.id) {
+              <article class="list-item">
+                <a [routerLink]="['/products', product.id]" class="list-item__image">
+                  <img [src]="product.images[0]" [alt]="product.name" loading="lazy" />
+                </a>
+                <div class="list-item__body">
+                  <span class="list-item__category">{{ product.category }}</span>
+                  <a [routerLink]="['/products', product.id]" class="list-item__name">{{ product.name }}</a>
+                  <p class="list-item__desc">{{ product.description }}</p>
+                  <div class="list-item__meta">
+                    <span class="list-item__vendor">{{ product.vendor.name }}</span>
+                    @if (product.vendor.verified) {
+                      <span nz-icon nzType="check-circle" nzTheme="fill" class="verified-icon"></span>
+                    }
+                    <span class="list-item__reviews">· {{ product.reviewCount }} reviews</span>
+                  </div>
+                </div>
+                <div class="list-item__side">
+                  <div class="list-item__price">
+                    <span class="price-main">৳ {{ product.price | number }}</span>
+                    @if (product.originalPrice) {
+                      <span class="price-orig">৳ {{ product.originalPrice | number }}</span>
+                    }
+                  </div>
+                  @if (!product.inStock) {
+                    <nz-tag nzColor="red">Out of Stock</nz-tag>
+                  } @else {
+                    <nz-tag nzColor="green">In Stock</nz-tag>
+                  }
+                  <button nz-button nzType="primary" nzSize="small"
+                          [disabled]="!product.inStock"
+                          (click)="onAddToCart(product)">
+                    <span nz-icon nzType="shopping-cart"></span> Add
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <nz-empty nzNotFoundImage="simple" nzNotFoundContent="No products match your filters."></nz-empty>
+          </div>
+        }
+      }
+
+      <!-- Pagination -->
+      @if (totalCount() > PAGE_SIZE) {
+        <div class="pagination-wrap">
+          <nz-pagination
+            [nzTotal]="totalCount()"
+            [nzPageSize]="PAGE_SIZE"
+            [nzPageIndex]="currentPage()"
+            (nzPageIndexChange)="onPageChange($event)"
+            nzShowSizeChanger="false"
+            [nzShowTotal]="totalTpl">
+          </nz-pagination>
+          <ng-template #totalTpl let-total>
+            {{ total }} products
+          </ng-template>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MOBILE FILTER DRAWER ════════════════════════════════════════════ -->
+<nz-drawer
+  [nzVisible]="filterDrawerOpen()"
+  nzPlacement="left"
+  nzTitle="Filters"
+  [nzWidth]="300"
+  (nzOnClose)="filterDrawerOpen.set(false)">
+  <ng-container *nzDrawerContent>
+    <div class="drawer-filter-wrap">
+      <ng-container [ngTemplateOutlet]="filterContent"></ng-container>
+      <button nz-button nzType="primary" nzBlock nzSize="large"
+              style="margin-top:24px"
+              (click)="filterDrawerOpen.set(false)">
+        Show {{ totalCount() }} Results
+      </button>
+    </div>
+  </ng-container>
+</nz-drawer>
+
+
+<!-- ═══ SHARED FILTER TEMPLATE ══════════════════════════════════════════ -->
+<ng-template #filterContent>
+  <div class="filters">
+
+    <!-- Categories -->
+    <div class="filter-section">
+      <div class="filter-title">
+        Categories
+        @if (selectedCategories().length) {
+          <button class="filter-clear-link" (click)="selectedCategories.set([]); currentPage.set(1)">
+            Clear
+          </button>
+        }
+      </div>
+      <div class="category-list">
+        @for (cat of categories; track cat.id) {
+          <button class="cat-filter-btn"
+                  [class.cat-filter-btn--active]="isCategorySelected(cat.id)"
+                  (click)="onCategoryToggle(cat.id)">
+            <span class="cat-filter-icon" [style.background]="cat.bgColor" [style.color]="cat.color">
+              <span nz-icon [nzType]="cat.icon" nzTheme="outline"></span>
+            </span>
+            <span class="cat-filter-name">{{ cat.name }}</span>
+            <span class="cat-filter-count">{{ cat.productCount }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <nz-divider></nz-divider>
+
+    <!-- Price Range -->
+    <div class="filter-section">
+      <div class="filter-title">Price Range</div>
+      <div class="price-display">
+        <span>৳ {{ priceRange()[0] | number }}</span>
+        <span>৳ {{ priceRange()[1] | number }}</span>
+      </div>
+      <nz-slider
+        nzRange
+        [nzMin]="0"
+        [nzMax]="maxPrice"
+        [nzStep]="100"
+        [(ngModel)]="priceSlider"
+        [nzTipFormatter]="getPriceFormatter"
+        (nzOnAfterChange)="onPriceSliderChange($event)">
+      </nz-slider>
+    </div>
+
+    <nz-divider></nz-divider>
+
+    <!-- Rating -->
+    <div class="filter-section">
+      <div class="filter-title">Minimum Rating</div>
+      <div class="rating-options">
+        @for (opt of ratingOptions; track opt.value) {
+          <button class="rating-btn"
+                  [class.rating-btn--active]="minRating() === opt.value"
+                  (click)="onRatingSelect(opt.value)">
+            @if (opt.value > 0) {
+              <span nz-icon nzType="star" nzTheme="fill" class="star-icon"></span>
+            }
+            {{ opt.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <nz-divider></nz-divider>
+
+    <!-- In Stock -->
+    <div class="filter-section">
+      <div class="stock-toggle-row">
+        <span class="filter-title" style="margin-bottom:0">In Stock Only</span>
+        <nz-switch
+          [ngModel]="inStockOnly()"
+          (ngModelChange)="onStockToggle($event)"
+          nzSize="small">
+        </nz-switch>
+      </div>
+    </div>
+
+    <!-- Clear All -->
+    @if (activeFilterCount() > 0) {
+      <nz-divider></nz-divider>
+      <button nz-button nzBlock nzDanger (click)="clearAllFilters()">
+        <span nz-icon nzType="delete"></span>
+        Clear All Filters
+      </button>
+    }
+
+  </div>
+</ng-template>

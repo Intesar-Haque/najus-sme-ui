@@ -1,0 +1,229 @@
+<!-- ═══ NOT FOUND ═══════════════════════════════════════════════════════ -->
+@if (notFound()) {
+  <div class="not-found-wrap container">
+    <nz-empty
+      nzNotFoundImage="simple"
+      nzNotFoundContent="This business profile could not be found.">
+      <ng-template #nzNotFoundFooter>
+        <button nz-button nzType="primary" (click)="goBack()">
+          <span nz-icon nzType="arrow-left"></span> Back to Businesses
+        </button>
+      </ng-template>
+    </nz-empty>
+  </div>
+}
+
+@if (vendor(); as v) {
+
+  <!-- ═══ BREADCRUMB ════════════════════════════════════════════════════ -->
+  <div class="breadcrumb-bar">
+    <div class="container">
+      <nz-breadcrumb>
+        <nz-breadcrumb-item><a routerLink="/">Home</a></nz-breadcrumb-item>
+        <nz-breadcrumb-item><a routerLink="/businesses">Businesses</a></nz-breadcrumb-item>
+        <nz-breadcrumb-item>{{ v.name }}</nz-breadcrumb-item>
+      </nz-breadcrumb>
+    </div>
+  </div>
+
+  <!-- ═══ COVER HERO ════════════════════════════════════════════════════ -->
+  <div class="cover-section">
+    <div class="cover-image" [style.background-image]="'url(' + v.coverImage + ')'">
+      <div class="cover-overlay"></div>
+    </div>
+
+    <div class="profile-hero container">
+      <!-- Floating logo -->
+      <div class="vendor-avatar">
+        <img [src]="v.logo" [alt]="v.name" class="vendor-avatar__img" />
+        @if (v.verified) {
+          <span class="vendor-avatar__badge" nz-tooltip nzTooltipTitle="NAJUS Verified Member">
+            <span nz-icon nzType="check-circle" nzTheme="fill"></span>
+          </span>
+        }
+      </div>
+
+      <!-- Name & meta -->
+      <div class="vendor-meta">
+        <div class="vendor-meta__top">
+          <h1 class="vendor-name">{{ v.name }}</h1>
+          @if (v.verified) {
+            <nz-tag [nzColor]="'green'" class="verified-tag">
+              <span nz-icon nzType="safety-certificate" nzTheme="fill"></span> Verified
+            </nz-tag>
+          }
+        </div>
+
+        <div class="vendor-meta__info">
+          <span class="meta-item">
+            <span nz-icon nzType="environment"></span> {{ v.location }}
+          </span>
+          <span class="meta-divider"></span>
+          <span class="meta-item">
+            <span nz-icon nzType="calendar"></span> Member since {{ v.memberSince }}
+          </span>
+          <span class="meta-divider"></span>
+          <span class="meta-item">
+            @for (cat of v.categories; track cat; let last = $last) {
+              {{ cat }}@if (!last) {, }
+            }
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STAT BAR ═════════════════════════════════════════════════════ -->
+  <div class="stat-bar">
+    <div class="container stat-bar__inner">
+      <div class="stat-item">
+        <span class="stat-item__num">{{ v.productCount }}</span>
+        <span class="stat-item__label">Products</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-item__num">{{ v.rating | number: '1.1-1' }}</span>
+        <span class="stat-item__label">Rating</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-item__num">{{ v.reviewCount }}</span>
+        <span class="stat-item__label">Reviews</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-item__num">{{ v.memberSince }}</span>
+        <span class="stat-item__label">Joined</span>
+      </div>
+
+      <!-- Contact actions -->
+      <div class="stat-bar__actions">
+        @if (v.phone) {
+          <a [href]="'tel:' + v.phone" nz-button nzType="default" nzSize="small">
+            <span nz-icon nzType="phone"></span> Call
+          </a>
+        }
+        @if (v.email) {
+          <a [href]="'mailto:' + v.email" nz-button nzType="default" nzSize="small">
+            <span nz-icon nzType="mail"></span> Email
+          </a>
+        }
+        @if (v.facebook) {
+          <a [href]="'https://facebook.com/' + v.facebook" target="_blank"
+             nz-button nzType="primary" nzSize="small">
+            <span nz-icon nzType="facebook"></span> Facebook
+          </a>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TABS BODY ═════════════════════════════════════════════════════ -->
+  <div class="tab-body container">
+    <nz-tabs [nzSelectedIndex]="activeTab()" (nzSelectedIndexChange)="activeTab.set($event)">
+
+      <!-- ── Products tab ───────────────────────────────────────────── -->
+      <nz-tab nzTitle="Products ({{ products().length }})">
+        @if (products().length) {
+          <div class="products-grid">
+            @for (product of products(); track product.id) {
+              <app-product-card [product]="product" />
+            }
+          </div>
+        } @else {
+          <div class="empty-tab">
+            <nz-empty nzNotFoundImage="simple" nzNotFoundContent="No products listed yet."></nz-empty>
+          </div>
+        }
+      </nz-tab>
+
+      <!-- ── About tab ──────────────────────────────────────────────── -->
+      <nz-tab nzTitle="About">
+        <div class="about-grid">
+
+          <!-- Story card -->
+          <div class="about-card">
+            <h3 class="about-card__title">
+              <span nz-icon nzType="read"></span> Our Story
+            </h3>
+            <p class="about-card__body">{{ v.description }}</p>
+
+            <div class="about-tags">
+              @for (cat of v.categories; track cat) {
+                <nz-tag [nzColor]="'geekblue'">{{ cat }}</nz-tag>
+              }
+            </div>
+          </div>
+
+          <!-- Rating card -->
+          <div class="about-card">
+            <h3 class="about-card__title">
+              <span nz-icon nzType="star"></span> Ratings & Reviews
+            </h3>
+            <div class="rating-display">
+              <span class="rating-big">{{ v.rating | number: '1.1-1' }}</span>
+              <div>
+                <nz-rate [ngModel]="vendorRating()" [nzDisabled]="true" nzAllowHalf></nz-rate>
+                <div class="rating-sub">Based on {{ v.reviewCount }} customer reviews</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact card -->
+          <div class="about-card">
+            <h3 class="about-card__title">
+              <span nz-icon nzType="contacts"></span> Contact & Location
+            </h3>
+            <ul class="contact-list">
+              <li>
+                <span nz-icon nzType="environment"></span>
+                {{ v.location }}, Bangladesh
+              </li>
+              @if (v.phone) {
+                <li>
+                  <span nz-icon nzType="phone"></span>
+                  <a [href]="'tel:' + v.phone">{{ v.phone }}</a>
+                </li>
+              }
+              @if (v.email) {
+                <li>
+                  <span nz-icon nzType="mail"></span>
+                  <a [href]="'mailto:' + v.email">{{ v.email }}</a>
+                </li>
+              }
+              @if (v.facebook) {
+                <li>
+                  <span nz-icon nzType="facebook"></span>
+                  <a [href]="'https://facebook.com/' + v.facebook" target="_blank">
+                    facebook.com/{{ v.facebook }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </div>
+
+          <!-- Membership card -->
+          <div class="about-card about-card--highlight">
+            <h3 class="about-card__title">
+              <span nz-icon nzType="idcard"></span> Membership
+            </h3>
+            <p class="about-card__body">
+              {{ v.name }} has been a proud NAJUS SME Network member since
+              <strong>{{ v.memberSince }}</strong>, connecting local artisans and producers
+              with customers across Bangladesh.
+            </p>
+            @if (v.verified) {
+              <div class="verified-note">
+                <span nz-icon nzType="check-circle" nzTheme="fill"></span>
+                NAJUS Verified Member — products and practices have been reviewed by our team.
+              </div>
+            }
+          </div>
+
+        </div>
+      </nz-tab>
+
+    </nz-tabs>
+  </div>
+
+}

@@ -1,0 +1,70 @@
+<div class="dashboard">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar__logo">
+      <a routerLink="/">
+        <img src="/assets/logo.png" alt="NAJUS SME" />
+        <span>NAJUS SME</span>
+      </a>
+    </div>
+
+    <nav class="sidebar__nav">
+      <a class="sidebar__link sidebar__link--active">
+        <span nz-icon nzType="dashboard" nzTheme="outline"></span> Dashboard
+      </a>
+      <a class="sidebar__link">
+        <span nz-icon nzType="shopping" nzTheme="outline"></span> Products
+      </a>
+      <a class="sidebar__link">
+        <span nz-icon nzType="bar-chart" nzTheme="outline"></span> Analytics
+      </a>
+      <a class="sidebar__link">
+        <span nz-icon nzType="calendar" nzTheme="outline"></span> Events
+      </a>
+      <a class="sidebar__link">
+        <span nz-icon nzType="setting" nzTheme="outline"></span> Settings
+      </a>
+    </nav>
+
+    <button class="sidebar__logout" (click)="logout()">
+      <span nz-icon nzType="logout" nzTheme="outline"></span> Logout
+    </button>
+  </aside>
+
+  <!-- Main content -->
+  <main class="dash-main">
+
+    <!-- Header -->
+    <div class="dash-header">
+      <div>
+        <p class="dash-welcome">Good day 👋</p>
+        <h1 class="dash-title">{{ member()?.name }}</h1>
+      </div>
+      <nz-avatar [nzText]="member()?.name?.charAt(0)" [nzSize]="48" nzColor="#28a745"></nz-avatar>
+    </div>
+
+    <!-- Coming soon banner -->
+    <div class="coming-soon">
+      <div class="coming-soon__icon">
+        <span nz-icon nzType="tool" nzTheme="fill"></span>
+      </div>
+      <h2>Dashboard Coming Soon</h2>
+      <p>
+        Your member dashboard is being built. It will include product management,
+        order tracking, analytics, and more.
+      </p>
+      <div class="coming-soon__tags">
+        <nz-tag nzColor="green">Product Management</nz-tag>
+        <nz-tag nzColor="blue">Order Tracking</nz-tag>
+        <nz-tag nzColor="purple">Analytics</nz-tag>
+        <nz-tag nzColor="gold">Event Access</nz-tag>
+      </div>
+      <a routerLink="/">
+        <button nz-button nzType="primary" nzSize="large">Browse the Marketplace</button>
+      </a>
+    </div>
+
+  </main>
+
+</div>

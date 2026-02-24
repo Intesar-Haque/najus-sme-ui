@@ -1,0 +1,198 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid transparent;
+  transition: @transition-slow;
+
+  &--scrolled {
+    border-bottom-color: @border-light;
+    box-shadow: @shadow-sm;
+  }
+
+  &__inner {
+    .flex-between();
+    height: @navbar-height;
+    gap: @sp-4;
+  }
+
+  // ── Brand ──────────────────────────────────────────────────────────────
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: @sp-3;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  &__logo {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  &__brand-text {
+    .flex-col();
+    line-height: 1;
+
+    .brand-name {
+      font-family: @font-heading;
+      font-size: @text-xl;
+      color: @primary;
+      letter-spacing: .05em;
+    }
+
+    .brand-sub {
+      font-size: @text-xs;
+      color: @text-muted;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+  }
+
+  // ── Links ──────────────────────────────────────────────────────────────
+  &__links {
+    display: flex;
+    align-items: center;
+    gap: @sp-1;
+    flex: 1;
+    justify-content: center;
+  }
+
+  // ── Actions ────────────────────────────────────────────────────────────
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: @sp-3;
+    flex-shrink: 0;
+  }
+}
+
+// ── Nav Links ─────────────────────────────────────────────────────────────────
+.nav-link {
+  padding: @sp-2 @sp-3;
+  border-radius: @radius-md;
+  font-size: @text-sm;
+  font-weight: 500;
+  color: @text-secondary;
+  text-decoration: none;
+  transition: @transition-base;
+  white-space: nowrap;
+
+  &:hover {
+    color: @primary;
+    background: @primary-bg;
+  }
+
+  &--active {
+    color: @primary !important;
+    background: @primary-bg;
+    font-weight: 600;
+  }
+}
+
+// ── Language Switcher ─────────────────────────────────────────────────────────
+.lang-switcher {
+  display: flex;
+  align-items: center;
+  gap: @sp-1;
+}
+
+.lang-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: @text-sm;
+  color: @text-muted;
+  padding: @sp-1 @sp-2;
+  border-radius: @radius-sm;
+  transition: @transition-base;
+  font-family: @font-body;
+
+  &:hover { color: @primary; }
+
+  &--active {
+    color: @primary;
+    font-weight: 600;
+  }
+}
+
+.lang-divider {
+  color: @border-color;
+  font-size: @text-xs;
+}
+
+// ── Login Button ──────────────────────────────────────────────────────────────
+.login-btn {
+  height: 36px !important;
+  padding: 0 @sp-4 !important;
+  font-weight: 500;
+}
+
+// ── Hamburger ─────────────────────────────────────────────────────────────────
+.hamburger {
+  background: none;
+  border: 1px solid @border-color;
+  border-radius: @radius-md;
+  width: 38px;
+  height: 38px;
+  .flex-center();
+  cursor: pointer;
+  color: @text-secondary;
+  font-size: @text-lg;
+  transition: @transition-base;
+
+  &:hover {
+    border-color: @primary;
+    color: @primary;
+  }
+}
+
+// ── Mobile Drawer Nav ─────────────────────────────────────────────────────────
+.mobile-nav {
+  .flex-col();
+  gap: @sp-1;
+  padding-top: @sp-2;
+
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: @sp-3;
+    padding: @sp-3 @sp-4;
+    border-radius: @radius-md;
+    color: @text-secondary;
+    text-decoration: none;
+    font-weight: 500;
+    transition: @transition-base;
+
+    &:hover, &--active {
+      color: @primary;
+      background: @primary-bg;
+    }
+  }
+
+  &__divider {
+    height: 1px;
+    background: @border-light;
+    margin: @sp-3 0;
+  }
+}
+
+.mobile-lang {
+  display: flex;
+  gap: @sp-2;
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+.hide-mobile {
+  .hide-mobile();
+}
+.hide-desktop {
+  .hide-desktop();
+}

@@ -1,0 +1,259 @@
+<!-- ═══ PAGE HEADER ════════════════════════════════════════════════════ -->
+<div class="page-header">
+  <div class="container page-header__inner">
+    <div class="page-header__copy">
+      <nz-breadcrumb nzSeparator=">">
+        <nz-breadcrumb-item><a routerLink="/">Home</a></nz-breadcrumb-item>
+        <nz-breadcrumb-item>Events</nz-breadcrumb-item>
+      </nz-breadcrumb>
+      <h1 class="page-title">Events & Programmes</h1>
+      <p class="page-subtitle">
+        Trade fairs, workshops, webinars and networking sessions — stay connected with the NAJUS SME community.
+      </p>
+    </div>
+
+    <!-- Stats -->
+    <div class="header-stats hide-mobile">
+      <div class="hstat">
+        <span class="hstat__num">{{ allEvents.length }}</span>
+        <span class="hstat__label">Total Events</span>
+      </div>
+      <div class="hstat-divider"></div>
+      <div class="hstat">
+        <span class="hstat__num">{{ upcomingCount() }}</span>
+        <span class="hstat__label">Open Now</span>
+      </div>
+      <div class="hstat-divider"></div>
+      <div class="hstat">
+        <span class="hstat__num">{{ freeCount() }}</span>
+        <span class="hstat__label">Free Entry</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TOOLBAR ════════════════════════════════════════════════════════ -->
+<div class="toolbar">
+  <div class="container toolbar__inner">
+    <nz-input-group [nzPrefix]="searchPfx" class="toolbar__search">
+      <input nz-input placeholder="Search events, locations, organisers…"
+             [ngModel]="searchQuery()"
+             (ngModelChange)="searchQuery.set($event)" />
+    </nz-input-group>
+    <ng-template #searchPfx>
+      <span nz-icon nzType="search" style="color:#aaa"></span>
+    </ng-template>
+
+    <!-- Mobile filter button -->
+    <nz-badge [nzCount]="activeFilterCount()" class="hide-desktop">
+      <button nz-button (click)="filterDrawerOpen.set(true)" class="filter-btn">
+        <span nz-icon nzType="filter" nzTheme="fill"></span> Filters
+      </button>
+    </nz-badge>
+
+    <nz-select [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)" class="toolbar__sort">
+      @for (opt of sortOptions; track opt.value) {
+        <nz-option [nzValue]="opt.value" [nzLabel]="opt.label"></nz-option>
+      }
+    </nz-select>
+  </div>
+</div>
+
+<!-- ═══ ACTIVE CHIPS ═══════════════════════════════════════════════════ -->
+@if (activeChips().length) {
+  <div class="active-filters">
+    <div class="container active-filters__inner">
+      <span class="af-label">Active filters:</span>
+      @for (chip of activeChips(); track chip.label) {
+        <nz-tag nzMode="closeable" (nzOnClose)="removeChip(chip)" class="filter-chip">
+          {{ chip.label }}
+        </nz-tag>
+      }
+      <button class="clear-btn" (click)="clearAll()">Clear all</button>
+    </div>
+  </div>
+}
+
+<!-- ═══ BODY ════════════════════════════════════════════════════════════ -->
+<div class="events-body container">
+
+  <!-- ── Sidebar ───────────────────────────────────────────────────── -->
+  <aside class="sidebar hide-mobile">
+    <ng-container [ngTemplateOutlet]="filterPanel"></ng-container>
+  </aside>
+
+  <!-- ── Main ─────────────────────────────────────────────────────── -->
+  <div class="events-main">
+    <div class="result-bar">
+      <span class="result-count">
+        <strong>{{ totalCount() }}</strong> event{{ totalCount() !== 1 ? 's' : '' }} found
+      </span>
+    </div>
+
+    @if (filteredEvents().length) {
+      <div class="events-list">
+        @for (event of filteredEvents(); track event.id) {
+          <div class="event-card" [class.event-card--featured]="event.featured">
+
+            <!-- Image -->
+            <div class="event-card__img-wrap">
+              <img [src]="event.image" [alt]="event.title" class="event-card__img" />
+              <div class="event-card__badges">
+                @if (event.featured) {
+                  <span class="badge badge--featured">
+                    <span nz-icon nzType="star" nzTheme="fill"></span> Featured
+                  </span>
+                }
+                <nz-tag [nzColor]="typeColor(event.type)" class="type-tag">
+                  <span nz-icon [nzType]="typeIcon(event.type)"></span>
+                  {{ typeLabel(event.type) }}
+                </nz-tag>
+              </div>
+            </div>
+
+            <!-- Body -->
+            <div class="event-card__body">
+              <h3 class="event-card__title">
+                <a [routerLink]="['/events', event.id]" class="event-card__title-link">{{ event.title }}</a>
+              </h3>
+              <p class="event-card__desc">{{ event.description }}</p>
+
+              <div class="event-card__meta">
+                <span class="meta-row">
+                  <span nz-icon nzType="calendar"></span>
+                  @if (event.date === event.endDate) {
+                    {{ event.date | date: 'dd MMM yyyy' }}
+                  } @else {
+                    {{ event.date | date: 'dd MMM' }} – {{ event.endDate | date: 'dd MMM yyyy' }}
+                  }
+                </span>
+                <span class="meta-row">
+                  <span nz-icon nzType="environment"></span>
+                  {{ event.location }}
+                </span>
+                <span class="meta-row">
+                  <span nz-icon nzType="team"></span>
+                  {{ event.organizer }}
+                </span>
+              </div>
+
+              <div class="event-card__footer">
+                <!-- Price -->
+                <div class="event-price">
+                  @if (event.isFree) {
+                    <span class="price-free">Free</span>
+                  } @else {
+                    <span class="price-paid">৳{{ event.price }}</span>
+                  }
+                </div>
+
+                <!-- Status & CTA -->
+                <div class="event-actions">
+                  @if (event.registrationOpen) {
+                    <nz-tag nzColor="success" class="reg-tag">
+                      <span nz-icon nzType="check-circle"></span> Registration Open
+                    </nz-tag>
+                    <a [routerLink]="['/events', event.id]" nz-button nzType="primary" nzSize="small">
+                      Register Now
+                    </a>
+                  } @else {
+                    <nz-tag nzColor="default" class="reg-tag">Registration Closed</nz-tag>
+                  }
+                </div>
+              </div>
+            </div>
+
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <nz-empty nzNotFoundImage="simple" nzNotFoundContent="No events match your filters.">
+          <ng-template #nzNotFoundFooter>
+            <button nz-button nzType="primary" (click)="clearAll()">Clear Filters</button>
+          </ng-template>
+        </nz-empty>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- ═══ MOBILE DRAWER ══════════════════════════════════════════════════ -->
+<nz-drawer [nzVisible]="filterDrawerOpen()" nzPlacement="left" nzTitle="Filters"
+           [nzWidth]="300" (nzOnClose)="filterDrawerOpen.set(false)">
+  <ng-container *nzDrawerContent>
+    <div style="padding-bottom:16px">
+      <ng-container [ngTemplateOutlet]="filterPanel"></ng-container>
+      <button nz-button nzType="primary" nzBlock nzSize="large" style="margin-top:24px"
+              (click)="filterDrawerOpen.set(false)">
+        Show {{ totalCount() }} Event{{ totalCount() !== 1 ? 's' : '' }}
+      </button>
+    </div>
+  </ng-container>
+</nz-drawer>
+
+<!-- ═══ FILTER PANEL TEMPLATE ══════════════════════════════════════════ -->
+<ng-template #filterPanel>
+  <div class="filters">
+
+    <!-- Free only -->
+    <div class="filter-section">
+      <div class="toggle-row">
+        <div>
+          <div class="filter-title" style="margin-bottom:2px">Free Events Only</div>
+          <div class="filter-hint">No registration fee</div>
+        </div>
+        <nz-switch [ngModel]="freeOnly()" (ngModelChange)="freeOnly.set($event)" nzSize="small">
+        </nz-switch>
+      </div>
+    </div>
+
+    <nz-divider></nz-divider>
+
+    <!-- Registration open -->
+    <div class="filter-section">
+      <div class="toggle-row">
+        <div>
+          <div class="filter-title" style="margin-bottom:2px">Registration Open</div>
+          <div class="filter-hint">Accepting sign-ups now</div>
+        </div>
+        <nz-switch [ngModel]="openOnly()" (ngModelChange)="openOnly.set($event)" nzSize="small">
+        </nz-switch>
+      </div>
+    </div>
+
+    <nz-divider></nz-divider>
+
+    <!-- Event type -->
+    <div class="filter-section">
+      <div class="filter-title">
+        Event Type
+        @if (selectedTypes().length) {
+          <button class="filter-clear" (click)="selectedTypes.set([])">Clear</button>
+        }
+      </div>
+      <div class="check-list">
+        @for (opt of typeOptions; track opt.value) {
+          <button class="check-btn" [class.check-btn--active]="selectedTypes().includes(opt.value)"
+                  (click)="toggleType(opt.value)">
+            <span class="check-box">
+              @if (selectedTypes().includes(opt.value)) {
+                <span nz-icon nzType="check" style="font-size:10px"></span>
+              }
+            </span>
+            <span nz-icon [nzType]="opt.icon" style="font-size:14px; color:inherit"></span>
+            {{ opt.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (activeFilterCount() > 0) {
+      <nz-divider></nz-divider>
+      <button nz-button nzBlock nzDanger (click)="clearAll()">
+        <span nz-icon nzType="delete"></span> Clear All
+      </button>
+    }
+
+  </div>
+</ng-template>

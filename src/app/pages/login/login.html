@@ -1,0 +1,232 @@
+<div class="login-page">
+
+  <!-- ═══ LEFT — Brand Panel ══════════════════════════════════════════ -->
+  <aside class="brand-panel">
+    <div class="brand-panel__inner">
+
+      <!-- Logo -->
+      <a routerLink="/" class="brand-panel__logo">
+        <img src="/assets/logo.png" alt="NAJUS SME" />
+        <div>
+          <div class="brand-name">NAJUS SME</div>
+          <div class="brand-tagline">Empowering Local Entrepreneurs</div>
+        </div>
+      </a>
+
+      <!-- Headline -->
+      <div class="brand-panel__copy">
+        <h1 class="brand-panel__title">
+          Welcome<br>back<span class="accent">.</span>
+        </h1>
+        <p class="brand-panel__sub">
+          Login to your member dashboard to manage products,
+          track your store performance, and grow your business.
+        </p>
+      </div>
+
+      <!-- Benefits -->
+      <ul class="brand-panel__perks">
+        <li>
+          <span class="perk-icon"><span nz-icon nzType="shop" nzTheme="fill"></span></span>
+          Manage your product listings
+        </li>
+        <li>
+          <span class="perk-icon"><span nz-icon nzType="bar-chart" nzTheme="fill"></span></span>
+          Track store analytics
+        </li>
+        <li>
+          <span class="perk-icon"><span nz-icon nzType="calendar" nzTheme="fill"></span></span>
+          Access exclusive events
+        </li>
+        <li>
+          <span class="perk-icon"><span nz-icon nzType="team" nzTheme="fill"></span></span>
+          Connect with the SME network
+        </li>
+      </ul>
+
+      <!-- Testimonial -->
+      <div class="testimonial">
+        <p class="testimonial__quote">"{{ activeTestimonial.quote }}"</p>
+        <div class="testimonial__author">
+          <div class="testimonial__dot-row">
+            @for (t of testimonials; track $index) {
+              <button class="t-dot" [class.t-dot--active]="testimonialIdx() === $index"
+                      (click)="testimonialIdx.set($index)"></button>
+            }
+          </div>
+          <div>
+            <span class="testimonial__name">{{ activeTestimonial.author }}</span>
+            <span class="testimonial__biz">{{ activeTestimonial.biz }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══ RIGHT — Form Panel ══════════════════════════════════════════ -->
+  <main class="form-panel">
+    <div class="form-panel__inner">
+
+      <!-- Back to site (mobile logo + desktop link) -->
+      <div class="form-panel__top">
+        <!-- Mobile: logo -->
+        <a routerLink="/" class="mobile-brand">
+          <img src="/assets/logo.png" alt="NAJUS SME" />
+          <span>NAJUS SME</span>
+        </a>
+        <!-- Desktop: back link -->
+        <a routerLink="/" class="back-link hide-mobile">
+          <span nz-icon nzType="arrow-left"></span>
+          Back to site
+        </a>
+      </div>
+
+      <!-- Step indicator -->
+      <div class="step-indicator">
+        <div class="step-item" [class.step-item--active]="step() === 1" [class.step-item--done]="step() > 1">
+          <div class="step-circle">
+            @if (step() > 1) {
+              <span nz-icon nzType="check"></span>
+            } @else { 1 }
+          </div>
+          <span class="step-label">Enter Code</span>
+        </div>
+        <div class="step-line" [class.step-line--done]="step() > 1"></div>
+        <div class="step-item" [class.step-item--active]="step() === 2">
+          <div class="step-circle">2</div>
+          <span class="step-label">Verify OTP</span>
+        </div>
+      </div>
+
+      <!-- ── STEP 1: Membership Code ──────────────────────────────── -->
+      @if (step() === 1) {
+        <div class="form-block step-enter">
+          <div class="form-heading">
+            <h2>Member Login</h2>
+            <p>Enter your NAJUS SME membership code to receive a one-time password via email.</p>
+          </div>
+
+          <!-- Demo hint -->
+          <nz-tag nzColor="blue" class="demo-hint">
+            <span nz-icon nzType="info-circle"></span>
+            Demo: try <strong>NAJUS-001</strong>
+          </nz-tag>
+
+          <!-- Error -->
+          @if (errorMessage()) {
+            <nz-alert nzType="error" [nzMessage]="errorMessage()" nzShowIcon></nz-alert>
+          }
+
+          <div class="field-group">
+            <label class="field-label">Membership Code</label>
+            <nz-input-group [nzPrefix]="codePfx" nzSize="large">
+              <input
+                nz-input
+                placeholder="e.g. NAJUS-001"
+                [(ngModel)]="memberCode"
+                (keyup.enter)="submitCode()"
+                [disabled]="loading()"
+                autocomplete="off"
+                style="text-transform: uppercase; letter-spacing: .1em"
+              />
+            </nz-input-group>
+            <ng-template #codePfx>
+              <span nz-icon nzType="idcard" nzTheme="outline" class="input-icon"></span>
+            </ng-template>
+            <p class="field-hint">Your code was provided when you joined NAJUS SME.</p>
+          </div>
+
+          <button nz-button nzType="primary" nzSize="large" nzBlock
+                  [nzLoading]="loading()"
+                  (click)="submitCode()"
+                  class="submit-btn">
+            Send OTP to My Email
+            <span nz-icon nzType="arrow-right"></span>
+          </button>
+
+          <p class="form-footer-note">
+            Not a member yet?
+            <a routerLink="/join">Join NAJUS SME →</a>
+          </p>
+        </div>
+      }
+
+      <!-- ── STEP 2: OTP Verification ─────────────────────────────── -->
+      @if (step() === 2) {
+        <div class="form-block step-enter">
+          <div class="form-heading">
+            <div class="email-icon">
+              <span nz-icon nzType="mail" nzTheme="fill"></span>
+            </div>
+            <h2>Check Your Email</h2>
+            <p>
+              We sent a 6-digit code to<br>
+              <strong class="masked-email">{{ maskedEmail() }}</strong>
+            </p>
+          </div>
+
+          <!-- Error -->
+          @if (errorMessage()) {
+            <nz-alert nzType="error" [nzMessage]="errorMessage()" nzShowIcon></nz-alert>
+          }
+
+          <!-- Demo hint -->
+          <nz-tag nzColor="blue" class="demo-hint">
+            <span nz-icon nzType="info-circle"></span>
+            Demo OTP: <strong>123456</strong>
+          </nz-tag>
+
+          <!-- OTP Boxes -->
+          <div class="otp-label">Enter 6-digit OTP</div>
+          <div class="otp-row">
+            @for (digit of otpDigits(); track $index; let i = $index) {
+              <input
+                #otpInput
+                class="otp-box"
+                [class.otp-box--filled]="digit !== ''"
+                [value]="digit"
+                maxlength="1"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                (input)="onDigitInput(i, $event)"
+                (keydown)="onDigitKeydown(i, $event)"
+                (paste)="onDigitPaste($event)"
+                [disabled]="loading()"
+              />
+            }
+          </div>
+
+          <button nz-button nzType="primary" nzSize="large" nzBlock
+                  [nzLoading]="loading()"
+                  [disabled]="!otpFull()"
+                  (click)="verifyOtp()"
+                  class="submit-btn">
+            Verify & Login
+            <span nz-icon nzType="login"></span>
+          </button>
+
+          <!-- Resend + Back -->
+          <div class="otp-actions">
+            <button class="resend-btn"
+                    [disabled]="!canResend()"
+                    [class.resend-btn--active]="canResend()"
+                    (click)="resendOtp()">
+              @if (canResend()) {
+                <span nz-icon nzType="reload"></span> Resend OTP
+              } @else {
+                Resend in <strong>0:{{ resendSeconds().toString().padStart(2, '0') }}</strong>
+              }
+            </button>
+
+            <button class="back-btn" (click)="goBack()">
+              <span nz-icon nzType="arrow-left"></span>
+              Change code
+            </button>
+          </div>
+        </div>
+      }
+
+    </div>
+  </main>
+
+</div>

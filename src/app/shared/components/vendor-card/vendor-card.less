@@ -1,0 +1,130 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.vendor-card {
+  .card();
+  position: relative;
+
+  // ── Cover ──────────────────────────────────────────────────────────────
+  &__cover {
+    position: relative;
+    height: 140px;
+    overflow: hidden;
+    background: @bg-subtle;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .4s ease;
+    }
+
+    &:hover img { transform: scale(1.04); }
+  }
+
+  &__verified-badge {
+    position: absolute;
+    top: @sp-2;
+    right: @sp-2;
+    background: @primary;
+    color: #fff;
+    font-size: @text-xs;
+    padding: 2px @sp-2;
+    border-radius: @radius-full;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-weight: 500;
+  }
+
+  // ── Logo ───────────────────────────────────────────────────────────────
+  &__logo-wrap {
+    position: absolute;
+    top: calc(140px - 36px);   // half of avatar height
+    left: @sp-5;
+  }
+
+  &__logo {
+    border: 3px solid @bg-card !important;
+    box-shadow: @shadow-sm;
+  }
+
+  // ── Body ───────────────────────────────────────────────────────────────
+  &__body {
+    padding: calc(@sp-5 + 36px) @sp-5 @sp-5;  // account for floating logo
+    display: flex;
+    flex-direction: column;
+    gap: @sp-3;
+  }
+
+  &__name-row {
+    display: flex;
+    align-items: center;
+    gap: @sp-2;
+  }
+
+  &__name {
+    font-family: @font-heading;
+    font-size: @text-lg;
+    color: @text-primary;
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  &__location {
+    display: flex;
+    align-items: center;
+    gap: @sp-1;
+    font-size: @text-sm;
+    color: @text-muted;
+  }
+
+  &__desc {
+    font-size: @text-sm;
+    color: @text-secondary;
+    line-height: 1.6;
+    margin: 0;
+    .clamp(2);
+  }
+
+  &__cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: @sp-1;
+  }
+
+  // ── Stats ──────────────────────────────────────────────────────────────
+  &__stats {
+    display: flex;
+    align-items: center;
+    background: @bg-page;
+    border-radius: @radius-md;
+    padding: @sp-3 @sp-4;
+    gap: @sp-4;
+  }
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+  .flex-col();
+  gap: 2px;
+
+  .stat-value {
+    font-size: @text-base;
+    font-weight: 700;
+    color: @primary;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: @text-xs;
+    color: @text-muted;
+  }
+}
+
+.stat-divider {
+  width: 1px;
+  height: 28px;
+  background: @border-color;
+}

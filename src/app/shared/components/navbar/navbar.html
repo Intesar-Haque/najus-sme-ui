@@ -1,0 +1,83 @@
+<header class="navbar" [class.navbar--scrolled]="scrolled()">
+  <div class="navbar__inner container">
+
+    <!-- Logo -->
+    <a class="navbar__brand" routerLink="/">
+      <img src="/assets/logo.png" alt="NAJUS SME" class="navbar__logo" />
+      <div class="navbar__brand-text">
+        <span class="brand-name">NAJUS</span>
+        <span class="brand-sub">SME Network</span>
+      </div>
+    </a>
+
+    <!-- Desktop Nav Links -->
+    <nav class="navbar__links hide-mobile">
+      @for (link of navLinks; track link.path) {
+        <a class="nav-link"
+           [routerLink]="link.path"
+           routerLinkActive="nav-link--active">
+          {{ link.label | translate }}
+        </a>
+      }
+    </nav>
+
+    <!-- Actions -->
+    <div class="navbar__actions">
+
+      <!-- Language Switcher -->
+      <div class="lang-switcher hide-mobile">
+        <button class="lang-btn" [class.lang-btn--active]="lang() === 'en'" (click)="switchLang('en')">EN</button>
+        <span class="lang-divider">|</span>
+        <button class="lang-btn" [class.lang-btn--active]="lang() === 'bn'" (click)="switchLang('bn')">বাং</button>
+      </div>
+
+      <!-- Login CTA -->
+      <a routerLink="/login">
+        <button nz-button nzType="primary" class="login-btn hide-mobile">
+          <span nz-icon nzType="user"></span>
+          {{ 'nav.login' | translate }}
+        </button>
+      </a>
+
+      <!-- Mobile hamburger -->
+      <button class="hamburger hide-desktop" (click)="mobileOpen.set(true)">
+        <span nz-icon nzType="menu" nzTheme="outline"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile Drawer -->
+<nz-drawer
+  [nzVisible]="mobileOpen()"
+  nzPlacement="right"
+  nzTitle="NAJUS SME"
+  [nzWidth]="280"
+  (nzOnClose)="mobileOpen.set(false)">
+  <ng-container *nzDrawerContent>
+    <nav class="mobile-nav">
+      @for (link of navLinks; track link.path) {
+        <a class="mobile-nav__link"
+           [routerLink]="link.path"
+           routerLinkActive="mobile-nav__link--active"
+           (click)="mobileOpen.set(false)">
+          <span nz-icon [nzType]="link.icon"></span>
+          {{ link.label | translate }}
+        </a>
+      }
+
+      <div class="mobile-nav__divider"></div>
+
+      <div class="mobile-lang">
+        <button class="lang-btn" [class.lang-btn--active]="lang() === 'en'" (click)="switchLang('en')">English</button>
+        <button class="lang-btn" [class.lang-btn--active]="lang() === 'bn'" (click)="switchLang('bn')">বাংলা</button>
+      </div>
+
+      <a routerLink="/login" (click)="mobileOpen.set(false)">
+        <button nz-button nzType="primary" nzBlock style="margin-top:16px">
+          {{ 'nav.login' | translate }}
+        </button>
+      </a>
+    </nav>
+  </ng-container>
+</nz-drawer>

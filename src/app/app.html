@@ -1,1 +1,11 @@
-<router-outlet></router-outlet>
+@if (showShell()) {
+  <app-navbar></app-navbar>
+}
+
+<main [class.has-shell]="showShell()">
+  <router-outlet></router-outlet>
+</main>
+
+@if (showShell()) {
+  <app-footer></app-footer>
+}

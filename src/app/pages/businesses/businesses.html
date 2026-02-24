@@ -1,0 +1,196 @@
+<!-- ═══ PAGE HEADER ════════════════════════════════════════════════════ -->
+<div class="page-header">
+  <div class="container page-header__inner">
+    <div class="page-header__copy">
+      <nz-breadcrumb>
+        <nz-breadcrumb-item><a routerLink="/">Home</a></nz-breadcrumb-item>
+        <nz-breadcrumb-item>Businesses</nz-breadcrumb-item>
+      </nz-breadcrumb>
+      <h1 class="page-title">Our SME Network</h1>
+      <p class="page-subtitle">
+        Discover verified local businesses — browse their products, stories, and connect directly.
+      </p>
+    </div>
+    <!-- Network mini-stats -->
+    <div class="header-stats hide-mobile">
+      <div class="hstat">
+        <span class="hstat__num">{{ allVendors.length }}</span>
+        <span class="hstat__label">Showcase Members</span>
+      </div>
+      <div class="hstat-divider"></div>
+      <div class="hstat">
+        <span class="hstat__num">{{ allDistricts.length }}</span>
+        <span class="hstat__label">Districts</span>
+      </div>
+      <div class="hstat-divider"></div>
+      <div class="hstat">
+        <span class="hstat__num">{{ allCategories.length }}</span>
+        <span class="hstat__label">Industries</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TOOLBAR ════════════════════════════════════════════════════════ -->
+<div class="toolbar">
+  <div class="container toolbar__inner">
+    <nz-input-group [nzPrefix]="searchPfx" class="toolbar__search">
+      <input nz-input placeholder="Search businesses, locations, categories…"
+             [ngModel]="searchQuery()"
+             (ngModelChange)="searchQuery.set($event)" />
+    </nz-input-group>
+    <ng-template #searchPfx>
+      <span nz-icon nzType="search" style="color:#aaa"></span>
+    </ng-template>
+
+    <!-- Mobile filter button -->
+    <nz-badge [nzCount]="activeFilterCount()" class="hide-desktop">
+      <button nz-button (click)="filterDrawerOpen.set(true)" class="filter-btn">
+        <span nz-icon nzType="filter" nzTheme="fill"></span> Filters
+      </button>
+    </nz-badge>
+
+    <nz-select [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)" class="toolbar__sort">
+      @for (opt of sortOptions; track opt.value) {
+        <nz-option [nzValue]="opt.value" [nzLabel]="opt.label"></nz-option>
+      }
+    </nz-select>
+  </div>
+</div>
+
+<!-- ═══ ACTIVE CHIPS ═══════════════════════════════════════════════════ -->
+@if (activeChips().length) {
+  <div class="active-filters">
+    <div class="container active-filters__inner">
+      <span class="af-label">Active filters:</span>
+      @for (chip of activeChips(); track chip.label) {
+        <nz-tag nzMode="closeable" (nzOnClose)="removeChip(chip)" class="filter-chip">
+          {{ chip.label }}
+        </nz-tag>
+      }
+      <button class="clear-btn" (click)="clearAll()">Clear all</button>
+    </div>
+  </div>
+}
+
+<!-- ═══ BODY ════════════════════════════════════════════════════════════ -->
+<div class="biz-body container">
+
+  <!-- ── Sidebar (desktop) ────────────────────────────────────────────── -->
+  <aside class="sidebar hide-mobile">
+    <ng-container [ngTemplateOutlet]="filterPanel"></ng-container>
+  </aside>
+
+  <!-- ── Main grid ───────────────────────────────────────────────────── -->
+  <div class="biz-main">
+    <div class="result-bar">
+      <span class="result-count"><strong>{{ totalCount() }}</strong> businesses found</span>
+    </div>
+
+    @if (filteredVendors().length) {
+      <div class="vendors-grid">
+        @for (vendor of filteredVendors(); track vendor.id) {
+          <app-vendor-card [vendor]="vendor" />
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <nz-empty nzNotFoundImage="simple" nzNotFoundContent="No businesses match your filters.">
+          <ng-template #nzNotFoundFooter>
+            <button nz-button nzType="primary" (click)="clearAll()">Clear Filters</button>
+          </ng-template>
+        </nz-empty>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- ═══ MOBILE DRAWER ══════════════════════════════════════════════════ -->
+<nz-drawer [nzVisible]="filterDrawerOpen()" nzPlacement="left" nzTitle="Filters"
+           [nzWidth]="300" (nzOnClose)="filterDrawerOpen.set(false)">
+  <ng-container *nzDrawerContent>
+    <div style="padding-bottom:16px">
+      <ng-container [ngTemplateOutlet]="filterPanel"></ng-container>
+      <button nz-button nzType="primary" nzBlock nzSize="large" style="margin-top:24px"
+              (click)="filterDrawerOpen.set(false)">
+        Show {{ totalCount() }} Businesses
+      </button>
+    </div>
+  </ng-container>
+</nz-drawer>
+
+<!-- ═══ FILTER PANEL TEMPLATE ══════════════════════════════════════════ -->
+<ng-template #filterPanel>
+  <div class="filters">
+
+    <!-- Verified toggle -->
+    <div class="filter-section">
+      <div class="verified-toggle-row">
+        <div>
+          <div class="filter-title" style="margin-bottom:2px">Verified Only</div>
+          <div class="filter-hint">NAJUS verified members</div>
+        </div>
+        <nz-switch [ngModel]="verifiedOnly()" (ngModelChange)="verifiedOnly.set($event)" nzSize="small">
+        </nz-switch>
+      </div>
+    </div>
+
+    <nz-divider></nz-divider>
+
+    <!-- Categories -->
+    <div class="filter-section">
+      <div class="filter-title">
+        Industry
+        @if (selectedCategories().length) {
+          <button class="filter-clear" (click)="selectedCategories.set([])">Clear</button>
+        }
+      </div>
+      <div class="check-list">
+        @for (cat of allCategories; track cat) {
+          <button class="check-btn" [class.check-btn--active]="selectedCategories().includes(cat)"
+                  (click)="toggleCategory(cat)">
+            <span class="check-box">
+              @if (selectedCategories().includes(cat)) {
+                <span nz-icon nzType="check" style="font-size:10px"></span>
+              }
+            </span>
+            {{ cat }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <nz-divider></nz-divider>
+
+    <!-- Districts -->
+    <div class="filter-section">
+      <div class="filter-title">
+        District
+        @if (selectedDistricts().length) {
+          <button class="filter-clear" (click)="selectedDistricts.set([])">Clear</button>
+        }
+      </div>
+      <div class="check-list">
+        @for (d of allDistricts; track d) {
+          <button class="check-btn" [class.check-btn--active]="selectedDistricts().includes(d)"
+                  (click)="toggleDistrict(d)">
+            <span class="check-box">
+              @if (selectedDistricts().includes(d)) {
+                <span nz-icon nzType="check" style="font-size:10px"></span>
+              }
+            </span>
+            {{ d }}
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (activeFilterCount() > 0) {
+      <nz-divider></nz-divider>
+      <button nz-button nzBlock nzDanger (click)="clearAll()">
+        <span nz-icon nzType="delete"></span> Clear All
+      </button>
+    }
+
+  </div>
+</ng-template>

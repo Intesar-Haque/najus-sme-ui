@@ -1,0 +1,56 @@
+<article class="product-card">
+  <a [routerLink]="['/products', product().id]" class="product-card__image-wrap">
+    <img [src]="product().images[0]" [alt]="product().name" class="product-card__image" loading="lazy" />
+
+    <!-- Badges -->
+    <div class="product-card__badges">
+      @if (product().isNew) {
+        <nz-tag nzColor="blue" class="badge">New</nz-tag>
+      }
+      @if (discountPct) {
+        <nz-tag nzColor="red" class="badge">-{{ discountPct }}%</nz-tag>
+      }
+    </div>
+
+    <!-- Wishlist -->
+    <button class="product-card__wishlist" (click)="$event.preventDefault()">
+      <span nz-icon nzType="heart" nzTheme="outline"></span>
+    </button>
+  </a>
+
+  <div class="product-card__body">
+    <!-- Category -->
+    <span class="product-card__category">{{ product().category }}</span>
+
+    <!-- Name -->
+    <a [routerLink]="['/products', product().id]" class="product-card__name">{{ product().name }}</a>
+
+    <!-- Rating -->
+    <div class="product-card__rating">
+      <nz-rate [ngModel]="product().rating" nzDisabled [nzAllowHalf]="true" class="rate-sm"></nz-rate>
+      <span class="product-card__review-count">({{ product().reviewCount }})</span>
+    </div>
+
+    <!-- Vendor -->
+    <div class="product-card__vendor">
+      <nz-avatar [nzSrc]="product().vendor.logo" [nzSize]="20"></nz-avatar>
+      <span>{{ product().vendor.name }}</span>
+      @if (product().vendor.verified) {
+        <span nz-icon nzType="check-circle" nzTheme="fill" nzTooltipTitle="Verified Vendor" nz-tooltip class="verified-icon"></span>
+      }
+    </div>
+
+    <!-- Price Row -->
+    <div class="product-card__footer">
+      <div class="product-card__price">
+        <span class="price-current">৳ {{ product().price | number }}</span>
+        @if (product().originalPrice) {
+          <span class="price-original">৳ {{ product().originalPrice | number }}</span>
+        }
+      </div>
+      <button nz-button nzType="primary" nzSize="small" (click)="onAddToCart($event)" class="btn-cart">
+        <span nz-icon nzType="shopping-cart"></span>
+      </button>
+    </div>
+  </div>
+</article>

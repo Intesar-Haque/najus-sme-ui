@@ -1,0 +1,497 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+// ═══════════════════════════════════════════════════════════════════════
+// PAGE HEADER
+// ═══════════════════════════════════════════════════════════════════════
+.page-header {
+  background: @bg-card;
+  border-bottom: 1px solid @border-light;
+  padding: @sp-6 0 @sp-5;
+
+  &__inner {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: @sp-4;
+  }
+}
+
+.page-title {
+  font-family: @font-heading;
+  font-size: @text-3xl;
+  color: @text-primary;
+  margin: @sp-1 0 @sp-1;
+  line-height: 1.2;
+}
+
+.page-subtitle {
+  font-size: @text-sm;
+  color: @text-muted;
+  margin: 0;
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// TOOLBAR
+// ═══════════════════════════════════════════════════════════════════════
+.toolbar {
+  background: @bg-card;
+  border-bottom: 1px solid @border-light;
+  position: sticky;
+  top: @navbar-height;
+  z-index: 100;
+  padding: @sp-3 0;
+  box-shadow: @shadow-xs;
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    gap: @sp-3;
+    flex-wrap: wrap;
+  }
+
+  &__search {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  &__sort {
+    width: 180px;
+
+    @media (max-width: @bp-sm) { width: 140px; }
+  }
+}
+
+.filter-toggle-btn {
+  white-space: nowrap;
+}
+
+.view-toggle {
+  display: flex;
+  border: 1px solid @border-color;
+  border-radius: @radius-md;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.view-btn {
+  width: 36px;
+  height: 36px;
+  background: @bg-card;
+  border: none;
+  cursor: pointer;
+  color: @text-muted;
+  .flex-center();
+  transition: @transition-base;
+
+  &:hover { color: @primary; background: @primary-bg; }
+
+  &--active {
+    background: @primary;
+    color: #fff;
+    &:hover { background: @primary; color: #fff; }
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// ACTIVE FILTER CHIPS
+// ═══════════════════════════════════════════════════════════════════════
+.active-filters {
+  background: @accent-bg;
+  border-bottom: 1px solid rgba(255,122,0,.15);
+  padding: @sp-2 0;
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    gap: @sp-2;
+    flex-wrap: wrap;
+  }
+
+  &__label {
+    font-size: @text-xs;
+    font-weight: 600;
+    color: @text-muted;
+    white-space: nowrap;
+  }
+}
+
+.filter-chip {
+  border-radius: @radius-full !important;
+  font-size: @text-xs;
+}
+
+.clear-all-btn {
+  background: none;
+  border: none;
+  color: @accent-dark;
+  font-size: @text-xs;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-family: @font-body;
+  text-decoration: underline;
+  &:hover { color: @text-primary; }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// BODY LAYOUT
+// ═══════════════════════════════════════════════════════════════════════
+.products-body {
+  display: flex;
+  gap: @sp-6;
+  padding-top: @sp-6;
+  padding-bottom: @sp-10;
+  align-items: flex-start;
+}
+
+// ── Sidebar ──────────────────────────────────────────────────────────────────
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  position: sticky;
+  top: calc(@navbar-height + 60px);  // below sticky toolbar
+  max-height: calc(100vh - @navbar-height - 80px);
+  overflow-y: auto;
+
+  // hide scrollbar visually
+  scrollbar-width: thin;
+  scrollbar-color: @border-color transparent;
+}
+
+// ── Main content ─────────────────────────────────────────────────────────────
+.products-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: @sp-5;
+}
+
+.result-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.result-count {
+  font-size: @text-sm;
+  color: @text-muted;
+  strong { color: @text-primary; }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// PRODUCT GRID
+// ═══════════════════════════════════════════════════════════════════════
+.products-grid {
+  .grid-auto(200px, @sp-4);
+
+  @media (max-width: @bp-sm) { grid-template-columns: repeat(2, 1fr); }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// PRODUCT LIST
+// ═══════════════════════════════════════════════════════════════════════
+.products-list {
+  display: flex;
+  flex-direction: column;
+  gap: @sp-3;
+}
+
+.list-item {
+  .card();
+  display: flex;
+  align-items: flex-start;
+  gap: @sp-4;
+  padding: @sp-4;
+  cursor: default;
+
+  &:hover { transform: none; box-shadow: @shadow-sm; }
+
+  &__image {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+    border-radius: @radius-md;
+    overflow: hidden;
+    display: block;
+    background: @bg-subtle;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .3s;
+    }
+
+    &:hover img { transform: scale(1.05); }
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: @sp-1;
+  }
+
+  &__category {
+    font-size: @text-xs;
+    color: @primary;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+
+  &__name {
+    font-size: @text-base;
+    font-weight: 700;
+    color: @text-primary;
+    text-decoration: none;
+    line-height: 1.4;
+    .clamp(1);
+    &:hover { color: @primary; }
+  }
+
+  &__desc {
+    font-size: @text-sm;
+    color: @text-secondary;
+    margin: 0;
+    line-height: 1.5;
+    .clamp(2);
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: @sp-1;
+    margin-top: @sp-1;
+  }
+
+  &__vendor {
+    font-size: @text-xs;
+    color: @text-muted;
+    font-weight: 500;
+  }
+
+  &__reviews {
+    font-size: @text-xs;
+    color: @text-muted;
+  }
+
+  &__side {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: @sp-2;
+    min-width: 110px;
+  }
+
+  &__price {
+    text-align: right;
+
+    .price-main {
+      display: block;
+      font-size: @text-lg;
+      font-weight: 700;
+      color: @primary;
+      line-height: 1;
+    }
+    .price-orig {
+      font-size: @text-xs;
+      color: @text-muted;
+      text-decoration: line-through;
+    }
+  }
+}
+
+.verified-icon { color: @primary; font-size: @text-sm; }
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// PAGINATION
+// ═══════════════════════════════════════════════════════════════════════
+.pagination-wrap {
+  display: flex;
+  justify-content: center;
+  padding-top: @sp-4;
+  border-top: 1px solid @border-light;
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// EMPTY STATE
+// ═══════════════════════════════════════════════════════════════════════
+.empty-state {
+  padding: @sp-16 0;
+  .flex-center();
+  flex-direction: column;
+  gap: @sp-4;
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// FILTER PANEL (shared by sidebar & drawer)
+// ═══════════════════════════════════════════════════════════════════════
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.filter-section {
+  padding: @sp-4 0;
+}
+
+.filter-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: @text-sm;
+  font-weight: 700;
+  color: @text-primary;
+  margin-bottom: @sp-3;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.filter-clear-link {
+  background: none;
+  border: none;
+  font-size: @text-xs;
+  color: @primary;
+  cursor: pointer;
+  padding: 0;
+  font-family: @font-body;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  &:hover { text-decoration: underline; }
+}
+
+// ── Category list ─────────────────────────────────────────────────────────────
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: @sp-1;
+}
+
+.cat-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: @sp-2;
+  padding: @sp-2 @sp-3;
+  border-radius: @radius-md;
+  border: 1px solid transparent;
+  background: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: @transition-base;
+  font-family: @font-body;
+
+  &:hover {
+    background: @primary-bg;
+    border-color: rgba(40,167,69,.2);
+  }
+
+  &--active {
+    background: @primary-bg;
+    border-color: @primary;
+
+    .cat-filter-name { color: @primary; font-weight: 600; }
+    .cat-filter-count { color: @primary; }
+  }
+}
+
+.cat-filter-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: @radius-sm;
+  .flex-center();
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.cat-filter-name {
+  flex: 1;
+  font-size: @text-sm;
+  color: @text-secondary;
+}
+
+.cat-filter-count {
+  font-size: @text-xs;
+  color: @text-muted;
+  background: @bg-page;
+  padding: 1px @sp-2;
+  border-radius: @radius-full;
+}
+
+// ── Price range ───────────────────────────────────────────────────────────────
+.price-display {
+  display: flex;
+  justify-content: space-between;
+  font-size: @text-sm;
+  font-weight: 600;
+  color: @primary;
+  margin-bottom: @sp-3;
+}
+
+// ── Rating buttons ────────────────────────────────────────────────────────────
+.rating-options {
+  display: flex;
+  gap: @sp-2;
+  flex-wrap: wrap;
+}
+
+.rating-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: @sp-1 @sp-3;
+  border-radius: @radius-full;
+  border: 1px solid @border-color;
+  background: @bg-card;
+  font-size: @text-xs;
+  font-weight: 500;
+  cursor: pointer;
+  color: @text-secondary;
+  transition: @transition-base;
+  font-family: @font-body;
+
+  .star-icon { color: #f59e0b; font-size: 11px; }
+
+  &:hover {
+    border-color: @primary;
+    color: @primary;
+  }
+
+  &--active {
+    background: @primary;
+    border-color: @primary;
+    color: #fff;
+    .star-icon { color: #fff; }
+  }
+}
+
+// ── In-stock toggle row ───────────────────────────────────────────────────────
+.stock-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// ── Drawer filter wrap ────────────────────────────────────────────────────────
+.drawer-filter-wrap {
+  padding-bottom: @sp-4;
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+.hide-mobile  { .hide-mobile(); }
+.hide-desktop { .hide-desktop(); }

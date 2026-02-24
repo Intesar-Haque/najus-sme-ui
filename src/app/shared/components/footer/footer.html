@@ -1,0 +1,86 @@
+<footer class="footer">
+  <div class="footer__top">
+    <div class="container footer__grid">
+
+      <!-- Brand Column -->
+      <div class="footer__col footer__col--brand">
+        <a routerLink="/" class="footer__logo-wrap">
+          <img src="/assets/logo.png" alt="NAJUS SME" class="footer__logo" />
+          <div>
+            <div class="footer__brand-name">NAJUS SME</div>
+            <div class="footer__brand-tagline">Empowering Local Entrepreneurs</div>
+          </div>
+        </a>
+        <p class="footer__desc">
+          NAJUS SME is the marketplace arm of NAJUS NGO, connecting 100+ verified small and medium enterprises with customers across Bangladesh and beyond.
+        </p>
+        <div class="footer__social">
+          <a href="#" class="social-icon" aria-label="Facebook">
+            <span nz-icon nzType="facebook" nzTheme="fill"></span>
+          </a>
+          <a href="#" class="social-icon" aria-label="Instagram">
+            <span nz-icon nzType="instagram" nzTheme="fill"></span>
+          </a>
+          <a href="#" class="social-icon" aria-label="YouTube">
+            <span nz-icon nzType="youtube" nzTheme="fill"></span>
+          </a>
+          <a href="#" class="social-icon" aria-label="WhatsApp">
+            <span nz-icon nzType="whats-app" nzTheme="fill"></span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="footer__col">
+        <h4 class="footer__col-title">{{ 'footer.explore' | translate }}</h4>
+        <ul class="footer__links">
+          @for (link of quickLinks; track link.path) {
+            <li><a [routerLink]="link.path">{{ link.label | translate }}</a></li>
+          }
+        </ul>
+      </div>
+
+      <!-- Support Links -->
+      <div class="footer__col">
+        <h4 class="footer__col-title">{{ 'footer.support' | translate }}</h4>
+        <ul class="footer__links">
+          @for (link of supportLinks; track link.path) {
+            <li><a [routerLink]="link.path">{{ link.label | translate }}</a></li>
+          }
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div class="footer__col">
+        <h4 class="footer__col-title">{{ 'footer.contact_us' | translate }}</h4>
+        <ul class="footer__contact">
+          <li>
+            <span nz-icon nzType="environment" nzTheme="outline"></span>
+            Dhaka, Bangladesh
+          </li>
+          <li>
+            <span nz-icon nzType="phone" nzTheme="outline"></span>
+            +880-1700-000000
+          </li>
+          <li>
+            <span nz-icon nzType="mail" nzTheme="outline"></span>
+            info&#64;najussme.org
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <nz-divider style="margin:0; border-color: rgba(255,255,255,.12)"></nz-divider>
+
+  <div class="footer__bottom">
+    <div class="container footer__bottom-inner">
+      <p class="footer__copy">© {{ year }} NAJUS SME Network. All rights reserved.</p>
+      <div class="footer__legal">
+        <a routerLink="/privacy">Privacy Policy</a>
+        <a routerLink="/terms">Terms of Use</a>
+      </div>
+    </div>
+  </div>
+</footer>

@@ -1,3 +1,22 @@
 {
-
+  "nav": {
+    "products":   "Products",
+    "businesses": "Businesses",
+    "events":     "Events",
+    "blog":       "Blog",
+    "login":      "Member Login"
+  },
+  "footer": {
+    "explore":    "Explore",
+    "support":    "Support",
+    "contact_us": "Contact Us",
+    "products":   "Products",
+    "businesses": "Businesses",
+    "events":     "Events",
+    "blog":       "Blog",
+    "about":      "About NAJUS",
+    "contact":    "Contact Us",
+    "faq":        "FAQ",
+    "join":       "Join as Member"
+  }
 }

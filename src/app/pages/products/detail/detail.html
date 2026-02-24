@@ -1,0 +1,185 @@
+<!-- ═══ NOT FOUND ═══════════════════════════════════════════════════════ -->
+@if (notFound()) {
+  <div class="not-found-wrap container">
+    <nz-empty nzNotFoundImage="simple" nzNotFoundContent="Product not found.">
+      <ng-template #nzNotFoundFooter>
+        <button nz-button nzType="primary" (click)="goBack()">
+          <span nz-icon nzType="arrow-left"></span> Back to Products
+        </button>
+      </ng-template>
+    </nz-empty>
+  </div>
+}
+
+@if (product(); as p) {
+
+  <!-- ═══ BREADCRUMB ════════════════════════════════════════════════════ -->
+  <div class="breadcrumb-bar">
+    <div class="container">
+      <nz-breadcrumb>
+        <nz-breadcrumb-item><a routerLink="/">Home</a></nz-breadcrumb-item>
+        <nz-breadcrumb-item><a routerLink="/products">Products</a></nz-breadcrumb-item>
+        <nz-breadcrumb-item>{{ p.category }}</nz-breadcrumb-item>
+        <nz-breadcrumb-item>{{ p.name }}</nz-breadcrumb-item>
+      </nz-breadcrumb>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN PRODUCT SECTION ══════════════════════════════════════════ -->
+  <div class="product-section container">
+
+    <!-- ── Image gallery ──────────────────────────────────────────────── -->
+    <div class="gallery">
+      <div class="gallery__main">
+        <img [src]="activeImage()" [alt]="p.name" class="gallery__main-img" />
+
+        <!-- Overlay badges -->
+        <div class="gallery__badges">
+          @if (p.isNew) {
+            <span class="badge badge--new">New</span>
+          }
+          @if (discountPct()) {
+            <span class="badge badge--sale">-{{ discountPct() }}%</span>
+          }
+          @if (!p.inStock) {
+            <span class="badge badge--sold">Sold Out</span>
+          }
+        </div>
+      </div>
+
+      <!-- Thumbnails (shown when multiple images) -->
+      @if (p.images.length > 1) {
+        <div class="gallery__thumbs">
+          @for (img of p.images; track img; let i = $index) {
+            <button class="thumb-btn" [class.thumb-btn--active]="activeImageIndex() === i"
+                    (click)="selectImage(i)">
+              <img [src]="img" [alt]="p.name + ' ' + (i + 1)" class="thumb-btn__img" />
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- ── Product info ────────────────────────────────────────────────── -->
+    <div class="product-info">
+
+      <!-- Category tag -->
+      <div class="info-category">
+        <a routerLink="/products" [queryParams]="{ category: p.categoryId }">
+          <nz-tag nzColor="blue">{{ p.category }}</nz-tag>
+        </a>
+      </div>
+
+      <!-- Title -->
+      <h1 class="product-title">{{ p.name }}</h1>
+
+      <!-- Rating row -->
+      <div class="rating-row">
+        <nz-rate [ngModel]="p.rating" [nzDisabled]="true" nzAllowHalf></nz-rate>
+        <span class="rating-num">{{ p.rating }}</span>
+        <span class="rating-count">({{ p.reviewCount }} reviews)</span>
+      </div>
+
+      <nz-divider></nz-divider>
+
+      <!-- Price block -->
+      <div class="price-block">
+        <span class="price-current">৳{{ p.price | number }}</span>
+        @if (p.originalPrice) {
+          <span class="price-original">৳{{ p.originalPrice | number }}</span>
+          <span class="price-save">Save ৳{{ (p.originalPrice - p.price) | number }}</span>
+        }
+      </div>
+
+      <!-- Stock -->
+      <div class="stock-row">
+        @if (p.inStock) {
+          <span class="stock-in">
+            <span nz-icon nzType="check-circle" nzTheme="fill"></span> In Stock — Ready to ship
+          </span>
+        } @else {
+          <span class="stock-out">
+            <span nz-icon nzType="close-circle" nzTheme="fill"></span> Out of Stock
+          </span>
+        }
+      </div>
+
+      <nz-divider></nz-divider>
+
+      <!-- Description -->
+      <p class="product-desc">{{ p.description }}</p>
+
+      <!-- Tags -->
+      <div class="product-tags">
+        @for (tag of p.tags; track tag) {
+          <a routerLink="/products" [queryParams]="{ q: tag }">
+            <nz-tag nzColor="default">#{{ tag }}</nz-tag>
+          </a>
+        }
+      </div>
+
+      <nz-divider></nz-divider>
+
+      <!-- Quantity + Cart -->
+      <div class="buy-row">
+        <div class="qty-control">
+          <button class="qty-btn" (click)="decrementQty()" [disabled]="quantity() <= 1">
+            <span nz-icon nzType="minus"></span>
+          </button>
+          <span class="qty-val">{{ quantity() }}</span>
+          <button class="qty-btn" (click)="incrementQty()">
+            <span nz-icon nzType="plus"></span>
+          </button>
+        </div>
+
+        <button nz-button nzType="primary" nzSize="large" class="cart-btn"
+                [disabled]="!p.inStock" (click)="addToCart()">
+          <span nz-icon nzType="shopping-cart"></span>
+          {{ p.inStock ? 'Add to Cart' : 'Out of Stock' }}
+        </button>
+      </div>
+
+      <!-- Vendor mini card -->
+      @if (vendor(); as v) {
+        <div class="vendor-card">
+          <a [routerLink]="['/businesses', v.id]" class="vendor-card__link">
+            <img [src]="v.logo" [alt]="v.name" class="vendor-card__logo" />
+            <div class="vendor-card__info">
+              <span class="vendor-card__name">{{ v.name }}</span>
+              <span class="vendor-card__sub">
+                <span nz-icon nzType="environment"></span> {{ v.location }}
+                @if (v.verified) {
+                  · <span nz-icon nzType="safety-certificate" nzTheme="fill"
+                          style="color:#28a745" nz-tooltip nzTooltipTitle="NAJUS Verified"></span> Verified
+                }
+              </span>
+            </div>
+            <span nz-icon nzType="right" class="vendor-card__arrow"></span>
+          </a>
+        </div>
+      }
+
+    </div>
+  </div>
+
+  <!-- ═══ RELATED PRODUCTS ══════════════════════════════════════════════ -->
+  @if (relatedProducts().length) {
+    <div class="related-section">
+      <div class="container">
+        <div class="related-header">
+          <h2 class="related-title">More in {{ p.category }}</h2>
+          <a routerLink="/products" [queryParams]="{ category: p.categoryId }"
+             nz-button nzType="link">
+            View all <span nz-icon nzType="arrow-right"></span>
+          </a>
+        </div>
+        <div class="related-grid">
+          @for (rel of relatedProducts(); track rel.id) {
+            <app-product-card [product]="rel" />
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+}

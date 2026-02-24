@@ -1,0 +1,300 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+// ═══════════════════════════════════════════════════════════════════════
+// PAGE HEADER
+// ═══════════════════════════════════════════════════════════════════════
+.page-header {
+  background: linear-gradient(135deg, @primary-dark 0%, @primary 100%);
+  padding: @sp-10 0 @sp-8;
+  color: #fff;
+
+  &__inner {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: @sp-8;
+    flex-wrap: wrap;
+  }
+}
+
+.page-title {
+  font-family: @font-heading;
+  font-size: @text-4xl;
+  color: #fff;
+  margin: @sp-2 0 @sp-2;
+  line-height: 1.1;
+
+  @media (max-width: @bp-md) { font-size: @text-3xl; }
+}
+
+.page-subtitle {
+  font-size: @text-base;
+  color: rgba(255,255,255,.75);
+  margin: 0;
+  max-width: 520px;
+  line-height: 1.6;
+}
+
+// Header mini-stats
+.header-stats {
+  display: flex;
+  align-items: center;
+  gap: @sp-5;
+  flex-shrink: 0;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: @radius-xl;
+  padding: @sp-4 @sp-6;
+  backdrop-filter: blur(8px);
+}
+
+.hstat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &__num {
+    font-family: @font-heading;
+    font-size: @text-2xl;
+    color: #fff;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  &__label {
+    font-size: @text-xs;
+    color: rgba(255,255,255,.65);
+    margin-top: 3px;
+    white-space: nowrap;
+  }
+}
+
+.hstat-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(255,255,255,.2);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// TOOLBAR
+// ═══════════════════════════════════════════════════════════════════════
+.toolbar {
+  background: @bg-card;
+  border-bottom: 1px solid @border-light;
+  position: sticky;
+  top: @navbar-height;
+  z-index: 100;
+  padding: @sp-3 0;
+  box-shadow: @shadow-xs;
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    gap: @sp-3;
+    flex-wrap: wrap;
+  }
+
+  &__search {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  &__sort {
+    width: 180px;
+    @media (max-width: @bp-sm) { width: 150px; }
+  }
+}
+
+.filter-btn { white-space: nowrap; }
+
+// ═══════════════════════════════════════════════════════════════════════
+// ACTIVE FILTERS
+// ═══════════════════════════════════════════════════════════════════════
+.active-filters {
+  background: @primary-bg;
+  border-bottom: 1px solid rgba(40,167,69,.15);
+  padding: @sp-2 0;
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    gap: @sp-2;
+    flex-wrap: wrap;
+  }
+}
+
+.af-label {
+  font-size: @text-xs;
+  font-weight: 600;
+  color: @text-muted;
+  white-space: nowrap;
+}
+
+.filter-chip { border-radius: @radius-full !important; font-size: @text-xs; }
+
+.clear-btn {
+  background: none;
+  border: none;
+  color: @primary-dark;
+  font-size: @text-xs;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-family: @font-body;
+  text-decoration: underline;
+  &:hover { color: @text-primary; }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// BODY LAYOUT
+// ═══════════════════════════════════════════════════════════════════════
+.biz-body {
+  display: flex;
+  gap: @sp-6;
+  padding-top: @sp-6;
+  padding-bottom: @sp-12;
+  align-items: flex-start;
+}
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  position: sticky;
+  top: calc(@navbar-height + 60px);
+  max-height: calc(100vh - @navbar-height - 80px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: @border-color transparent;
+}
+
+.biz-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: @sp-5;
+}
+
+.result-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.result-count {
+  font-size: @text-sm;
+  color: @text-muted;
+  strong { color: @text-primary; }
+}
+
+// ─── Vendor grid ─────────────────────────────────────────────────────────────
+.vendors-grid {
+  .grid-auto(280px, @sp-5);
+}
+
+// ─── Empty state ─────────────────────────────────────────────────────────────
+.empty-state {
+  padding: @sp-16 0;
+  .flex-center();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// FILTER PANEL
+// ═══════════════════════════════════════════════════════════════════════
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.filter-section { padding: @sp-4 0; }
+
+.filter-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: @text-xs;
+  font-weight: 700;
+  color: @text-primary;
+  margin-bottom: @sp-3;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+
+.filter-hint {
+  font-size: @text-xs;
+  color: @text-muted;
+  margin-bottom: @sp-3;
+}
+
+.filter-clear {
+  background: none;
+  border: none;
+  font-size: @text-xs;
+  color: @primary;
+  cursor: pointer;
+  padding: 0;
+  font-family: @font-body;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  &:hover { text-decoration: underline; }
+}
+
+.verified-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: @sp-3;
+}
+
+// ─── Checkbox-style list ──────────────────────────────────────────────────────
+.check-list {
+  display: flex;
+  flex-direction: column;
+  gap: @sp-1;
+}
+
+.check-btn {
+  display: flex;
+  align-items: center;
+  gap: @sp-2;
+  padding: @sp-2 @sp-3;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: @radius-md;
+  cursor: pointer;
+  font-size: @text-sm;
+  color: @text-secondary;
+  text-align: left;
+  width: 100%;
+  font-family: @font-body;
+  transition: @transition-base;
+
+  &:hover { background: @primary-bg; color: @primary; }
+
+  &--active {
+    background: @primary-bg;
+    border-color: rgba(40,167,69,.3);
+    color: @primary;
+    font-weight: 600;
+
+    .check-box { background: @primary; border-color: @primary; color: #fff; }
+  }
+}
+
+.check-box {
+  width: 16px;
+  height: 16px;
+  border-radius: @radius-sm;
+  border: 1.5px solid @border-color;
+  flex-shrink: 0;
+  .flex-center();
+  transition: @transition-base;
+  font-size: 10px;
+}
+
+// ─── Utilities ───────────────────────────────────────────────────────────────
+.hide-mobile  { .hide-mobile(); }
+.hide-desktop { .hide-desktop(); }

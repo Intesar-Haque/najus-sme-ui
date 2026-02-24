@@ -1,0 +1,329 @@
+<!-- ═══ NOT FOUND ═══════════════════════════════════════════════════════ -->
+@if (notFound()) {
+  <div class="not-found-wrap container">
+    <nz-empty nzNotFoundImage="simple" nzNotFoundContent="Event not found.">
+      <ng-template #nzNotFoundFooter>
+        <button nz-button nzType="primary" (click)="goBack()">
+          <span nz-icon nzType="arrow-left"></span> Back to Events
+        </button>
+      </ng-template>
+    </nz-empty>
+  </div>
+}
+
+@if (event(); as ev) {
+
+  <!-- ═══ BREADCRUMB ════════════════════════════════════════════════════ -->
+  <div class="breadcrumb-bar">
+    <div class="container">
+      <nz-breadcrumb>
+        <nz-breadcrumb-item><a routerLink="/">Home</a></nz-breadcrumb-item>
+        <nz-breadcrumb-item><a routerLink="/events">Events</a></nz-breadcrumb-item>
+        <nz-breadcrumb-item>{{ ev.title }}</nz-breadcrumb-item>
+      </nz-breadcrumb>
+    </div>
+  </div>
+
+  <!-- ═══ HERO ══════════════════════════════════════════════════════════ -->
+  <div class="hero">
+    <div class="hero__img-wrap">
+      <img [src]="ev.image" [alt]="ev.title" class="hero__img" />
+      <div class="hero__overlay"></div>
+    </div>
+
+    <div class="hero__content container">
+      <div class="hero__badges">
+        @if (ev.featured) {
+          <span class="badge badge--featured">
+            <span nz-icon nzType="star" nzTheme="fill"></span> Featured
+          </span>
+        }
+        <nz-tag [nzColor]="typeColor()" class="type-tag">
+          <span nz-icon [nzType]="typeIcon()"></span> {{ typeLabel() }}
+        </nz-tag>
+        @if (ev.isFree) {
+          <nz-tag nzColor="success">Free Entry</nz-tag>
+        }
+      </div>
+
+      <h1 class="hero__title">{{ ev.title }}</h1>
+
+      <div class="hero__meta">
+        <span class="hero__meta-item">
+          <span nz-icon nzType="calendar"></span>
+          @if (isMultiDay()) {
+            {{ ev.date | date: 'dd MMM' }} – {{ ev.endDate | date: 'dd MMM yyyy' }}
+          } @else {
+            {{ ev.date | date: 'dd MMM yyyy' }}
+          }
+        </span>
+        <span class="hero__meta-sep">·</span>
+        <span class="hero__meta-item">
+          <span nz-icon nzType="environment"></span> {{ ev.location }}
+        </span>
+        <span class="hero__meta-sep">·</span>
+        <span class="hero__meta-item">
+          <span nz-icon nzType="team"></span> {{ ev.organizer }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ BODY ══════════════════════════════════════════════════════════ -->
+  <div class="detail-body container">
+
+    <!-- ── Main content ──────────────────────────────────────────────── -->
+    <div class="detail-main">
+
+      <!-- About this event -->
+      <section class="content-card">
+        <h2 class="section-heading">
+          <span nz-icon nzType="info-circle"></span> About This Event
+        </h2>
+        <p class="event-desc">{{ ev.description }}</p>
+      </section>
+
+      <!-- Event highlights -->
+      <section class="content-card">
+        <h2 class="section-heading">
+          <span nz-icon nzType="check-square"></span> What to Expect
+        </h2>
+        <ul class="highlights-list">
+          <li>
+            <span nz-icon nzType="calendar" class="hi-icon"></span>
+            <div>
+              <strong>Duration</strong>
+              <span>
+                @if (isMultiDay()) {
+                  {{ ev.date | date: 'dd MMM' }} to {{ ev.endDate | date: 'dd MMM yyyy' }}
+                } @else {
+                  Single day — {{ ev.date | date: 'EEEE, dd MMMM yyyy' }}
+                }
+              </span>
+            </div>
+          </li>
+          <li>
+            <span nz-icon nzType="environment" class="hi-icon"></span>
+            <div>
+              <strong>Venue</strong>
+              <span>{{ ev.location }}</span>
+            </div>
+          </li>
+          <li>
+            <span nz-icon nzType="team" class="hi-icon"></span>
+            <div>
+              <strong>Organised by</strong>
+              <span>{{ ev.organizer }}</span>
+            </div>
+          </li>
+          <li>
+            <span nz-icon nzType="wallet" class="hi-icon"></span>
+            <div>
+              <strong>Entry Fee</strong>
+              @if (ev.isFree) {
+                <span class="free-pill">Free</span>
+              } @else {
+                <span>৳{{ ev.price }} per person</span>
+              }
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Related events -->
+      @if (relatedEvents().length) {
+        <section class="content-card">
+          <h2 class="section-heading">
+            <span nz-icon nzType="calendar"></span> Other Events
+          </h2>
+          <div class="related-list">
+            @for (rel of relatedEvents(); track rel.id) {
+              <a [routerLink]="['/events', rel.id]" class="related-card">
+                <img [src]="rel.image" [alt]="rel.title" class="related-card__img" />
+                <div class="related-card__body">
+                  <nz-tag [nzColor]="'default'" class="related-card__type">{{ rel.type }}</nz-tag>
+                  <p class="related-card__title">{{ rel.title }}</p>
+                  <span class="related-card__date">
+                    <span nz-icon nzType="calendar"></span>
+                    {{ rel.date | date: 'dd MMM yyyy' }}
+                  </span>
+                </div>
+              </a>
+            }
+          </div>
+        </section>
+      }
+    </div>
+
+    <!-- ── Sidebar ────────────────────────────────────────────────────── -->
+    <aside class="detail-sidebar">
+
+      <!-- Info card -->
+      <div class="info-card">
+        <div class="info-card__price-row">
+          @if (ev.isFree) {
+            <span class="price-free">Free</span>
+          } @else {
+            <span class="price-paid">৳{{ ev.price }}</span>
+            <span class="price-label">per person</span>
+          }
+        </div>
+
+        <nz-divider></nz-divider>
+
+        <ul class="info-list">
+          <li>
+            <span nz-icon nzType="calendar"></span>
+            <div>
+              <strong>Date</strong>
+              @if (isMultiDay()) {
+                <span>{{ ev.date | date: 'dd MMM' }} – {{ ev.endDate | date: 'dd MMM yyyy' }}</span>
+              } @else {
+                <span>{{ ev.date | date: 'dd MMM yyyy' }}</span>
+              }
+            </div>
+          </li>
+          <li>
+            <span nz-icon nzType="environment"></span>
+            <div>
+              <strong>Location</strong>
+              <span>{{ ev.location }}</span>
+            </div>
+          </li>
+          <li>
+            <span nz-icon nzType="team"></span>
+            <div>
+              <strong>Organiser</strong>
+              <span>{{ ev.organizer }}</span>
+            </div>
+          </li>
+          <li>
+            <span nz-icon [nzType]="typeIcon()"></span>
+            <div>
+              <strong>Type</strong>
+              <span>{{ typeLabel() }}</span>
+            </div>
+          </li>
+        </ul>
+
+        <nz-divider></nz-divider>
+
+        <!-- Registration status indicator -->
+        @if (ev.registrationOpen) {
+          <div class="reg-open-pill">
+            <span nz-icon nzType="check-circle" nzTheme="fill"></span> Registration is Open
+          </div>
+        } @else {
+          <div class="reg-closed-pill">
+            <span nz-icon nzType="close-circle" nzTheme="fill"></span> Registration Closed
+          </div>
+        }
+      </div>
+
+      <!-- ── Registration form ───────────────────────────────────────── -->
+      @if (ev.registrationOpen) {
+        <div class="reg-card">
+          <h3 class="reg-card__title">
+            <span nz-icon nzType="form"></span> Register for This Event
+          </h3>
+
+          @if (submitted()) {
+            <!-- Success state -->
+            <nz-result
+              nzStatus="success"
+              nzTitle="Registration Confirmed!"
+              nzSubTitle="We've received your registration. Check your email for confirmation details.">
+              <div nz-result-extra>
+                <button nz-button nzType="default" nzSize="small" (click)="resetForm(regForm)">
+                  Register Another
+                </button>
+              </div>
+            </nz-result>
+
+          } @else {
+            <!-- Form -->
+            <form #regForm="ngForm" (ngSubmit)="onSubmit(regForm)" class="reg-form" novalidate>
+
+              <!-- Full Name -->
+              <nz-form-item>
+                <nz-form-label [nzRequired]="true">Full Name</nz-form-label>
+                <nz-form-control nzErrorTip="Please enter your full name">
+                  <input nz-input name="fullName" placeholder="e.g. Fatema Begum"
+                         [(ngModel)]="form.fullName" required
+                         #fullNameCtrl="ngModel"
+                         [nzStatus]="fullNameCtrl.invalid && fullNameCtrl.dirty ? 'error' : ''" />
+                </nz-form-control>
+              </nz-form-item>
+
+              <!-- Email -->
+              <nz-form-item>
+                <nz-form-label [nzRequired]="true">Email Address</nz-form-label>
+                <nz-form-control nzErrorTip="Please enter a valid email">
+                  <input nz-input name="email" type="email" placeholder="you@example.com"
+                         [(ngModel)]="form.email" required email
+                         #emailCtrl="ngModel"
+                         [nzStatus]="emailCtrl.invalid && emailCtrl.dirty ? 'error' : ''" />
+                </nz-form-control>
+              </nz-form-item>
+
+              <!-- Phone -->
+              <nz-form-item>
+                <nz-form-label>Phone Number</nz-form-label>
+                <nz-form-control>
+                  <nz-input-group nzAddOnBefore="+880">
+                    <input nz-input name="phone" placeholder="1XXXXXXXXX"
+                           [(ngModel)]="form.phone" />
+                  </nz-input-group>
+                </nz-form-control>
+              </nz-form-item>
+
+              <!-- Attendees -->
+              <nz-form-item>
+                <nz-form-label [nzRequired]="true">Number of Attendees</nz-form-label>
+                <nz-form-control>
+                  <nz-select name="attendees" [(ngModel)]="form.attendees" style="width:100%">
+                    @for (n of attendeeOptions; track n) {
+                      <nz-option [nzValue]="n" [nzLabel]="n + (n === 1 ? ' person' : ' people')"></nz-option>
+                    }
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+
+              <!-- Message -->
+              <nz-form-item>
+                <nz-form-label>Special Requirements</nz-form-label>
+                <nz-form-control>
+                  <textarea nz-input name="message" rows="3"
+                            placeholder="Dietary needs, accessibility requirements, questions…"
+                            [(ngModel)]="form.message"></textarea>
+                </nz-form-control>
+              </nz-form-item>
+
+              <!-- Price summary -->
+              @if (!ev.isFree) {
+                <div class="price-summary">
+                  <span>{{ form.attendees }} × ৳{{ ev.price }}</span>
+                  <span class="price-total">৳{{ form.attendees * (ev.price ?? 0) }}</span>
+                </div>
+              }
+
+              <button nz-button nzType="primary" nzBlock nzSize="large"
+                      [nzLoading]="submitting()" type="submit">
+                <span nz-icon nzType="check"></span>
+                {{ ev.isFree ? 'Confirm Registration' : 'Proceed to Payment' }}
+              </button>
+
+              <p class="form-note">
+                <span nz-icon nzType="lock"></span>
+                Your information is kept private and used only for this event.
+              </p>
+
+            </form>
+          }
+        </div>
+      }
+
+    </aside>
+  </div>
+
+}

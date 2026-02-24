@@ -1,0 +1,527 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+// ─── Page shell ──────────────────────────────────────────────────────────────
+.login-page {
+  display: flex;
+  min-height: 100vh;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// BRAND PANEL (left)
+// ═══════════════════════════════════════════════════════════════════════
+.brand-panel {
+  width: 44%;
+  flex-shrink: 0;
+  background: @dark;
+  position: relative;
+  overflow: hidden;
+
+  // Ambient glow
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 20% 40%, rgba(40,167,69,.22) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 80% 80%, rgba(255,122,0,.12) 0%, transparent 55%);
+    pointer-events: none;
+  }
+
+  // Hide on mobile — form takes full width
+  @media (max-width: @bp-lg) { display: none; }
+
+  &__inner {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    padding: @sp-10 @sp-10;
+    display: flex;
+    flex-direction: column;
+    gap: @sp-10;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  // ── Logo ───────────────────────────────────────────────────────────
+  &__logo {
+    display: flex;
+    align-items: center;
+    gap: @sp-3;
+    text-decoration: none;
+    flex-shrink: 0;
+
+    img {
+      height: 40px;
+      width: auto;
+      filter: brightness(0) invert(1);
+    }
+  }
+
+  // ── Copy ───────────────────────────────────────────────────────────
+  &__copy { flex: 1; padding-top: @sp-6; }
+
+  &__title {
+    font-family: @font-heading;
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    color: @text-white;
+    margin: 0 0 @sp-4;
+    line-height: 1.05;
+
+    .accent { color: @primary-light; }
+  }
+
+  &__sub {
+    font-size: @text-base;
+    color: rgba(255,255,255,.65);
+    line-height: 1.75;
+    margin: 0;
+    max-width: 380px;
+  }
+
+  // ── Perks ──────────────────────────────────────────────────────────
+  &__perks {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: @sp-3;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: @sp-3;
+      font-size: @text-sm;
+      color: rgba(255,255,255,.8);
+    }
+  }
+}
+
+.brand-name {
+  font-family: @font-heading;
+  font-size: @text-xl;
+  color: @text-white;
+  line-height: 1;
+  letter-spacing: .04em;
+}
+
+.brand-tagline {
+  font-size: @text-xs;
+  color: rgba(255,255,255,.45);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-top: 2px;
+}
+
+.perk-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: @radius-md;
+  background: rgba(40,167,69,.18);
+  border: 1px solid rgba(40,167,69,.3);
+  .flex-center();
+  font-size: @text-sm;
+  color: @primary-light;
+  flex-shrink: 0;
+}
+
+// ── Testimonial ──────────────────────────────────────────────────────────────
+.testimonial {
+  padding: @sp-5 @sp-6;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: @radius-lg;
+  backdrop-filter: blur(8px);
+
+  &__quote {
+    font-size: @text-base;
+    color: rgba(255,255,255,.88);
+    line-height: 1.7;
+    margin: 0 0 @sp-4;
+    font-style: italic;
+  }
+
+  &__author {
+    display: flex;
+    align-items: center;
+    gap: @sp-4;
+  }
+
+  &__dot-row {
+    display: flex;
+    gap: @sp-1;
+  }
+
+  &__name {
+    display: block;
+    font-size: @text-sm;
+    font-weight: 600;
+    color: @text-white;
+    line-height: 1;
+  }
+
+  &__biz {
+    display: block;
+    font-size: @text-xs;
+    color: rgba(255,255,255,.5);
+    margin-top: 2px;
+  }
+}
+
+.t-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: @radius-full;
+  background: rgba(255,255,255,.25);
+  border: none;
+  cursor: pointer;
+  transition: @transition-base;
+  padding: 0;
+
+  &--active {
+    background: @primary-light;
+    width: 18px;
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// FORM PANEL (right)
+// ═══════════════════════════════════════════════════════════════════════
+.form-panel {
+  flex: 1;
+  background: @bg-card;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: @sp-8 @sp-6;
+  overflow-y: auto;
+
+  &__inner {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: @sp-6;
+  }
+
+  &__top {
+    .flex-between();
+  }
+}
+
+// ── Mobile brand (visible only on mobile) ────────────────────────────────────
+.mobile-brand {
+  display: none;
+  align-items: center;
+  gap: @sp-2;
+  text-decoration: none;
+  font-family: @font-heading;
+  font-size: @text-lg;
+  color: @primary;
+  font-weight: 700;
+
+  img {
+    height: 32px;
+    width: auto;
+  }
+
+  @media (max-width: @bp-lg) { display: flex; }
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: @sp-2;
+  font-size: @text-sm;
+  color: @text-muted;
+  text-decoration: none;
+  transition: @transition-base;
+  padding: @sp-2;
+  border-radius: @radius-md;
+
+  &:hover {
+    color: @primary;
+    background: @primary-bg;
+  }
+}
+
+
+// ─── Step indicator ───────────────────────────────────────────────────────────
+.step-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: @sp-1;
+
+  .step-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: @radius-full;
+    border: 2px solid @border-color;
+    background: @bg-page;
+    .flex-center();
+    font-size: @text-sm;
+    font-weight: 700;
+    color: @text-muted;
+    transition: @transition-slow;
+  }
+
+  .step-label {
+    font-size: @text-xs;
+    color: @text-muted;
+    white-space: nowrap;
+    transition: @transition-base;
+  }
+
+  &--active {
+    .step-circle {
+      border-color: @primary;
+      background: @primary;
+      color: #fff;
+    }
+    .step-label { color: @primary; font-weight: 600; }
+  }
+
+  &--done {
+    .step-circle {
+      border-color: @primary;
+      background: @primary-bg;
+      color: @primary;
+    }
+    .step-label { color: @primary; }
+  }
+}
+
+.step-line {
+  flex: 1;
+  height: 2px;
+  background: @border-color;
+  margin: 0 @sp-2;
+  margin-bottom: 18px;  // align with circle center
+  transition: @transition-slow;
+
+  &--done { background: @primary; }
+}
+
+
+// ─── Form block ───────────────────────────────────────────────────────────────
+.form-block {
+  display: flex;
+  flex-direction: column;
+  gap: @sp-5;
+}
+
+// Step enter animation
+.step-enter {
+  animation: stepIn .3s ease;
+}
+@keyframes stepIn {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+// ── Form heading ─────────────────────────────────────────────────────────────
+.form-heading {
+  display: flex;
+  flex-direction: column;
+  gap: @sp-1;
+
+  h2 {
+    font-family: @font-heading;
+    font-size: @text-2xl;
+    color: @text-primary;
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  p {
+    font-size: @text-sm;
+    color: @text-secondary;
+    margin: 0;
+    line-height: 1.65;
+  }
+}
+
+.email-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: @radius-xl;
+  background: @primary-bg;
+  .flex-center();
+  font-size: 22px;
+  color: @primary;
+  margin-bottom: @sp-1;
+}
+
+.masked-email {
+  color: @primary;
+  letter-spacing: .03em;
+}
+
+// ── Demo hint ─────────────────────────────────────────────────────────────────
+.demo-hint {
+  border-radius: @radius-md !important;
+  padding: @sp-2 @sp-3 !important;
+  font-size: @text-xs;
+  display: flex;
+  align-items: center;
+  gap: @sp-2;
+  width: fit-content;
+}
+
+// ── Field ─────────────────────────────────────────────────────────────────────
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: @sp-2;
+}
+
+.field-label {
+  font-size: @text-sm;
+  font-weight: 600;
+  color: @text-secondary;
+}
+
+.field-hint {
+  font-size: @text-xs;
+  color: @text-muted;
+  margin: 0;
+}
+
+.input-icon { color: @text-muted; }
+
+// ── Submit button ─────────────────────────────────────────────────────────────
+.submit-btn {
+  height: 48px !important;
+  font-size: @text-base !important;
+  font-weight: 600 !important;
+  border-radius: @radius-lg !important;
+}
+
+// ── OTP boxes ─────────────────────────────────────────────────────────────────
+.otp-label {
+  font-size: @text-sm;
+  font-weight: 600;
+  color: @text-secondary;
+  margin-bottom: -@sp-2;
+}
+
+.otp-row {
+  display: flex;
+  gap: @sp-3;
+  justify-content: space-between;
+
+  &--shake {
+    animation: shake .5s ease;
+  }
+}
+
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(6px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}
+
+.otp-box {
+  flex: 1;
+  aspect-ratio: 1;
+  max-width: 52px;
+  text-align: center;
+  font-size: @text-xl;
+  font-weight: 700;
+  font-family: @font-heading;
+  color: @text-primary;
+  border: 2px solid @border-color;
+  border-radius: @radius-lg;
+  background: @bg-page;
+  outline: none;
+  transition: @transition-base;
+  caret-color: @primary;
+
+  &:focus {
+    border-color: @primary;
+    background: @bg-card;
+    box-shadow: 0 0 0 3px rgba(40,167,69,.15);
+  }
+
+  &--filled {
+    border-color: @primary;
+    background: @primary-bg;
+    color: @primary;
+  }
+
+  &:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+  }
+}
+
+// ── OTP action row ────────────────────────────────────────────────────────────
+.otp-actions {
+  .flex-between();
+  gap: @sp-3;
+}
+
+.resend-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: @sp-1;
+  background: none;
+  border: none;
+  font-size: @text-sm;
+  color: @text-muted;
+  cursor: not-allowed;
+  padding: 0;
+  font-family: @font-body;
+  transition: @transition-base;
+
+  &--active {
+    color: @primary;
+    cursor: pointer;
+    &:hover { color: @primary-dark; text-decoration: underline; }
+  }
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: @sp-1;
+  background: none;
+  border: none;
+  font-size: @text-sm;
+  color: @text-muted;
+  cursor: pointer;
+  padding: 0;
+  font-family: @font-body;
+  transition: @transition-base;
+
+  &:hover { color: @text-primary; }
+}
+
+// ── Footer note ───────────────────────────────────────────────────────────────
+.form-footer-note {
+  font-size: @text-sm;
+  color: @text-muted;
+  margin: 0;
+  text-align: center;
+
+  a {
+    color: @primary;
+    font-weight: 500;
+    &:hover { color: @primary-dark; }
+  }
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+.hide-mobile { .hide-mobile(); }
