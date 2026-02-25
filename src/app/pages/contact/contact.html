@@ -1,0 +1,151 @@
+<!-- ═══════════════════════════════════════════════════════════ PAGE HEADER -->
+<section class="page-header">
+  <div class="container">
+    <p class="page-header__eyebrow">
+      <span nz-icon nzType="mail" nzTheme="outline"></span>
+      Contact Us
+    </p>
+    <h1 class="page-header__title">We'd Love to Hear From You</h1>
+    <p class="page-header__sub">
+      Have a question, partnership idea, or just want to say hello?
+      Send us a message and we'll respond within 24 hours.
+    </p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════ CONTACT INFO CARDS -->
+<section class="info-bar">
+  <div class="container info-bar__grid">
+    @for (info of contactInfo; track info.label) {
+      <div class="info-card">
+        <div class="info-card__icon">
+          <span nz-icon [nzType]="info.icon" nzTheme="outline"></span>
+        </div>
+        <div>
+          <div class="info-card__label">{{ info.label }}</div>
+          <div class="info-card__value">{{ info.value }}</div>
+        </div>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════ FORM SECTION -->
+<section class="section">
+  <div class="container form-layout">
+
+    <!-- Left: form -->
+    <div class="form-wrap">
+      <h2 class="form-wrap__title">Send a Message</h2>
+      <p class="form-wrap__sub">Fill in the form below and our team will get back to you as soon as possible.</p>
+
+      @if (submitted()) {
+        <div class="success-state">
+          <span nz-icon nzType="check-circle" nzTheme="fill" class="success-state__icon"></span>
+          <h3 class="success-state__title">Message Sent!</h3>
+          <p class="success-state__desc">
+            Thank you for reaching out. We'll get back to you within 24 business hours.
+          </p>
+          <button nz-button nzType="default" (click)="sendAnother()">Send Another Message</button>
+        </div>
+      } @else {
+        <form nz-form [formGroup]="form" (ngSubmit)="submit()" nzLayout="vertical" class="contact-form">
+
+          <div class="form-row">
+            <nz-form-item class="form-item">
+              <nz-form-label nzRequired>Full Name</nz-form-label>
+              <nz-form-control [nzErrorTip]="nameTip">
+                <input nz-input formControlName="name" placeholder="e.g. Rahim Uddin" />
+              </nz-form-control>
+              <ng-template #nameTip let-control>
+                @if (control.hasError('required')) { Full name is required }
+                @else { Minimum 2 characters required }
+              </ng-template>
+            </nz-form-item>
+
+            <nz-form-item class="form-item">
+              <nz-form-label nzRequired>Email Address</nz-form-label>
+              <nz-form-control [nzErrorTip]="emailTip">
+                <input nz-input formControlName="email" type="email" placeholder="you@example.com" />
+              </nz-form-control>
+              <ng-template #emailTip let-control>
+                @if (control.hasError('required')) { Email address is required }
+                @else { Please enter a valid email address }
+              </ng-template>
+            </nz-form-item>
+          </div>
+
+          <nz-form-item>
+            <nz-form-label nzRequired>Subject</nz-form-label>
+            <nz-form-control nzErrorTip="Please select a subject">
+              <nz-select formControlName="subject" nzPlaceHolder="Select a subject" nzSize="default">
+                @for (sub of subjects; track sub) {
+                  <nz-option [nzValue]="sub" [nzLabel]="sub"></nz-option>
+                }
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label nzRequired>Message</nz-form-label>
+            <nz-form-control [nzErrorTip]="msgTip">
+              <textarea
+                nz-input
+                formControlName="message"
+                placeholder="Write your message here…"
+                [nzAutosize]="{ minRows: 5, maxRows: 10 }">
+              </textarea>
+            </nz-form-control>
+            <ng-template #msgTip let-control>
+              @if (control.hasError('required')) { Message is required }
+              @else { Please write at least 20 characters }
+            </ng-template>
+          </nz-form-item>
+
+          <button nz-button nzType="primary" nzSize="large" [nzLoading]="submitting()" class="submit-btn">
+            <span nz-icon nzType="send"></span>
+            Send Message
+          </button>
+
+        </form>
+      }
+    </div>
+
+    <!-- Right: additional info -->
+    <aside class="side-info">
+      <div class="side-card">
+        <h3 class="side-card__title">
+          <span nz-icon nzType="question-circle" nzTheme="outline"></span>
+          Frequently Asked Questions
+        </h3>
+        <p class="side-card__text">
+          Before reaching out, you might find your answer in our FAQ section.
+        </p>
+        <a routerLink="/faq" nz-button nzType="default" class="side-card__link">Visit FAQ</a>
+      </div>
+
+      <div class="side-card">
+        <h3 class="side-card__title">
+          <span nz-icon nzType="shop" nzTheme="outline"></span>
+          Become a Vendor
+        </h3>
+        <p class="side-card__text">
+          Are you a Bangladeshi SME owner? Apply for NAJUS membership and list your products.
+        </p>
+        <a routerLink="/contact" nz-button nzType="default" class="side-card__link">Apply Now</a>
+      </div>
+
+      <div class="side-card">
+        <h3 class="side-card__title">
+          <span nz-icon nzType="calendar" nzTheme="outline"></span>
+          Upcoming Events
+        </h3>
+        <p class="side-card__text">
+          Discover trade fairs, workshops, and exhibitions near you.
+        </p>
+        <a routerLink="/events" nz-button nzType="default" class="side-card__link">See Events</a>
+      </div>
+    </aside>
+
+  </div>
+</section>

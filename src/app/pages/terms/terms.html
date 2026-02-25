@@ -1,0 +1,70 @@
+<!-- ═══════════════════════════════════════════════════════════ PAGE HEADER -->
+<section class="page-header">
+  <div class="container">
+    <p class="page-header__eyebrow">
+      <span nz-icon nzType="file-protect" nzTheme="outline"></span>
+      Legal
+    </p>
+    <h1 class="page-header__title">Terms of Use</h1>
+    <p class="page-header__sub">
+      Please read these terms carefully before using the NAJUS SME marketplace platform.
+    </p>
+    <p class="page-header__meta">Last updated: <strong>{{ lastUpdated }}</strong></p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════ MAIN CONTENT -->
+<section class="section">
+  <div class="container content-layout">
+
+    <!-- Sidebar TOC -->
+    <aside class="toc">
+      <div class="toc__inner">
+        <h3 class="toc__title">Contents</h3>
+        <ul class="toc__list">
+          @for (sec of sections; track sec.id) {
+            <li>
+              <a class="toc__link" [href]="'#' + sec.id">{{ sec.title }}</a>
+            </li>
+          }
+        </ul>
+        <div class="toc__footer">
+          <a routerLink="/contact" class="toc__contact-link">
+            <span nz-icon nzType="mail" nzTheme="outline"></span>
+            legal&#64;najussme.org
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="content-main">
+      <div class="intro-box">
+        <span nz-icon nzType="warning" nzTheme="fill" class="intro-box__icon intro-box__icon--warn"></span>
+        <p class="intro-box__text">
+          These Terms of Use ("Terms") govern your access to and use of the NAJUS SME
+          marketplace platform ("Platform"), operated by NAJUS NGO. By accessing or using the
+          Platform you agree to be bound by these Terms. If you do not agree, please
+          discontinue use immediately.
+        </p>
+      </div>
+
+      @for (sec of sections; track sec.id) {
+        <div [id]="sec.id" class="policy-section">
+          <h2 class="policy-section__title">{{ sec.title }}</h2>
+          @for (para of sec.content; track para) {
+            <p class="policy-section__para">{{ para }}</p>
+          }
+        </div>
+      }
+
+      <div class="policy-footer">
+        <p>Questions about these terms? Contact us at
+          <a href="mailto:legal@najussme.org">legal&#64;najussme.org</a>
+          or visit our <a routerLink="/contact">Contact page</a>.
+        </p>
+      </div>
+    </main>
+
+  </div>
+</section>

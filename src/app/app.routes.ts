@@ -1,14 +1,19 @@
 import { Routes } from '@angular/router';
-import { Landing }     from './pages/landing/landing';
-import { Login }       from './pages/login/login';
-import { Dashboard }   from './pages/dashboard/dashboard';
-import { Products }    from './pages/products/products';
-import { Businesses }  from './pages/businesses/businesses';
-import { Profile }     from './pages/businesses/profile/profile';
-import { Events }      from './pages/events/events';
-import { EventDetail }  from './pages/events/detail/detail';
+import { Landing }       from './pages/landing/landing';
+import { Login }         from './pages/login/login';
+import { Dashboard }     from './pages/dashboard/dashboard';
+import { Products }      from './pages/products/products';
+import { Businesses }    from './pages/businesses/businesses';
+import { Profile }       from './pages/businesses/profile/profile';
+import { Events }        from './pages/events/events';
+import { EventDetail }   from './pages/events/detail/detail';
 import { Blog }          from './pages/blog/blog';
 import { ProductDetail } from './pages/products/detail/detail';
+import { About }         from './pages/about/about';
+import { Contact }       from './pages/contact/contact';
+import { Faq }           from './pages/faq/faq';
+import { Privacy }       from './pages/privacy/privacy';
+import { Terms }         from './pages/terms/terms';
 
 export const routes: Routes = [
   { path: '',                component: Landing        },
@@ -19,7 +24,12 @@ export const routes: Routes = [
   { path: 'businesses',      component: Businesses     },
   { path: 'businesses/:id',  component: Profile        },
   { path: 'events',          component: Events         },
-  { path: 'events/:id',     component: EventDetail    },
+  { path: 'events/:id',      component: EventDetail    },
   { path: 'blog',            component: Blog           },
+  { path: 'about',           component: About          },
+  { path: 'contact',         component: Contact        },
+  { path: 'faq',             component: Faq            },
+  { path: 'privacy',         component: Privacy        },
+  { path: 'terms',           component: Terms          },
   { path: '**',              redirectTo: ''            },
 ];

@@ -1,0 +1,155 @@
+<!-- ═══════════════════════════════════════════════════════════ PAGE HEADER -->
+<section class="page-header">
+  <div class="container">
+    <p class="page-header__eyebrow">
+      <span nz-icon nzType="info-circle" nzTheme="outline"></span>
+      About Us
+    </p>
+    <h1 class="page-header__title">Empowering Bangladesh's<br/>Local Entrepreneurs</h1>
+    <p class="page-header__sub">
+      NAJUS SME is the marketplace arm of NAJUS NGO — connecting 100+ verified small and
+      medium enterprises with customers across Bangladesh and beyond.
+    </p>
+    <div class="page-header__actions">
+      <a routerLink="/businesses" nz-button nzType="primary" nzSize="large">
+        <span nz-icon nzType="shop"></span>
+        Explore Businesses
+      </a>
+      <a routerLink="/contact" nz-button nzSize="large" class="btn-outline">
+        <span nz-icon nzType="mail"></span>
+        Get in Touch
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ STATS BAR -->
+<section class="stats-bar">
+  <div class="container stats-bar__grid">
+    @for (stat of stats; track stat.label) {
+      <div class="stat-item">
+        <span nz-icon [nzType]="stat.icon" nzTheme="outline" class="stat-item__icon"></span>
+        <div>
+          <div class="stat-item__value">{{ stat.value }}</div>
+          <div class="stat-item__label">{{ stat.label }}</div>
+        </div>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ MISSION / VISION -->
+<section class="section">
+  <div class="container">
+    <div class="mv-grid">
+      <div class="mv-card mv-card--mission">
+        <div class="mv-card__icon">
+          <span nz-icon nzType="aim" nzTheme="outline"></span>
+        </div>
+        <h2 class="mv-card__title">Our Mission</h2>
+        <p class="mv-card__text">
+          To create a trusted digital marketplace that amplifies the reach of Bangladeshi SMEs,
+          provides fair income opportunities for entrepreneurs, and delivers authentic,
+          high-quality products to customers everywhere.
+        </p>
+      </div>
+      <div class="mv-card mv-card--vision">
+        <div class="mv-card__icon">
+          <span nz-icon nzType="eye" nzTheme="outline"></span>
+        </div>
+        <h2 class="mv-card__title">Our Vision</h2>
+        <p class="mv-card__text">
+          A Bangladesh where every skilled artisan, small farmer, and local entrepreneur has
+          equal access to markets — and where their products are celebrated and valued both
+          at home and across the globe.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ VALUES -->
+<section class="section section--alt">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">What We Stand For</h2>
+      <p class="section-sub">The principles that guide every decision we make.</p>
+    </div>
+    <div class="values-grid">
+      @for (val of values; track val.title) {
+        <div class="value-card">
+          <div class="value-card__icon" [style.background]="val.color + '15'" [style.color]="val.color">
+            <span nz-icon [nzType]="val.icon" nzTheme="outline"></span>
+          </div>
+          <h3 class="value-card__title">{{ val.title }}</h3>
+          <p class="value-card__desc">{{ val.desc }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════ STORY -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Our Story</h2>
+      <p class="section-sub">A decade of building bridges between makers and markets.</p>
+    </div>
+    <div class="timeline-wrap">
+      <nz-timeline nzMode="alternate">
+        @for (m of milestones; track m.year) {
+          <nz-timeline-item [nzColor]="'green'">
+            <div class="timeline-item">
+              <span class="timeline-item__year">{{ m.year }}</span>
+              <strong class="timeline-item__title">{{ m.title }}</strong>
+              <p class="timeline-item__desc">{{ m.desc }}</p>
+            </div>
+          </nz-timeline-item>
+        }
+      </nz-timeline>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ TEAM -->
+<section class="section section--alt">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Meet the Team</h2>
+      <p class="section-sub">The people working every day to support Bangladeshi entrepreneurs.</p>
+    </div>
+    <div class="team-grid">
+      @for (member of team; track member.name) {
+        <div class="team-card">
+          <nz-avatar
+            [nzText]="member.initials"
+            [nzSize]="80"
+            [style.background-color]="member.color"
+            class="team-card__avatar">
+          </nz-avatar>
+          <h3 class="team-card__name">{{ member.name }}</h3>
+          <p class="team-card__role">{{ member.role }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════ CTA BANNER -->
+<section class="cta-banner">
+  <div class="container cta-banner__inner">
+    <div>
+      <h2 class="cta-banner__title">Ready to join the NAJUS community?</h2>
+      <p class="cta-banner__sub">Register your business and start reaching thousands of customers today.</p>
+    </div>
+    <div class="cta-banner__actions">
+      <a routerLink="/contact" nz-button nzType="primary" nzSize="large">
+        Apply for Membership
+      </a>
+      <a routerLink="/products" nz-button nzSize="large" class="btn-white">
+        Browse Products
+      </a>
+    </div>
+  </div>
+</section>

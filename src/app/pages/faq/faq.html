@@ -1,0 +1,118 @@
+<!-- ═══════════════════════════════════════════════════════════ PAGE HEADER -->
+<section class="page-header">
+  <div class="container">
+    <p class="page-header__eyebrow">
+      <span nz-icon nzType="question-circle" nzTheme="outline"></span>
+      Help Centre
+    </p>
+    <h1 class="page-header__title">Frequently Asked Questions</h1>
+    <p class="page-header__sub">
+      Find answers to the most common questions about NAJUS SME — shopping,
+      membership, vendors, and events.
+    </p>
+
+    <!-- Search -->
+    <div class="header-search">
+      <nz-input-group [nzPrefix]="searchIcon" nzSize="large">
+        <input nz-input [(ngModel)]="searchQuery" (ngModelChange)="searchQuery.set($event)" placeholder="Search questions…" />
+      </nz-input-group>
+      <ng-template #searchIcon><span nz-icon nzType="search"></span></ng-template>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════ CATEGORY FILTER BAR -->
+<div class="cat-bar">
+  <div class="container cat-bar__inner">
+    <button
+      class="cat-pill"
+      [class.cat-pill--active]="activeCat() === 'all'"
+      (click)="activeCat.set('all')">
+      All Topics
+    </button>
+    @for (cat of categories; track cat.id) {
+      <button
+        class="cat-pill"
+        [class.cat-pill--active]="activeCat() === cat.id"
+        (click)="activeCat.set(cat.id)"
+        [style.--cat-color]="cat.color">
+        <span nz-icon [nzType]="cat.icon" nzTheme="outline"></span>
+        {{ cat.title }}
+      </button>
+    }
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════════ FAQ CONTENT -->
+<section class="section">
+  <div class="container faq-layout">
+
+    <!-- Main FAQ area -->
+    <main class="faq-main">
+
+      @if (filteredCategories.length === 0) {
+        <div class="empty-state">
+          <span nz-icon nzType="inbox" nzTheme="outline" class="empty-state__icon"></span>
+          <p class="empty-state__text">No questions match your search. Try different keywords.</p>
+          <button nz-button nzType="default" (click)="searchQuery.set(''); activeCat.set('all')">
+            Clear Search
+          </button>
+        </div>
+      } @else {
+        <p class="result-count">
+          Showing <strong>{{ totalCount }}</strong> question{{ totalCount === 1 ? '' : 's' }}
+        </p>
+
+        @for (cat of filteredCategories; track cat.id) {
+          <div class="faq-section">
+            <h2 class="faq-section__title">
+              <span nz-icon [nzType]="cat.icon" nzTheme="outline" [style.color]="cat.color"></span>
+              {{ cat.title }}
+            </h2>
+            <nz-collapse [nzBordered]="false" class="faq-collapse">
+              @for (item of cat.items; track item.q) {
+                <nz-collapse-panel [nzHeader]="item.q" class="faq-panel">
+                  <p class="faq-answer">{{ item.a }}</p>
+                </nz-collapse-panel>
+              }
+            </nz-collapse>
+          </div>
+        }
+      }
+    </main>
+
+    <!-- Sidebar -->
+    <aside class="faq-sidebar">
+      <div class="sidebar-card">
+        <h3 class="sidebar-card__title">Still need help?</h3>
+        <p class="sidebar-card__text">
+          Our support team is available Sunday to Thursday, 9 AM – 6 PM (BST).
+        </p>
+        <a routerLink="/contact" nz-button nzType="primary" class="sidebar-card__btn">
+          <span nz-icon nzType="mail"></span>
+          Contact Us
+        </a>
+      </div>
+
+      <div class="sidebar-card">
+        <h3 class="sidebar-card__title">Browse Topics</h3>
+        <ul class="topic-list">
+          @for (cat of categories; track cat.id) {
+            <li>
+              <button
+                class="topic-btn"
+                [class.topic-btn--active]="activeCat() === cat.id"
+                (click)="activeCat.set(cat.id)"
+                [style.--cat-color]="cat.color">
+                <span nz-icon [nzType]="cat.icon" nzTheme="outline"></span>
+                {{ cat.title }}
+                <span class="topic-count">{{ cat.items.length }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      </div>
+    </aside>
+
+  </div>
+</section>

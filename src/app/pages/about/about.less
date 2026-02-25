@@ -1,0 +1,342 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+// ═══════════════════════════════════════════════════════════════════════
+// PAGE HEADER  —  brand green gradient
+// ═══════════════════════════════════════════════════════════════════════
+.page-header {
+  background: linear-gradient(135deg, #1a4d2e 0%, @primary-dark 50%, @primary 100%);
+  padding: @sp-16 0 @sp-12;
+  color: #fff;
+  text-align: center;
+
+  &__eyebrow {
+    font-size: @text-sm;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.7);
+    margin: 0 0 @sp-4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: @sp-2;
+  }
+
+  &__title {
+    font-family: @font-heading;
+    font-size: @text-5xl;
+    color: #fff;
+    margin: 0 0 @sp-4;
+    line-height: 1.1;
+
+    @media (max-width: @bp-md) { font-size: @text-3xl; }
+  }
+
+  &__sub {
+    font-size: @text-lg;
+    color: rgba(255,255,255,.8);
+    max-width: 600px;
+    margin: 0 auto @sp-8;
+    line-height: 1.65;
+  }
+
+  &__actions {
+    display: flex;
+    gap: @sp-4;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+.btn-outline {
+  background: rgba(255,255,255,.12) !important;
+  border-color: rgba(255,255,255,.4) !important;
+  color: #fff !important;
+
+  &:hover {
+    background: rgba(255,255,255,.22) !important;
+    border-color: #fff !important;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// STATS BAR
+// ═══════════════════════════════════════════════════════════════════════
+.stats-bar {
+  background: @bg-card;
+  border-bottom: 1px solid @border-light;
+  padding: @sp-6 0;
+  box-shadow: @shadow-xs;
+
+  &__grid {
+    .container();
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: @sp-4;
+
+    @media (max-width: @bp-md) { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: @bp-sm) { grid-template-columns: 1fr 1fr; }
+  }
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: @sp-3;
+  padding: @sp-4 @sp-4;
+
+  &__icon {
+    font-size: 1.75rem;
+    color: @primary;
+    flex-shrink: 0;
+  }
+
+  &__value {
+    font-family: @font-heading;
+    font-size: @text-2xl;
+    color: @text-primary;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  &__label {
+    font-size: @text-sm;
+    color: @text-muted;
+    margin-top: 2px;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// SECTION BASE
+// ═══════════════════════════════════════════════════════════════════════
+.section {
+  .section();
+
+  &--alt { background: @bg-page; }
+
+  .container { .container(); }
+
+  .section-header { .section-header(); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// MISSION / VISION
+// ═══════════════════════════════════════════════════════════════════════
+.mv-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: @sp-6;
+
+  @media (max-width: @bp-md) { grid-template-columns: 1fr; }
+}
+
+.mv-card {
+  border-radius: @radius-2xl;
+  padding: @sp-10 @sp-8;
+  display: flex;
+  flex-direction: column;
+  gap: @sp-4;
+
+  &--mission {
+    background: linear-gradient(135deg, @primary-bg, #d4edda);
+    border: 1px solid rgba(40,167,69,.15);
+  }
+
+  &--vision {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    border: 1px solid rgba(25,118,210,.15);
+  }
+
+  &__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: @radius-lg;
+    .flex-center();
+    font-size: 1.75rem;
+
+    .mv-card--mission & {
+      background: rgba(40,167,69,.15);
+      color: @primary-dark;
+    }
+
+    .mv-card--vision & {
+      background: rgba(25,118,210,.15);
+      color: #1565c0;
+    }
+  }
+
+  &__title {
+    font-family: @font-heading;
+    font-size: @text-2xl;
+    margin: 0;
+    color: @text-primary;
+  }
+
+  &__text {
+    font-size: @text-base;
+    color: @text-secondary;
+    line-height: 1.7;
+    margin: 0;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// VALUES
+// ═══════════════════════════════════════════════════════════════════════
+.values-grid {
+  .grid-auto(240px, @sp-6);
+}
+
+.value-card {
+  .card();
+  background: @bg-card;
+  padding: @sp-6;
+  border: 1px solid @border-light;
+  border-radius: @radius-xl;
+  display: flex;
+  flex-direction: column;
+  gap: @sp-3;
+
+  &__icon {
+    width: 52px;
+    height: 52px;
+    border-radius: @radius-lg;
+    .flex-center();
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-family: @font-heading;
+    font-size: @text-xl;
+    color: @text-primary;
+    margin: 0;
+  }
+
+  &__desc {
+    font-size: @text-sm;
+    color: @text-secondary;
+    line-height: 1.65;
+    margin: 0;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// TIMELINE
+// ═══════════════════════════════════════════════════════════════════════
+.timeline-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.timeline-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &__year {
+    font-size: @text-xs;
+    font-weight: 700;
+    color: @primary;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    font-family: @font-heading;
+    font-size: @text-lg;
+    color: @text-primary;
+  }
+
+  &__desc {
+    font-size: @text-sm;
+    color: @text-secondary;
+    line-height: 1.65;
+    margin: 0;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// TEAM
+// ═══════════════════════════════════════════════════════════════════════
+.team-grid {
+  .grid-auto(200px, @sp-6);
+}
+
+.team-card {
+  .card();
+  background: @bg-card;
+  border: 1px solid @border-light;
+  border-radius: @radius-xl;
+  padding: @sp-8 @sp-6;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: @sp-3;
+
+  &__avatar { margin-bottom: @sp-2; }
+
+  &__name {
+    font-family: @font-heading;
+    font-size: @text-lg;
+    color: @text-primary;
+    margin: 0;
+  }
+
+  &__role {
+    font-size: @text-sm;
+    color: @text-muted;
+    margin: 0;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// CTA BANNER
+// ═══════════════════════════════════════════════════════════════════════
+.cta-banner {
+  background: linear-gradient(135deg, @dark 0%, #16213e 100%);
+  padding: @sp-16 0;
+
+  &__inner {
+    .container();
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: @sp-8;
+    flex-wrap: wrap;
+  }
+
+  &__title {
+    font-family: @font-heading;
+    font-size: @text-3xl;
+    color: #fff;
+    margin: 0 0 @sp-2;
+
+    @media (max-width: @bp-md) { font-size: @text-2xl; }
+  }
+
+  &__sub {
+    font-size: @text-base;
+    color: rgba(255,255,255,.7);
+    margin: 0;
+  }
+
+  &__actions {
+    display: flex;
+    gap: @sp-4;
+    flex-wrap: wrap;
+  }
+}
+
+.btn-white {
+  background: rgba(255,255,255,.1) !important;
+  border-color: rgba(255,255,255,.35) !important;
+  color: #fff !important;
+
+  &:hover {
+    background: rgba(255,255,255,.2) !important;
+    border-color: #fff !important;
+  }
+}
