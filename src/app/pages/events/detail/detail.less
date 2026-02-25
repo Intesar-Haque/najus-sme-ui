@@ -1,0 +1,478 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+// ═══════════════════════════════════════════════════════════════════════
+// NOT FOUND
+// ═══════════════════════════════════════════════════════════════════════
+.not-found-wrap {
+  padding: @sp-24 0;
+  .flex-center();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// BREADCRUMB BAR
+// ═══════════════════════════════════════════════════════════════════════
+.breadcrumb-bar {
+  background: @bg-card;
+  border-bottom: 1px solid @border-light;
+  padding: @sp-3 0;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// HERO
+// ═══════════════════════════════════════════════════════════════════════
+.hero {
+  position: relative;
+  min-height: 420px;
+  display: flex;
+  align-items: flex-end;
+
+  @media (max-width: @bp-md) { min-height: 280px; }
+
+  &__img-wrap {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0,0,0,.15) 0%,
+      rgba(0,0,0,.65) 100%
+    );
+  }
+
+  &__content {
+    position: relative;
+    z-index: 1;
+    padding-bottom: @sp-10;
+    padding-top: @sp-8;
+    display: flex;
+    flex-direction: column;
+    gap: @sp-4;
+  }
+
+  &__badges {
+    display: flex;
+    align-items: center;
+    gap: @sp-2;
+    flex-wrap: wrap;
+  }
+
+  &__title {
+    font-family: @font-heading;
+    font-size: @text-4xl;
+    color: #fff;
+    margin: 0;
+    line-height: 1.15;
+    text-shadow: 0 2px 8px rgba(0,0,0,.35);
+    max-width: 780px;
+
+    @media (max-width: @bp-lg) { font-size: @text-3xl; }
+    @media (max-width: @bp-md) { font-size: @text-2xl; }
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: @sp-2;
+    color: rgba(255,255,255,.88);
+    font-size: @text-sm;
+  }
+
+  &__meta-item {
+    display: flex;
+    align-items: center;
+    gap: @sp-1;
+  }
+
+  &__meta-sep {
+    opacity: .5;
+  }
+}
+
+// Hero badge overrides
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: @sp-1;
+  padding: 4px @sp-3;
+  border-radius: @radius-full;
+  font-size: @text-xs;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &--featured {
+    background: linear-gradient(135deg, #ff9800, #f44336);
+    color: #fff;
+  }
+}
+
+.type-tag { font-size: @text-xs; }
+
+// ═══════════════════════════════════════════════════════════════════════
+// BODY — two-column layout
+// ═══════════════════════════════════════════════════════════════════════
+.detail-body {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: @sp-8;
+  align-items: flex-start;
+  padding-top: @sp-8;
+  padding-bottom: @sp-16;
+
+  @media (max-width: @bp-lg) { grid-template-columns: 1fr 300px; }
+  @media (max-width: @bp-md) {
+    grid-template-columns: 1fr;
+    gap: @sp-5;
+  }
+}
+
+// ─── Main column ─────────────────────────────────────────────────────
+.detail-main {
+  display: flex;
+  flex-direction: column;
+  gap: @sp-5;
+
+  // On mobile, sidebar stacks first when we reorder
+  @media (max-width: @bp-md) { order: 2; }
+}
+
+// ─── Sidebar ─────────────────────────────────────────────────────────
+.detail-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: @sp-5;
+  position: sticky;
+  top: calc(@navbar-height + @sp-5);
+
+  @media (max-width: @bp-md) {
+    position: static;
+    order: 1;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// CONTENT CARDS
+// ═══════════════════════════════════════════════════════════════════════
+.content-card {
+  background: @bg-card;
+  border: 1px solid @border-light;
+  border-radius: @radius-xl;
+  padding: @sp-6;
+  box-shadow: @shadow-xs;
+}
+
+.section-heading {
+  font-family: @font-heading;
+  font-size: @text-xl;
+  color: @text-primary;
+  margin: 0 0 @sp-5;
+  display: flex;
+  align-items: center;
+  gap: @sp-2;
+
+  .anticon { color: @primary; }
+}
+
+.event-desc {
+  font-size: @text-base;
+  color: @text-secondary;
+  line-height: 1.8;
+  margin: 0;
+}
+
+// ─── Highlights list ─────────────────────────────────────────────────
+.highlights-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: @sp-4;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: @sp-3;
+
+    div {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+
+      strong {
+        font-size: @text-sm;
+        font-weight: 700;
+        color: @text-primary;
+      }
+
+      span {
+        font-size: @text-sm;
+        color: @text-secondary;
+      }
+    }
+  }
+}
+
+.hi-icon {
+  font-size: @text-xl;
+  color: @primary;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+// Free pill inside highlights
+.free-pill {
+  display: inline-block;
+  font-weight: 700;
+  color: #2e7d32;
+  background: #e8f5e9;
+  padding: 2px @sp-2;
+  border-radius: @radius-full;
+  font-size: @text-sm;
+}
+
+// ─── Related events ───────────────────────────────────────────────────
+.related-list {
+  display: flex;
+  flex-direction: column;
+  gap: @sp-3;
+}
+
+.related-card {
+  display: flex;
+  gap: @sp-3;
+  align-items: flex-start;
+  border: 1px solid @border-light;
+  border-radius: @radius-lg;
+  overflow: hidden;
+  text-decoration: none;
+  transition: @transition-base;
+
+  &:hover {
+    box-shadow: @shadow-md;
+    transform: translateY(-1px);
+  }
+
+  &__img {
+    width: 100px;
+    height: 80px;
+    object-fit: cover;
+    flex-shrink: 0;
+    display: block;
+
+    @media (max-width: @bp-sm) { width: 80px; height: 68px; }
+  }
+
+  &__body {
+    flex: 1;
+    padding: @sp-3 @sp-3 @sp-3 0;
+    display: flex;
+    flex-direction: column;
+    gap: @sp-1;
+    min-width: 0;
+  }
+
+  &__type {
+    font-size: 11px !important;
+    text-transform: capitalize;
+  }
+
+  &__title {
+    font-size: @text-sm;
+    font-weight: 600;
+    color: @text-primary;
+    margin: 0;
+    line-height: 1.4;
+    .clamp(2);
+  }
+
+  &__date {
+    font-size: @text-xs;
+    color: @text-muted;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// SIDEBAR — INFO CARD
+// ═══════════════════════════════════════════════════════════════════════
+.info-card {
+  background: @bg-card;
+  border: 1px solid @border-light;
+  border-radius: @radius-xl;
+  padding: @sp-5;
+  box-shadow: @shadow-sm;
+
+  &__price-row {
+    display: flex;
+    align-items: baseline;
+    gap: @sp-2;
+    margin-bottom: @sp-2;
+  }
+}
+
+.price-free {
+  font-family: @font-heading;
+  font-size: @text-3xl;
+  font-weight: 700;
+  color: #2e7d32;
+}
+
+.price-paid {
+  font-family: @font-heading;
+  font-size: @text-3xl;
+  font-weight: 700;
+  color: @text-primary;
+}
+
+.price-label {
+  font-size: @text-sm;
+  color: @text-muted;
+}
+
+// Info list inside sidebar card
+.info-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: @sp-4;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: @sp-3;
+    font-size: @text-sm;
+
+    .anticon {
+      font-size: @text-base;
+      color: @primary;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    div {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      strong {
+        font-weight: 700;
+        color: @text-secondary;
+        font-size: @text-xs;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+      }
+
+      span { color: @text-primary; }
+    }
+  }
+}
+
+// Registration status pills
+.reg-open-pill {
+  display: flex;
+  align-items: center;
+  gap: @sp-2;
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-size: @text-sm;
+  font-weight: 600;
+  padding: @sp-3 @sp-4;
+  border-radius: @radius-lg;
+  border: 1px solid #c8e6c9;
+}
+
+.reg-closed-pill {
+  display: flex;
+  align-items: center;
+  gap: @sp-2;
+  background: #ffeaea;
+  color: #b71c1c;
+  font-size: @text-sm;
+  font-weight: 600;
+  padding: @sp-3 @sp-4;
+  border-radius: @radius-lg;
+  border: 1px solid #ffcdd2;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// SIDEBAR — REGISTRATION CARD
+// ═══════════════════════════════════════════════════════════════════════
+.reg-card {
+  background: @bg-card;
+  border: 2px solid @primary-light;
+  border-radius: @radius-xl;
+  padding: @sp-5;
+  box-shadow: @shadow-sm;
+
+  &__title {
+    font-family: @font-heading;
+    font-size: @text-lg;
+    color: @text-primary;
+    margin: 0 0 @sp-5;
+    display: flex;
+    align-items: center;
+    gap: @sp-2;
+
+    .anticon { color: @primary; }
+  }
+}
+
+// ─── Registration form ────────────────────────────────────────────────
+.reg-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  nz-form-item { margin-bottom: @sp-4; }
+
+  nz-form-label { font-size: @text-sm !important; }
+}
+
+// Price summary row
+.price-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: @bg-subtle;
+  border-radius: @radius-lg;
+  padding: @sp-3 @sp-4;
+  margin-bottom: @sp-4;
+  font-size: @text-sm;
+  color: @text-secondary;
+}
+
+.price-total {
+  font-weight: 700;
+  font-size: @text-base;
+  color: @text-primary;
+}
+
+// Privacy note below submit
+.form-note {
+  margin: @sp-3 0 0;
+  font-size: @text-xs;
+  color: @text-muted;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: @sp-1;
+}

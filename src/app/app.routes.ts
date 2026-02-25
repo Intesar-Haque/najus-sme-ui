@@ -6,6 +6,7 @@ import { Products }    from './pages/products/products';
 import { Businesses }  from './pages/businesses/businesses';
 import { Profile }     from './pages/businesses/profile/profile';
 import { Events }      from './pages/events/events';
+import { EventDetail }  from './pages/events/detail/detail';
 import { Blog }          from './pages/blog/blog';
 import { ProductDetail } from './pages/products/detail/detail';
 
@@ -18,6 +19,7 @@ export const routes: Routes = [
   { path: 'businesses',      component: Businesses     },
   { path: 'businesses/:id',  component: Profile        },
   { path: 'events',          component: Events         },
+  { path: 'events/:id',     component: EventDetail    },
   { path: 'blog',            component: Blog           },
   { path: '**',              redirectTo: ''            },
 ];

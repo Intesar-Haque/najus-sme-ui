@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -47,6 +47,8 @@ export class EventDetail implements OnInit {
   event          = signal<SmeEvent | null>(null);
   relatedEvents  = signal<SmeEvent[]>([]);
   notFound       = signal(false);
+
+  @ViewChild('regForm') regForm?: NgForm;
 
   // Registration form state
   submitting    = signal(false);
@@ -130,8 +132,8 @@ export class EventDetail implements OnInit {
     }, 1400);
   }
 
-  resetForm(ngForm: NgForm) {
-    ngForm.resetForm();
+  resetForm() {
+    this.regForm?.resetForm();
     this.form = { fullName: '', email: '', phone: '', attendees: 1, message: '' };
     this.submitted.set(false);
   }

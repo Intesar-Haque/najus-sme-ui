@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "public",
+    "public": "dist/najus-sme/browser",
     "ignore": [
       "firebase.json",
       "**/.*",
