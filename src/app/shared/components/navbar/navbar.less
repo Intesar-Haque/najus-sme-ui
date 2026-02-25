@@ -19,7 +19,7 @@
   &__inner {
     .flex-between();
     height: @navbar-height;
-    gap: @sp-4;
+    gap: @sp-3;
   }
 
   // ── Brand ──────────────────────────────────────────────────────────────
@@ -76,7 +76,7 @@
 
 // ── Nav Links ─────────────────────────────────────────────────────────────────
 .nav-link {
-  padding: @sp-2 @sp-3;
+  padding: @sp-2 10px;
   border-radius: @radius-md;
   font-size: @text-sm;
   font-weight: 500;
@@ -190,9 +190,11 @@
 }
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
+// Navbar collapses at @bp-lg (992px) — wider than the global @bp-md (768px)
+// so the 4 nav links + lang switcher + login button don't overflow.
 .hide-mobile {
-  .hide-mobile();
+  @media (max-width: @bp-lg) { display: none !important; }
 }
 .hide-desktop {
-  .hide-desktop();
+  @media (min-width: @bp-lg) { display: none !important; }
 }

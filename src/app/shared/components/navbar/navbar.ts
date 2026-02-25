@@ -36,9 +36,10 @@ export class Navbar {
   ];
 
   constructor() {
-    this.translate.addLangs(['en', 'bn']);
-    this.translate.setDefaultLang('en');
-    this.applyLang(this.lang());
+    // Translation bootstrap (addLangs / setDefaultLang / initial use())
+    // is handled by APP_INITIALIZER in app.config.ts.
+    // Only apply the body class for the persisted language.
+    document.body.classList.add(`lang-${this.lang()}`);
   }
 
   @HostListener('window:scroll')

@@ -6,6 +6,7 @@
     "blog":       "Blog",
     "login":      "Member Login"
   },
+
   "footer": {
     "explore":    "Explore",
     "support":    "Support",
@@ -17,6 +18,156 @@
     "about":      "About NAJUS",
     "contact":    "Contact Us",
     "faq":        "FAQ",
-    "join":       "Join as Member"
+    "join":       "Join as Member",
+    "tagline":    "Empowering Bangladeshi small and medium enterprises through community, commerce, and connection.",
+    "rights":     "All rights reserved.",
+    "made_in":    "Made with ❤ for Bangladeshi SMEs"
+  },
+
+  "hero": {
+    "headline":         "Bangladesh's SME Marketplace",
+    "subheadline":      "Discover authentic products from 148+ verified Bangladeshi small businesses",
+    "search_placeholder": "Search products, businesses, categories…",
+    "cta_browse":       "Browse Products",
+    "cta_join":         "Join as Member",
+    "popular":          "Popular"
+  },
+
+  "common": {
+    "verified":         "Verified",
+    "featured":         "Featured",
+    "new":              "New",
+    "free":             "Free",
+    "in_stock":         "In Stock",
+    "out_of_stock":     "Out of Stock",
+    "add_to_cart":      "Add to Cart",
+    "view_store":       "View Store",
+    "view_all":         "View All",
+    "read_more":        "Read more",
+    "register_now":     "Register Now",
+    "back":             "Back",
+    "save":             "Save",
+    "clear_all":        "Clear All",
+    "filter":           "Filters",
+    "search":           "Search",
+    "sort":             "Sort",
+    "loading":          "Loading…",
+    "no_results":       "No results found",
+    "per_person":       "per person",
+    "member_since":     "Member since",
+    "products":         "Products",
+    "reviews":          "reviews",
+    "rating":           "Rating",
+    "joined":           "Joined",
+    "registration_open":   "Registration Open",
+    "registration_closed": "Registration Closed"
+  },
+
+  "sections": {
+    "categories":        "Shop by Category",
+    "categories_sub":    "Explore our curated collection of authentic Bangladeshi products",
+    "products":          "Featured Products",
+    "products_sub":      "Handpicked goods from our top-rated SME vendors",
+    "vendors":           "Top Vendors",
+    "vendors_sub":       "Meet our verified SME partners driving Bangladesh's craft economy",
+    "events":            "Upcoming Events",
+    "events_sub":        "Trade fairs, workshops and networking sessions near you",
+    "blog":              "Stories & Insights",
+    "blog_sub":          "Success stories and guides from the NAJUS SME community",
+    "cta_headline":      "Ready to Grow Your Business?",
+    "cta_sub":           "Join 148+ SMEs already selling on NAJUS. Apply for membership today.",
+    "cta_btn":           "Apply for Membership"
+  },
+
+  "pages": {
+    "products": {
+      "title":       "All Products",
+      "subtitle":    "Authentic goods from verified Bangladeshi SMEs",
+      "found":       "products found",
+      "sort_default":"Default",
+      "sort_popular":"Most Popular",
+      "sort_newest": "Newest First",
+      "sort_price_asc":  "Price: Low to High",
+      "sort_price_desc": "Price: High to Low",
+      "sort_rating": "Highest Rated",
+      "filter_category": "Category",
+      "filter_price":    "Price Range",
+      "filter_rating":   "Min. Rating",
+      "filter_stock":    "In Stock Only",
+      "view_grid":   "Grid View",
+      "view_list":   "List View"
+    },
+    "businesses": {
+      "title":       "Our Business Network",
+      "subtitle":    "Discover verified Bangladeshi SMEs — from textile weavers to organic farmers",
+      "found":       "businesses found",
+      "filter_verified": "Verified Only",
+      "filter_category": "Category",
+      "filter_district": "District",
+      "sort_default": "Default",
+      "sort_rating":  "Top Rated",
+      "sort_products":"Most Products",
+      "sort_newest":  "Newest Members",
+      "sort_name":    "A–Z"
+    },
+    "events": {
+      "title":       "Events & Programmes",
+      "subtitle":    "Trade fairs, workshops, webinars and networking sessions",
+      "found":       "events found",
+      "filter_free": "Free Events Only",
+      "filter_open": "Registration Open",
+      "filter_type": "Event Type",
+      "sort_date_asc":  "Earliest First",
+      "sort_date_desc": "Latest First",
+      "sort_featured":  "Featured First",
+      "total":          "Total Events",
+      "open_now":       "Open Now",
+      "free_entry":     "Free Entry"
+    },
+    "blog": {
+      "title":       "Stories & Insights",
+      "subtitle":    "Success stories, business guides, and industry insights",
+      "found":       "articles found",
+      "filter_category": "Category",
+      "filter_tags": "Topics",
+      "sort_newest": "Newest First",
+      "sort_oldest": "Oldest First",
+      "sort_read":   "Quick Reads",
+      "min_read":    "min read",
+      "articles":    "Articles",
+      "categories":  "Categories",
+      "topics":      "Topics"
+    }
+  },
+
+  "login": {
+    "title":              "Member Login",
+    "subtitle":           "Access your NAJUS SME dashboard",
+    "step1_label":        "Membership Code",
+    "step1_placeholder":  "e.g. NAJUS-001",
+    "step1_btn":          "Send OTP",
+    "step2_label":        "Enter OTP",
+    "step2_sent_to":      "OTP sent to",
+    "step2_btn":          "Verify & Login",
+    "resend":             "Resend OTP",
+    "resend_in":          "Resend in",
+    "back_to_code":       "Change member code",
+    "welcome":            "Welcome to NAJUS SME"
+  },
+
+  "reg_form": {
+    "title":          "Register for This Event",
+    "full_name":      "Full Name",
+    "email":          "Email Address",
+    "phone":          "Phone Number",
+    "attendees":      "Number of Attendees",
+    "requirements":   "Special Requirements",
+    "requirements_ph":"Dietary needs, accessibility requirements, questions…",
+    "submit_free":    "Confirm Registration",
+    "submit_paid":    "Proceed to Payment",
+    "success_title":  "Registration Confirmed!",
+    "success_sub":    "We've received your registration. Check your email for confirmation.",
+    "register_another": "Register Another",
+    "privacy_note":   "Your information is kept private and used only for this event."
   }
 }
