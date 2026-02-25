@@ -1,6 +1,59 @@
 <div class="dashboard">
 
-  <!-- Sidebar -->
+  <!-- ══════════════════════════ MOBILE TOP BAR ══════════════════════════ -->
+  <div class="mobile-bar">
+    <button class="mobile-bar__hamburger" (click)="drawerOpen.set(true)">
+      <span nz-icon nzType="menu" nzTheme="outline"></span>
+    </button>
+    <a routerLink="/" class="mobile-bar__brand">NAJUS SME</a>
+    <nz-avatar
+      [nzText]="member()?.name?.charAt(0) ?? 'M'"
+      [nzSize]="36"
+      [style.background-color]="'#28a745'"
+      class="mobile-bar__avatar">
+    </nz-avatar>
+  </div>
+
+  <!-- ════════════════════════ MOBILE DRAWER NAV ════════════════════════ -->
+  <nz-drawer
+    [nzVisible]="drawerOpen()"
+    (nzOnClose)="drawerOpen.set(false)"
+    [nzWidth]="256"
+    nzPlacement="left"
+    nzTitle="NAJUS SME">
+    <ng-container *nzDrawerContent>
+      <div class="drawer-profile">
+        <nz-avatar
+          [nzText]="member()?.name?.charAt(0) ?? 'M'"
+          [nzSize]="56"
+          [style.background-color]="'#28a745'">
+        </nz-avatar>
+        <div>
+          <p class="drawer-profile__name">{{ member()?.name }}</p>
+          <p class="drawer-profile__code">{{ member()?.code }}</p>
+        </div>
+      </div>
+      <nz-divider style="margin: 12px 0"></nz-divider>
+      <div class="drawer-nav">
+        @for (item of navItems; track item.id) {
+          <button
+            class="drawer-link"
+            [class.drawer-link--active]="activeSection() === item.id"
+            (click)="navigate(item.id)">
+            <span nz-icon [nzType]="item.icon" nzTheme="outline"></span>
+            {{ item.label }}
+          </button>
+        }
+      </div>
+      <nz-divider style="margin: 12px 0"></nz-divider>
+      <button class="drawer-logout" (click)="logout()">
+        <span nz-icon nzType="logout" nzTheme="outline"></span>
+        Logout
+      </button>
+    </ng-container>
+  </nz-drawer>
+
+  <!-- ══════════════════════════ DESKTOP SIDEBAR ════════════════════════ -->
   <aside class="sidebar">
     <div class="sidebar__logo">
       <a routerLink="/">
@@ -9,62 +62,485 @@
       </a>
     </div>
 
+    <div class="sidebar__profile">
+      <nz-avatar
+        [nzText]="member()?.name?.charAt(0) ?? 'M'"
+        [nzSize]="44"
+        [style.background-color]="'#28a745'">
+      </nz-avatar>
+      <div class="sidebar__profile-info">
+        <p class="sidebar__profile-name">{{ member()?.name }}</p>
+        <p class="sidebar__profile-code">{{ member()?.code }}</p>
+      </div>
+    </div>
+
     <nav class="sidebar__nav">
-      <a class="sidebar__link sidebar__link--active">
-        <span nz-icon nzType="dashboard" nzTheme="outline"></span> Dashboard
-      </a>
-      <a class="sidebar__link">
-        <span nz-icon nzType="shopping" nzTheme="outline"></span> Products
-      </a>
-      <a class="sidebar__link">
-        <span nz-icon nzType="bar-chart" nzTheme="outline"></span> Analytics
-      </a>
-      <a class="sidebar__link">
-        <span nz-icon nzType="calendar" nzTheme="outline"></span> Events
-      </a>
-      <a class="sidebar__link">
-        <span nz-icon nzType="setting" nzTheme="outline"></span> Settings
-      </a>
+      @for (item of navItems; track item.id) {
+        <button
+          class="sidebar__link"
+          [class.sidebar__link--active]="activeSection() === item.id"
+          (click)="navigate(item.id)">
+          <span nz-icon [nzType]="item.icon" nzTheme="outline"></span>
+          {{ item.label }}
+        </button>
+      }
     </nav>
 
-    <button class="sidebar__logout" (click)="logout()">
-      <span nz-icon nzType="logout" nzTheme="outline"></span> Logout
-    </button>
+    <div class="sidebar__footer">
+      <a routerLink="/" class="sidebar__marketplace-link">
+        <span nz-icon nzType="shop" nzTheme="outline"></span>
+        Go to Marketplace
+      </a>
+      <button class="sidebar__logout" (click)="logout()">
+        <span nz-icon nzType="logout" nzTheme="outline"></span>
+        Logout
+      </button>
+    </div>
   </aside>
 
-  <!-- Main content -->
+  <!-- ══════════════════════════ MAIN CONTENT ═══════════════════════════ -->
   <main class="dash-main">
 
-    <!-- Header -->
-    <div class="dash-header">
+    <!-- Top bar -->
+    <div class="dash-topbar">
       <div>
-        <p class="dash-welcome">Good day 👋</p>
-        <h1 class="dash-title">{{ member()?.name }}</h1>
+        <p class="dash-greeting">{{ greeting() }}, {{ member()?.name }}! 👋</p>
+        <p class="dash-date">{{ today | date:'EEEE, MMMM d, yyyy' }}</p>
       </div>
-      <nz-avatar [nzText]="member()?.name?.charAt(0)" [nzSize]="48" nzColor="#28a745"></nz-avatar>
+      <div class="dash-topbar__right">
+        @if (vendor()?.verified) {
+          <nz-tag nzColor="green">
+            <span nz-icon nzType="safety-certificate" nzTheme="outline"></span>
+            Verified Vendor
+          </nz-tag>
+        }
+        <nz-avatar
+          [nzText]="member()?.name?.charAt(0) ?? 'M'"
+          [nzSize]="44"
+          [style.background-color]="'#28a745'"
+          class="topbar-avatar">
+        </nz-avatar>
+      </div>
     </div>
 
-    <!-- Coming soon banner -->
-    <div class="coming-soon">
-      <div class="coming-soon__icon">
-        <span nz-icon nzType="tool" nzTheme="fill"></span>
+    <!-- ─────────────────────── SECTION: OVERVIEW ─────────────────────── -->
+    @if (activeSection() === 'overview') {
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        @for (kpi of kpis(); track kpi.label) {
+          <div class="kpi-card">
+            <div class="kpi-card__icon" [style.background]="kpi.bg" [style.color]="kpi.color">
+              <span nz-icon [nzType]="kpi.icon" nzTheme="outline"></span>
+            </div>
+            <div class="kpi-card__body">
+              <p class="kpi-card__label">{{ kpi.label }}</p>
+              <p class="kpi-card__value">
+                {{ kpi.prefix }}{{ kpi.value | number }}{{ kpi.suffix }}
+              </p>
+            </div>
+          </div>
+        }
       </div>
-      <h2>Dashboard Coming Soon</h2>
-      <p>
-        Your member dashboard is being built. It will include product management,
-        order tracking, analytics, and more.
-      </p>
-      <div class="coming-soon__tags">
-        <nz-tag nzColor="green">Product Management</nz-tag>
-        <nz-tag nzColor="blue">Order Tracking</nz-tag>
-        <nz-tag nzColor="purple">Analytics</nz-tag>
-        <nz-tag nzColor="gold">Event Access</nz-tag>
+
+      <!-- Overview grid: orders + events -->
+      <div class="overview-row">
+
+        <!-- Recent Orders panel -->
+        <div class="panel">
+          <div class="panel__header">
+            <h3 class="panel__title">Recent Orders</h3>
+            <nz-tag nzColor="blue">{{ orders.length }} recent</nz-tag>
+          </div>
+          <div class="panel__body">
+            <div class="order-list">
+              <!-- Header row -->
+              <div class="order-row order-row--head">
+                <span class="order-row__id">Order</span>
+                <span class="order-row__product">Product</span>
+                <span class="order-row__customer">Customer</span>
+                <span class="order-row__amount">Amount</span>
+                <span class="order-row__status">Status</span>
+              </div>
+              @for (order of orders; track order.id) {
+                <div class="order-row">
+                  <span class="order-row__id">{{ order.id }}</span>
+                  <span class="order-row__product" [nz-tooltip]="order.product">{{ order.product }}</span>
+                  <span class="order-row__customer">{{ order.customer }}</span>
+                  <span class="order-row__amount">BDT {{ order.amount | number }}</span>
+                  <span class="order-row__status">
+                    <nz-badge
+                      [nzStatus]="statusColor(order.status)"
+                      [nzText]="statusLabel(order.status)">
+                    </nz-badge>
+                  </span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Events panel -->
+        <div class="panel">
+          <div class="panel__header">
+            <h3 class="panel__title">Upcoming Events</h3>
+            <button class="panel__link" (click)="navigate('events')">See all</button>
+          </div>
+          <div class="panel__body event-list">
+            @for (evt of allEvents; track evt.id) {
+              <div class="event-item">
+                <div class="event-item__date">
+                  <span class="event-item__day">{{ evt.date | date:'d' }}</span>
+                  <span class="event-item__mon">{{ evt.date | date:'MMM' }}</span>
+                </div>
+                <div class="event-item__body">
+                  <p class="event-item__title">{{ evt.title }}</p>
+                  <p class="event-item__loc">
+                    <span nz-icon nzType="environment" nzTheme="outline"></span>
+                    {{ evt.location }}
+                  </p>
+                </div>
+                @if (evt.isFree) {
+                  <nz-tag nzColor="green" class="event-item__tag">Free</nz-tag>
+                } @else {
+                  <nz-tag nzColor="orange" class="event-item__tag">BDT {{ evt.price }}</nz-tag>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
       </div>
-      <a routerLink="/">
-        <button nz-button nzType="primary" nzSize="large">Browse the Marketplace</button>
-      </a>
-    </div>
+
+      <!-- Quick Actions -->
+      <div class="panel">
+        <div class="panel__header">
+          <h3 class="panel__title">Quick Actions</h3>
+        </div>
+        <div class="panel__body quick-actions">
+          <a [routerLink]="['/businesses', member()?.vendorId]" nz-button nzSize="large">
+            <span nz-icon nzType="shop" nzTheme="outline"></span>
+            My Store
+          </a>
+          <button nz-button nzSize="large" (click)="navigate('products')">
+            <span nz-icon nzType="shopping" nzTheme="outline"></span>
+            My Products
+          </button>
+          <button nz-button nzSize="large" (click)="navigate('analytics')">
+            <span nz-icon nzType="bar-chart" nzTheme="outline"></span>
+            Analytics
+          </button>
+          <a routerLink="/events" nz-button nzSize="large">
+            <span nz-icon nzType="calendar" nzTheme="outline"></span>
+            Browse Events
+          </a>
+        </div>
+      </div>
+
+    }
+
+    <!-- ─────────────────────── SECTION: PRODUCTS ─────────────────────── -->
+    @if (activeSection() === 'products') {
+
+      <div class="section-title-row">
+        <h2 class="section-title">My Products</h2>
+        <nz-tag nzColor="blue">{{ myProducts().length }} listed</nz-tag>
+      </div>
+
+      @if (myProducts().length === 0) {
+        <div class="empty-wrap">
+          <nz-empty nzNotFoundContent="No products listed for your store yet."></nz-empty>
+        </div>
+      } @else {
+        <div class="product-grid">
+          @for (product of myProducts(); track product.id) {
+            <div class="prod-card">
+              <div class="prod-card__img-wrap">
+                <img [src]="product.images[0]" [alt]="product.name" class="prod-card__img" />
+                @if (!product.inStock) {
+                  <div class="prod-card__oos">Out of Stock</div>
+                }
+                @if (product.isNew) {
+                  <div class="prod-card__new">New</div>
+                }
+              </div>
+              <div class="prod-card__body">
+                <nz-tag [nzColor]="'default'" class="prod-card__cat">{{ product.category }}</nz-tag>
+                <h4 class="prod-card__name">{{ product.name }}</h4>
+                <div class="prod-card__footer">
+                  <span class="prod-card__price">BDT {{ product.price | number }}</span>
+                  <div class="prod-card__rating">
+                    <span nz-icon nzType="star" nzTheme="fill" class="prod-card__star"></span>
+                    {{ product.rating }}
+                    <span class="prod-card__reviews">({{ product.reviewCount }})</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+    }
+
+    <!-- ────────────────────── SECTION: ANALYTICS ────────────────────── -->
+    @if (activeSection() === 'analytics') {
+
+      <h2 class="section-title">Analytics</h2>
+
+      <!-- Summary stats row -->
+      <div class="astat-row">
+        <div class="astat-card">
+          <p class="astat-card__label">Avg. Order Value</p>
+          <p class="astat-card__value">BDT 1,924</p>
+          <p class="astat-card__trend astat-card__trend--up">+12% vs last month</p>
+        </div>
+        <div class="astat-card">
+          <p class="astat-card__label">Conversion Rate</p>
+          <p class="astat-card__value">3.2%</p>
+          <p class="astat-card__trend astat-card__trend--up">+0.4% vs last month</p>
+        </div>
+        <div class="astat-card">
+          <p class="astat-card__label">Store Page Views</p>
+          <p class="astat-card__value">4,871</p>
+          <p class="astat-card__trend astat-card__trend--down">−8% vs last month</p>
+        </div>
+        <div class="astat-card">
+          <p class="astat-card__label">Repeat Customers</p>
+          <p class="astat-card__value">38%</p>
+          <p class="astat-card__trend astat-card__trend--up">+5% vs last month</p>
+        </div>
+      </div>
+
+      <!-- Revenue chart -->
+      <div class="panel">
+        <div class="panel__header">
+          <h3 class="panel__title">Monthly Revenue</h3>
+          <span class="panel__meta">Last 6 months</span>
+        </div>
+        <div class="panel__body">
+          <div class="rev-chart">
+            @for (m of monthlyRevenue; track m.month) {
+              <div
+                class="rev-col"
+                [nz-tooltip]="'BDT ' + (m.revenue | number)">
+                <span class="rev-val">{{ m.revenue | number }}</span>
+                <div class="rev-bar-wrap">
+                  <div
+                    class="rev-bar"
+                    [style.height.%]="barHeight(m.revenue)">
+                  </div>
+                </div>
+                <span class="rev-label">{{ m.month }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Product performance -->
+      <div class="panel">
+        <div class="panel__header">
+          <h3 class="panel__title">Top Products by Reviews</h3>
+        </div>
+        <div class="panel__body">
+          @if (productPerformance().length === 0) {
+            <nz-empty nzNotFoundContent="No products found."></nz-empty>
+          } @else {
+            <div class="perf-list">
+              @for (p of productPerformance(); track p.name) {
+                <div class="perf-item">
+                  <div class="perf-item__header">
+                    <span class="perf-item__name">{{ p.name }}</span>
+                    <span class="perf-item__meta">{{ p.reviews }} reviews · ★ {{ p.rating }}</span>
+                  </div>
+                  <nz-progress
+                    [nzPercent]="p.pct"
+                    nzStatus="active"
+                    [nzShowInfo]="false"
+                    [nzStrokeColor]="'#28a745'">
+                  </nz-progress>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+    }
+
+    <!-- ─────────────────────── SECTION: EVENTS ──────────────────────── -->
+    @if (activeSection() === 'events') {
+
+      <div class="section-title-row">
+        <h2 class="section-title">Events</h2>
+        <a routerLink="/events" nz-button nzType="default">
+          <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
+          All Events
+        </a>
+      </div>
+
+      <div class="evt-grid">
+        @for (evt of allEvents; track evt.id) {
+          <div class="evt-card">
+            <div class="evt-card__img-wrap">
+              <img [src]="evt.image" [alt]="evt.title" class="evt-card__img" />
+              <nz-tag [nzColor]="typeColor(evt.type)" class="evt-card__type-tag">{{ evt.type }}</nz-tag>
+            </div>
+            <div class="evt-card__body">
+              <h4 class="evt-card__title">{{ evt.title }}</h4>
+              <p class="evt-card__meta">
+                <span nz-icon nzType="calendar" nzTheme="outline"></span>
+                {{ evt.date | date:'mediumDate' }}
+                @if (evt.endDate !== evt.date) {
+                  — {{ evt.endDate | date:'mediumDate' }}
+                }
+              </p>
+              <p class="evt-card__loc">
+                <span nz-icon nzType="environment" nzTheme="outline"></span>
+                {{ evt.location }}
+              </p>
+              <div class="evt-card__footer">
+                @if (evt.isFree) {
+                  <nz-tag nzColor="green">Free</nz-tag>
+                } @else {
+                  <span class="evt-card__price">BDT {{ evt.price }}</span>
+                }
+                @if (evt.registrationOpen) {
+                  <a [routerLink]="['/events', evt.id]" nz-button nzType="primary" nzSize="small">
+                    Register
+                  </a>
+                } @else {
+                  <button nz-button nzSize="small" disabled>Registration Closed</button>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+    }
+
+    <!-- ────────────────────── SECTION: SETTINGS ─────────────────────── -->
+    @if (activeSection() === 'settings') {
+
+      <h2 class="section-title">Settings</h2>
+
+      <!-- Membership card -->
+      <div class="panel">
+        <div class="panel__header">
+          <h3 class="panel__title">Membership Information</h3>
+          <nz-tag nzColor="green">
+            <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+            Active
+          </nz-tag>
+        </div>
+        <div class="panel__body">
+          <div class="settings-grid">
+            <div class="settings-field">
+              <p class="settings-field__label">Full Name</p>
+              <p class="settings-field__value">{{ member()?.name }}</p>
+            </div>
+            <div class="settings-field">
+              <p class="settings-field__label">Email Address</p>
+              <p class="settings-field__value">{{ member()?.email }}</p>
+            </div>
+            <div class="settings-field">
+              <p class="settings-field__label">Membership Code</p>
+              <p class="settings-field__value"><nz-tag>{{ member()?.code }}</nz-tag></p>
+            </div>
+            <div class="settings-field">
+              <p class="settings-field__label">Role</p>
+              <p class="settings-field__value"><nz-tag nzColor="blue">{{ member()?.role }}</nz-tag></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vendor profile card -->
+      @if (vendor()) {
+        <div class="panel">
+          <div class="panel__header">
+            <h3 class="panel__title">Vendor Profile</h3>
+            <nz-tag [nzColor]="vendor()!.verified ? 'green' : 'orange'">
+              <span nz-icon [nzType]="vendor()!.verified ? 'safety-certificate' : 'clock-circle'" nzTheme="outline"></span>
+              {{ vendor()!.verified ? 'Verified' : 'Pending Verification' }}
+            </nz-tag>
+          </div>
+          <div class="panel__body">
+            <div class="vendor-overview">
+              <img [src]="vendor()!.logo" [alt]="vendor()!.name" class="vendor-logo" />
+              <div class="vendor-stats">
+                <div class="vendor-stat">
+                  <span class="vendor-stat__val">{{ vendor()!.productCount }}</span>
+                  <span class="vendor-stat__lbl">Products</span>
+                </div>
+                <div class="vendor-stat">
+                  <span class="vendor-stat__val">{{ vendor()!.rating }}</span>
+                  <span class="vendor-stat__lbl">Rating</span>
+                </div>
+                <div class="vendor-stat">
+                  <span class="vendor-stat__val">{{ vendor()!.reviewCount }}</span>
+                  <span class="vendor-stat__lbl">Reviews</span>
+                </div>
+                <div class="vendor-stat">
+                  <span class="vendor-stat__val">{{ vendor()!.memberSince }}</span>
+                  <span class="vendor-stat__lbl">Member Since</span>
+                </div>
+              </div>
+            </div>
+            <nz-divider style="margin: 16px 0"></nz-divider>
+            <div class="settings-grid">
+              <div class="settings-field">
+                <p class="settings-field__label">Business Name</p>
+                <p class="settings-field__value">{{ vendor()!.name }}</p>
+              </div>
+              <div class="settings-field">
+                <p class="settings-field__label">Location</p>
+                <p class="settings-field__value">
+                  <span nz-icon nzType="environment" nzTheme="outline"></span>
+                  {{ vendor()!.location }}
+                </p>
+              </div>
+              <div class="settings-field">
+                <p class="settings-field__label">District</p>
+                <p class="settings-field__value">{{ vendor()!.district }}</p>
+              </div>
+              <div class="settings-field">
+                <p class="settings-field__label">Categories</p>
+                <p class="settings-field__value settings-field__value--tags">
+                  @for (cat of vendor()!.categories; track cat) {
+                    <nz-tag>{{ cat }}</nz-tag>
+                  }
+                </p>
+              </div>
+              <div class="settings-field settings-field--full">
+                <p class="settings-field__label">About</p>
+                <p class="settings-field__value">{{ vendor()!.description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Danger zone -->
+      <div class="panel panel--danger">
+        <div class="panel__header">
+          <h3 class="panel__title">Account Actions</h3>
+        </div>
+        <div class="panel__body danger-zone">
+          <div>
+            <p class="danger-zone__title">Sign Out</p>
+            <p class="danger-zone__desc">Logging out will end your current member session.</p>
+          </div>
+          <button nz-button nzDanger (click)="logout()">
+            <span nz-icon nzType="logout" nzTheme="outline"></span>
+            Logout
+          </button>
+        </div>
+      </div>
+
+    }
 
   </main>
-
 </div>
