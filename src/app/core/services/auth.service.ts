@@ -1,91 +1,98 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+
 import { Member } from '../models';
+import { environment } from '../../../environments/environment';
 
-// ─── Dummy member registry (replace with API calls later) ────────────────────
-const MEMBERS: Member[] = [
-  { code: 'NAJUS-001', name: 'Rupali Handicrafts',  email: 'rupali@example.com',     vendorId: 'v1', role: 'vendor' },
-  { code: 'NAJUS-002', name: 'Sylhet Tea Garden',   email: 'sylhettea@example.com',  vendorId: 'v2', role: 'vendor' },
-  { code: 'NAJUS-003', name: 'Dhaka Muslin House',  email: 'dml@example.com',        vendorId: 'v3', role: 'vendor' },
-  { code: 'NAJUS-004', name: 'Green Earth Organics',email: 'geo@example.com',        vendorId: 'v4', role: 'vendor' },
-  { code: 'NAJUS-005', name: 'Nakshi Collective',   email: 'nakshi@example.com',     vendorId: 'v5', role: 'vendor' },
-];
-
-// Demo OTP — replace with real OTP verification later
-const DEMO_OTP = '123456';
-const STORAGE_KEY = 'najus_member';
+const TOKEN_KEY  = 'najus_token';
+const MEMBER_KEY = 'najus_member';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private http = inject(HttpClient);
+  private base = environment.api;
 
   // ── State ────────────────────────────────────────────────────────────────
-  currentMember = signal<Member | null>(this.loadStoredMember());
-  isAuthenticated = computed(() => !!this.currentMember());
+  authToken       = signal<string | null>(localStorage.getItem(TOKEN_KEY));
+  currentMember   = signal<Member | null>(this.loadStoredMember());
+  isAuthenticated = computed(() => !!this.authToken());
 
   // ── OTP flow ─────────────────────────────────────────────────────────────
 
   /**
    * Step 1 — Validate membership code and trigger OTP email.
-   * Returns masked email on success; throws with user-friendly message on failure.
-   * TODO: Replace with POST /api/auth/request-otp
+   * Returns masked email on success.
    */
   requestOtp(memberCode: string): Observable<{ maskedEmail: string }> {
-    const member = this.findMember(memberCode);
-    if (!member) {
-      return throwError(() => new Error(
-        'Membership code not found. Please check and try again.'
-      )).pipe(delay(800));
-    }
-    return of({ maskedEmail: this.maskEmail(member.email) }).pipe(delay(1200));
+    return this.http.post<{ maskedEmail: string }>(
+      `${this.base}/auth/request-otp`,
+      { member_code: memberCode.trim().toUpperCase() },
+    ).pipe(
+      catchError(err => throwError(() => new Error(
+        err.error?.message ?? 'Membership code not found. Please check and try again.'
+      ))),
+    );
   }
 
   /**
    * Step 2 — Verify the OTP and create a session.
    * Returns the authenticated Member on success.
-   * TODO: Replace with POST /api/auth/verify-otp
    */
   verifyOtp(memberCode: string, otp: string): Observable<Member> {
-    const member = this.findMember(memberCode);
-    if (!member) {
-      return throwError(() => new Error('Session expired. Please start over.')).pipe(delay(500));
-    }
-    if (otp !== DEMO_OTP) {
-      return throwError(() => new Error(
-        'Invalid or expired OTP. Please check your email and try again.'
-      )).pipe(delay(900));
-    }
-    this.setSession(member);
-    return of(member).pipe(delay(900));
+    return this.http.post<{ member: Member; token: string }>(
+      `${this.base}/auth/verify-otp`,
+      { member_code: memberCode.trim().toUpperCase(), otp },
+    ).pipe(
+      map(res => {
+        this.setSession(res.member, res.token);
+        return res.member;
+      }),
+      catchError(err => throwError(() => new Error(
+        err.error?.message ?? 'Invalid or expired OTP. Please try again.'
+      ))),
+    );
   }
 
   logout(): void {
-    this.currentMember.set(null);
-    localStorage.removeItem(STORAGE_KEY);
+    const token = this.authToken();
+    this.clearSession();
+    if (token) {
+      // Fire-and-forget — clear local session first so UI reacts immediately
+      this.http.post(
+        `${this.base}/auth/logout`, {},
+        { headers: { Authorization: `Bearer ${token}` } },
+      ).subscribe({ error: () => {} });
+    }
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────────
-  private findMember(code: string): Member | undefined {
-    return MEMBERS.find(m => m.code === code.trim().toUpperCase());
+  private setSession(member: Member, token: string): void {
+    this.currentMember.set(member);
+    this.authToken.set(token);
+    localStorage.setItem(MEMBER_KEY, JSON.stringify(member));
+    localStorage.setItem(TOKEN_KEY, token);
   }
 
-  private setSession(member: Member): void {
-    this.currentMember.set(member);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(member));
+  /** Call when a 401 is received — clears state without making an API call. */
+  invalidateSession(): void {
+    this.clearSession();
+  }
+
+  private clearSession(): void {
+    this.currentMember.set(null);
+    this.authToken.set(null);
+    localStorage.removeItem(MEMBER_KEY);
+    localStorage.removeItem(TOKEN_KEY);
   }
 
   private loadStoredMember(): Member | null {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(MEMBER_KEY);
       return raw ? (JSON.parse(raw) as Member) : null;
     } catch {
       return null;
     }
-  }
-
-  maskEmail(email: string): string {
-    const [user, domain] = email.split('@');
-    const visible = user.slice(0, 2);
-    return `${visible}${'*'.repeat(Math.max(3, user.length - 2))}@${domain}`;
   }
 }

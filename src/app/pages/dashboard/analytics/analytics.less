@@ -1,0 +1,80 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+@import '../shared';
+
+.astat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: @sp-4;
+  @media (max-width: @bp-lg) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: @bp-sm) { grid-template-columns: 1fr 1fr; }
+}
+
+.astat-card {
+  background: @bg-card;
+  border: 1px solid @border-light;
+  border-radius: @radius-xl;
+  padding: @sp-5;
+  box-shadow: @shadow-xs;
+
+  &__label {
+    font-size: @text-xs; font-weight: 600; color: @text-muted;
+    text-transform: uppercase; letter-spacing: .05em; margin: 0 0 @sp-2;
+  }
+
+  &__value { font-family: @font-heading; font-size: @text-2xl; color: @text-primary; margin: 0 0 @sp-2; }
+
+  &__trend { font-size: @text-xs; margin: 0; font-weight: 600; }
+  &__trend--up   { color: @primary; }
+  &__trend--down { color: #dc3545; }
+}
+
+// ─── Revenue Chart (CSS bar chart) ────────────────────────────────────
+.rev-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: @sp-3;
+  height: 200px;
+}
+
+.rev-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  gap: @sp-2;
+  cursor: default;
+}
+
+.rev-val {
+  font-size: @text-xs; color: @text-muted; line-height: 1;
+  text-align: center; flex-shrink: 0;
+  @media (max-width: @bp-md) { display: none; }
+}
+
+.rev-bar-wrap { flex: 1; width: 100%; display: flex; align-items: flex-end; }
+
+.rev-bar {
+  width: 100%;
+  background: linear-gradient(to top, @primary-dark, @primary-light);
+  border-radius: @radius-sm @radius-sm 0 0;
+  min-height: 4px;
+  transition: height .35s ease;
+  .rev-col:hover & { background: linear-gradient(to top, @accent-dark, @accent); }
+}
+
+.rev-label { font-size: @text-xs; color: @text-muted; font-weight: 600; flex-shrink: 0; }
+
+// ─── Product Performance ───────────────────────────────────────────────
+.perf-list { display: flex; flex-direction: column; gap: @sp-5; }
+
+.perf-item {
+  display: flex;
+  flex-direction: column;
+  gap: @sp-2;
+
+  &__header { display: flex; align-items: center; justify-content: space-between; gap: @sp-3; }
+  &__name   { font-size: @text-sm; font-weight: 600; color: @text-primary; .clamp(1); }
+  &__meta   { font-size: @text-xs; color: @text-muted; white-space: nowrap; }
+}

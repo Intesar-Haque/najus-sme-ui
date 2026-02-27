@@ -1,0 +1,139 @@
+<div class="section-title-row">
+  <a routerLink="/dashboard/products" class="back-btn">
+    <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+    Back to Products
+  </a>
+  <h2 class="section-title">List New Product</h2>
+</div>
+
+<div class="panel create-panel">
+  <div class="panel__body">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="create-form">
+
+      <!-- Row 1: Name + Category -->
+      <div class="cf-row cf-row--2">
+        <nz-form-item>
+          <nz-form-label nzRequired>Product Name</nz-form-label>
+          <nz-form-control nzErrorTip="Product name is required">
+            <input nz-input formControlName="name" placeholder="e.g. Handmade Jute Bag" />
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label nzRequired>Category</nz-form-label>
+          <nz-form-control nzErrorTip="Please select a category">
+            <nz-select formControlName="category_id" nzPlaceHolder="Select category"
+                       nzShowSearch [nzLoading]="catLoading()">
+              @for (cat of categories(); track cat.id) {
+                <nz-option [nzValue]="cat.id" [nzLabel]="cat.name"></nz-option>
+              }
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <!-- Row 2: Price + Original Price -->
+      <div class="cf-row cf-row--2">
+        <nz-form-item>
+          <nz-form-label nzRequired>Price (BDT)</nz-form-label>
+          <nz-form-control nzErrorTip="Valid price is required">
+            <nz-input-number formControlName="price"
+              [nzMin]="0" [nzStep]="10" nzPlaceHolder="0.00" style="width:100%">
+            </nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>
+            Original Price (BDT)
+            <span class="cf-optional">optional — shows as crossed-out</span>
+          </nz-form-label>
+          <nz-form-control>
+            <nz-input-number formControlName="original_price"
+              [nzMin]="0" [nzStep]="10" nzPlaceHolder="0.00" style="width:100%">
+            </nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <!-- Description -->
+      <nz-form-item>
+        <nz-form-label nzRequired>Description</nz-form-label>
+        <nz-form-control nzErrorTip="Description is required">
+          <textarea nz-input formControlName="description"
+            placeholder="Describe your product — material, size, use case, etc."
+            [nzAutosize]="{ minRows: 4, maxRows: 8 }">
+          </textarea>
+        </nz-form-control>
+      </nz-form-item>
+
+      <!-- Tags -->
+      <nz-form-item>
+        <nz-form-label>
+          Tags <span class="cf-optional">comma-separated (e.g. handmade, jute, eco-friendly)</span>
+        </nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="tags_input" placeholder="handmade, jute, eco-friendly" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <!-- Image URLs -->
+      <nz-form-item>
+        <nz-form-label>Image URLs <span class="cf-optional">up to 5</span></nz-form-label>
+        <nz-form-control>
+          <div class="img-url-list" formArrayName="image_urls">
+            @for (ctrl of imageUrls.controls; track $index) {
+              <div class="img-url-row">
+                <input nz-input [formControlName]="$index"
+                       placeholder="https://example.com/image.jpg" />
+                @if (imageUrls.length > 1) {
+                  <button type="button" nz-button nzDanger nzSize="small"
+                          (click)="removeImageUrl($index)">
+                    <span nz-icon nzType="delete" nzTheme="outline"></span>
+                  </button>
+                }
+              </div>
+            }
+            @if (imageUrls.length < 5) {
+              <button type="button" class="add-img-btn" (click)="addImageUrl()">
+                <span nz-icon nzType="plus-circle" nzTheme="outline"></span>
+                Add another image URL
+              </button>
+            }
+          </div>
+        </nz-form-control>
+      </nz-form-item>
+
+      <!-- Toggles -->
+      <div class="cf-row cf-row--2">
+        <nz-form-item>
+          <nz-form-label>In Stock</nz-form-label>
+          <nz-form-control>
+            <nz-switch formControlName="in_stock"
+                       nzCheckedChildren="Yes" nzUnCheckedChildren="No">
+            </nz-switch>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>Mark as New</nz-form-label>
+          <nz-form-control>
+            <nz-switch formControlName="is_new"
+                       nzCheckedChildren="Yes" nzUnCheckedChildren="No">
+            </nz-switch>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <!-- Actions -->
+      <div class="cf-actions">
+        <a routerLink="/dashboard/products" nz-button nzSize="large">Cancel</a>
+        <button type="submit" nz-button nzType="primary" nzSize="large" [nzLoading]="saving()">
+          <span nz-icon nzType="check" nzTheme="outline"></span>
+          List Product
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

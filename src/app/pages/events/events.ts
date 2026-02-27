@@ -1,7 +1,9 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { debounceTime, switchMap } from 'rxjs/operators';
 
 import { NzButtonModule }    from 'ng-zorro-antd/button';
 import { NzIconModule }      from 'ng-zorro-antd/icon';
@@ -14,8 +16,9 @@ import { NzEmptyModule }     from 'ng-zorro-antd/empty';
 import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 import { NzBadgeModule }     from 'ng-zorro-antd/badge';
 import { NzDividerModule }   from 'ng-zorro-antd/divider';
+import { NzSpinModule }      from 'ng-zorro-antd/spin';
 
-import { DataService } from '../../core/services/data.service';
+import { ApiService, EventsResponse } from '../../core/services/api.service';
 import { EventType } from '../../core/models';
 
 export type EventSort = 'date-asc' | 'date-desc' | 'featured';
@@ -32,77 +35,73 @@ interface EventTypeOption {
   icon: string;
 }
 
+const EMPTY_RESULT: EventsResponse = {
+  data: [],
+  meta: { total: 0, current_page: 1, last_page: 1, per_page: 50, free_count: 0, open_count: 0 },
+};
+
 @Component({
   selector: 'app-events',
   imports: [
     RouterLink, FormsModule, DatePipe, NgTemplateOutlet,
     NzButtonModule, NzIconModule, NzInputModule, NzSelectModule,
     NzTagModule, NzSwitchModule, NzDrawerModule, NzEmptyModule,
-    NzBreadCrumbModule, NzBadgeModule, NzDividerModule,
+    NzBreadCrumbModule, NzBadgeModule, NzDividerModule, NzSpinModule,
   ],
   templateUrl: './events.html',
   styleUrl:    './events.less',
 })
 export class Events implements OnInit {
-  private data = inject(DataService);
-
-  readonly allEvents = this.data.events;
+  private api   = inject(ApiService);
+  private route = inject(ActivatedRoute);
 
   readonly typeOptions: EventTypeOption[] = [
-    { value: 'trade-fair',  label: 'Trade Fair',  icon: 'shop'      },
-    { value: 'workshop',    label: 'Workshop',    icon: 'tool'      },
-    { value: 'exhibition',  label: 'Exhibition',  icon: 'picture'   },
+    { value: 'trade-fair',  label: 'Trade Fair',  icon: 'shop'         },
+    { value: 'workshop',    label: 'Workshop',    icon: 'tool'         },
+    { value: 'exhibition',  label: 'Exhibition',  icon: 'picture'      },
     { value: 'webinar',     label: 'Webinar',     icon: 'video-camera' },
-    { value: 'networking',  label: 'Networking',  icon: 'team'      },
+    { value: 'networking',  label: 'Networking',  icon: 'team'         },
   ];
 
   readonly sortOptions = [
+    { value: 'featured',  label: 'Featured First'  },
     { value: 'date-asc',  label: 'Earliest First'  },
     { value: 'date-desc', label: 'Latest First'    },
-    { value: 'featured',  label: 'Featured First'  },
   ];
 
   // ── Filter state ──────────────────────────────────────────────────────
-  searchQuery       = signal('');
-  selectedTypes     = signal<EventType[]>([]);
-  freeOnly          = signal(false);
-  openOnly          = signal(false);
-  sortBy            = signal<EventSort>('date-asc');
-  filterDrawerOpen  = signal(false);
+  searchQuery      = signal('');
+  selectedTypes    = signal<EventType[]>([]);
+  freeOnly         = signal(false);
+  openOnly         = signal(false);
+  sortBy           = signal<EventSort>('featured');
+  filterDrawerOpen = signal(false);
 
-  // ── Computed ──────────────────────────────────────────────────────────
-  filteredEvents = computed(() => {
-    let list = [...this.allEvents];
+  // ── Combined filter params ────────────────────────────────────────────
+  private filterParams = computed(() => ({
+    q:        this.searchQuery() || undefined,
+    types:    this.selectedTypes().length ? this.selectedTypes() : undefined,
+    free:     this.freeOnly() || undefined,
+    open:     this.openOnly() || undefined,
+    sort:     this.sortBy(),
+    per_page: 50,
+  }));
 
-    const q = this.searchQuery().toLowerCase().trim();
-    if (q) {
-      list = list.filter(e =>
-        e.title.toLowerCase().includes(q) ||
-        e.description.toLowerCase().includes(q) ||
-        e.location.toLowerCase().includes(q) ||
-        e.organizer.toLowerCase().includes(q)
-      );
-    }
+  // ── Reactive API result ───────────────────────────────────────────────
+  private result$ = toObservable(this.filterParams).pipe(
+    debounceTime(300),
+    switchMap(p => this.api.getEvents(p)),
+  );
 
-    const types = this.selectedTypes();
-    if (types.length) list = list.filter(e => types.includes(e.type));
+  private result = toSignal(this.result$, { initialValue: EMPTY_RESULT });
 
-    if (this.freeOnly()) list = list.filter(e => e.isFree);
-    if (this.openOnly()) list = list.filter(e => e.registrationOpen);
+  // ── Derived ───────────────────────────────────────────────────────────
+  readonly events       = computed(() => this.result().data);
+  readonly totalCount   = computed(() => this.result().meta.total);
+  readonly freeCount    = computed(() => this.result().meta.free_count);
+  readonly upcomingCount = computed(() => this.result().meta.open_count);
 
-    switch (this.sortBy()) {
-      case 'date-asc':  list.sort((a, b) => a.date.localeCompare(b.date));        break;
-      case 'date-desc': list.sort((a, b) => b.date.localeCompare(a.date));        break;
-      case 'featured':  list.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0)); break;
-    }
-    return list;
-  });
-
-  totalCount = computed(() => this.filteredEvents().length);
-
-  freeCount     = computed(() => this.allEvents.filter(e => e.isFree).length);
-  upcomingCount = computed(() => this.allEvents.filter(e => e.registrationOpen).length);
-
+  // ── Active filter chips ───────────────────────────────────────────────
   activeFilterCount = computed(() =>
     (this.searchQuery() ? 1 : 0) +
     this.selectedTypes().length +
@@ -122,7 +121,11 @@ export class Events implements OnInit {
     return chips;
   });
 
-  ngOnInit() {}
+  ngOnInit() {
+    const params = this.route.snapshot.queryParamMap;
+    const type = params.get('type') as EventType | null;
+    if (type) this.selectedTypes.set([type]);
+  }
 
   // ── Handlers ──────────────────────────────────────────────────────────
   toggleType(type: EventType) {
@@ -145,7 +148,7 @@ export class Events implements OnInit {
     this.selectedTypes.set([]);
     this.freeOnly.set(false);
     this.openOnly.set(false);
-    this.sortBy.set('date-asc');
+    this.sortBy.set('featured');
   }
 
   typeLabel(type: EventType): string {

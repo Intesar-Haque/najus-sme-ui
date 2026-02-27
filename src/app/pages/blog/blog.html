@@ -14,17 +14,17 @@
 
     <div class="header-stats hide-mobile">
       <div class="hstat">
-        <span class="hstat__num">{{ allPosts.length }}</span>
+        <span class="hstat__num">{{ totalCount() }}</span>
         <span class="hstat__label">Articles</span>
       </div>
       <div class="hstat-divider"></div>
       <div class="hstat">
-        <span class="hstat__num">{{ allCategories.length }}</span>
+        <span class="hstat__num">{{ allCategories().length }}</span>
         <span class="hstat__label">Categories</span>
       </div>
       <div class="hstat-divider"></div>
       <div class="hstat">
-        <span class="hstat__num">{{ allTags.length }}</span>
+        <span class="hstat__num">{{ allTags().length }}</span>
         <span class="hstat__label">Topics</span>
       </div>
     </div>
@@ -128,9 +128,9 @@
       </span>
     </div>
 
-    @if (filteredPosts().length) {
+    @if (posts().length) {
       <div class="posts-grid">
-        @for (post of filteredPosts(); track post.id) {
+        @for (post of posts(); track post.id) {
           <article class="post-card" [class.post-card--featured]="post.featured">
 
             <!-- Image -->
@@ -219,13 +219,12 @@
         <button class="cat-btn" [class.cat-btn--active]="!selectedCategory()"
                 (click)="selectedCategory.set('')">
           <span class="cat-btn__label">All Posts</span>
-          <span class="cat-btn__count">{{ allPosts.length }}</span>
+          <span class="cat-btn__count">{{ totalCount() }}</span>
         </button>
-        @for (cat of allCategories; track cat) {
+        @for (cat of allCategories(); track cat) {
           <button class="cat-btn" [class.cat-btn--active]="selectedCategory() === cat"
                   (click)="selectedCategory.set(cat)">
             <span class="cat-btn__label">{{ cat }}</span>
-            <span class="cat-btn__count">{{ categoryPostCount(cat) }}</span>
           </button>
         }
       </div>
@@ -242,7 +241,7 @@
         }
       </div>
       <div class="tag-cloud">
-        @for (tag of allTags; track tag) {
+        @for (tag of allTags(); track tag) {
           <button class="tag-pill" [class.tag-pill--active]="selectedTags().includes(tag)"
                   (click)="toggleTag(tag)">
             #{{ tag }}

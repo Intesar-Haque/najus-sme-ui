@@ -1,0 +1,86 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+// ─── Panel card (used in overview / analytics / events / settings) ──────────
+.panel {
+  background: @bg-card;
+  border: 1px solid @border-light;
+  border-radius: @radius-xl;
+  box-shadow: @shadow-xs;
+  overflow: hidden;
+
+  &--danger { border-color: rgba(220,53,69,.2); }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: @sp-4 @sp-6;
+    border-bottom: 1px solid @border-light;
+  }
+
+  &__title {
+    font-family: @font-heading;
+    font-size: @text-lg;
+    color: @text-primary;
+    margin: 0;
+  }
+
+  &__meta { font-size: @text-sm; color: @text-muted; }
+
+  &__link {
+    background: none;
+    border: none;
+    color: @primary;
+    font-size: @text-sm;
+    cursor: pointer;
+    font-family: @font-body;
+    padding: 0;
+    text-decoration: underline;
+    &:hover { color: @primary-dark; }
+  }
+
+  &__body { padding: @sp-5 @sp-6; }
+}
+
+// ─── Section header row ───────────────────────────────────────────────────────
+.section-title-row {
+  display: flex;
+  align-items: center;
+  gap: @sp-3;
+}
+
+.section-title {
+  font-family: @font-heading;
+  font-size: @text-2xl;
+  color: @text-primary;
+  margin: 0;
+}
+
+// ─── Empty state ──────────────────────────────────────────────────────────────
+.empty-wrap {
+  padding: @sp-16 0;
+  .flex-center();
+}
+
+// ─── Section loading spinner ──────────────────────────────────────────────────
+.section-loading {
+  padding: @sp-16 0;
+  .flex-center();
+}
+
+// ─── Back button (used in create/edit views) ──────────────────────────────────
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: @sp-2;
+  background: none;
+  border: none;
+  color: @text-secondary;
+  font-size: @text-sm;
+  cursor: pointer;
+  font-family: @font-body;
+  padding: 0;
+  transition: @transition-base;
+  &:hover { color: @primary; }
+}

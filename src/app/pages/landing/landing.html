@@ -69,7 +69,7 @@
     <!-- Right: product showcase grid -->
     <div class="hero__visual">
       <div class="hero-grid">
-        @for (p of products.slice(0, 4); track p.id; let i = $index) {
+        @for (p of products().slice(0, 4); track p.id; let i = $index) {
           <a [routerLink]="['/products', p.id]" class="hero-grid__item"
              [class.hero-grid__item--tall]="i === 0">
             <img [src]="p.images[0]" [alt]="p.name" loading="lazy" />
@@ -93,7 +93,7 @@
     <div class="stat-pill">
       <span nz-icon nzType="team" nzTheme="fill" class="stat-icon"></span>
       <div>
-        <div class="stat-num">{{ stats.members }}+</div>
+        <div class="stat-num">{{ stats().members }}+</div>
         <div class="stat-label">Member SMEs</div>
       </div>
     </div>
@@ -101,7 +101,7 @@
     <div class="stat-pill">
       <span nz-icon nzType="shopping" nzTheme="fill" class="stat-icon"></span>
       <div>
-        <div class="stat-num">{{ stats.products | number }}+</div>
+        <div class="stat-num">{{ stats().products | number }}+</div>
         <div class="stat-label">Products Listed</div>
       </div>
     </div>
@@ -109,7 +109,7 @@
     <div class="stat-pill">
       <span nz-icon nzType="appstore" nzTheme="fill" class="stat-icon"></span>
       <div>
-        <div class="stat-num">{{ stats.categories }}</div>
+        <div class="stat-num">{{ stats().categories }}</div>
         <div class="stat-label">Categories</div>
       </div>
     </div>
@@ -117,7 +117,7 @@
     <div class="stat-pill">
       <span nz-icon nzType="environment" nzTheme="fill" class="stat-icon"></span>
       <div>
-        <div class="stat-num">{{ stats.districts }}</div>
+        <div class="stat-num">{{ stats().districts }}</div>
         <div class="stat-label">Districts</div>
       </div>
     </div>
@@ -125,7 +125,7 @@
     <div class="stat-pill">
       <span nz-icon nzType="calendar" nzTheme="fill" class="stat-icon"></span>
       <div>
-        <div class="stat-num">{{ stats.yearsActive }}+</div>
+        <div class="stat-num">{{ stats().yearsActive }}+</div>
         <div class="stat-label">Years Active</div>
       </div>
     </div>
@@ -149,7 +149,7 @@
     </div>
 
     <div class="categories-grid">
-      @for (cat of categories; track cat.id) {
+      @for (cat of categories(); track cat.id) {
         <button class="cat-card"
                 [class.cat-card--active]="activeCategory() === cat.id"
                 (click)="onCategoryClick(cat.id)">
@@ -181,7 +181,7 @@
     </div>
 
     <div class="products-grid">
-      @for (product of products; track product.id) {
+      @for (product of products(); track product.id) {
         <app-product-card [product]="product" (addToCart)="onAddToCart($event)" />
       }
     </div>
@@ -205,7 +205,7 @@
     <div class="section-header d-flex-between">
       <div>
         <h2 class="section-title">Meet Our SMEs</h2>
-        <p class="section-sub">{{ stats.members }}+ verified businesses ready to serve you</p>
+        <p class="section-sub">{{ stats().members }}+ verified businesses ready to serve you</p>
       </div>
       <a routerLink="/businesses" class="view-all-link hide-mobile">
         All Businesses <span nz-icon nzType="arrow-right"></span>
@@ -213,7 +213,7 @@
     </div>
 
     <div class="vendors-grid">
-      @for (vendor of vendors; track vendor.id) {
+      @for (vendor of vendors(); track vendor.id) {
         <app-vendor-card [vendor]="vendor" />
       }
     </div>
@@ -237,7 +237,7 @@
     </div>
 
     <div class="events-grid">
-      @for (event of events; track event.id) {
+      @for (event of events(); track event.id) {
         <article class="event-card">
           <div class="event-card__image">
             <img [src]="event.image" [alt]="event.title" loading="lazy" />
@@ -298,7 +298,7 @@
     </div>
 
     <div class="blog-grid">
-      @for (post of posts; track post.id; let first = $first) {
+      @for (post of posts(); track post.id; let first = $first) {
         <article class="blog-card" [class.blog-card--featured]="first">
           <a [routerLink]="['/blog', post.id]" class="blog-card__image-wrap">
             <img [src]="post.image" [alt]="post.title" loading="lazy" />
@@ -355,12 +355,21 @@
           <span nz-icon nzType="arrow-right"></span>
         </button>
       </a>
-      <a routerLink="/login">
-        <button nz-button nzSize="large" class="cta-login-btn">
-          <span nz-icon nzType="user"></span>
-          Member Login
-        </button>
-      </a>
+      @if (isAuthenticated()) {
+        <a routerLink="/dashboard">
+          <button nz-button nzSize="large" class="cta-login-btn">
+            <span nz-icon nzType="dashboard"></span>
+            Go to Dashboard
+          </button>
+        </a>
+      } @else {
+        <a routerLink="/login">
+          <button nz-button nzSize="large" class="cta-login-btn">
+            <span nz-icon nzType="user"></span>
+            Member Login
+          </button>
+        </a>
+      }
     </div>
   </div>
 </section>

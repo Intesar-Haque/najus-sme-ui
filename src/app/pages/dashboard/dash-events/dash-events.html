@@ -1,0 +1,60 @@
+@if (loading()) {
+  <div class="section-loading">
+    <nz-spin nzSize="large" nzTip="Loading events…"></nz-spin>
+  </div>
+} @else {
+
+  <div class="section-title-row">
+    <h2 class="section-title">Events</h2>
+    <a routerLink="/events" nz-button nzType="default">
+      <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
+      All Events
+    </a>
+  </div>
+
+  @if (events().length === 0) {
+    <div class="empty-wrap">
+      <nz-empty nzNotFoundContent="No upcoming events at the moment."></nz-empty>
+    </div>
+  } @else {
+    <div class="evt-grid">
+      @for (evt of events(); track evt.id) {
+        <div class="evt-card">
+          <div class="evt-card__img-wrap">
+            <img [src]="evt.image" [alt]="evt.title" class="evt-card__img" />
+            <nz-tag [nzColor]="typeColor(evt.type)" class="evt-card__type-tag">{{ evt.type }}</nz-tag>
+          </div>
+          <div class="evt-card__body">
+            <h4 class="evt-card__title">{{ evt.title }}</h4>
+            <p class="evt-card__meta">
+              <span nz-icon nzType="calendar" nzTheme="outline"></span>
+              {{ evt.date | date:'mediumDate' }}
+              @if (evt.endDate !== evt.date) {
+                — {{ evt.endDate | date:'mediumDate' }}
+              }
+            </p>
+            <p class="evt-card__loc">
+              <span nz-icon nzType="environment" nzTheme="outline"></span>
+              {{ evt.location }}
+            </p>
+            <div class="evt-card__footer">
+              @if (evt.isFree) {
+                <nz-tag nzColor="green">Free</nz-tag>
+              } @else {
+                <span class="evt-card__price">BDT {{ evt.price }}</span>
+              }
+              @if (evt.registrationOpen) {
+                <a [routerLink]="['/events', evt.id]" nz-button nzType="primary" nzSize="small">
+                  Register
+                </a>
+              } @else {
+                <button nz-button nzSize="small" disabled>Registration Closed</button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+}

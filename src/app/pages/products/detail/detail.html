@@ -1,5 +1,12 @@
+<!-- ═══ LOADING ══════════════════════════════════════════════════════════ -->
+@if (loading()) {
+  <div class="loading-wrap container">
+    <nz-spin nzSize="large" nzTip="Loading product…"></nz-spin>
+  </div>
+}
+
 <!-- ═══ NOT FOUND ═══════════════════════════════════════════════════════ -->
-@if (notFound()) {
+@if (!loading() && notFound()) {
   <div class="not-found-wrap container">
     <nz-empty nzNotFoundImage="simple" nzNotFoundContent="Product not found.">
       <ng-template #nzNotFoundFooter>
@@ -11,7 +18,7 @@
   </div>
 }
 
-@if (product(); as p) {
+@if (!loading()) { @if (product(); as p) {
 
   <!-- ═══ BREADCRUMB ════════════════════════════════════════════════════ -->
   <div class="breadcrumb-bar">
@@ -182,4 +189,4 @@
     </div>
   }
 
-}
+} }

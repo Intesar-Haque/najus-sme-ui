@@ -1,5 +1,12 @@
+<!-- ═══ LOADING ══════════════════════════════════════════════════════════ -->
+@if (loading()) {
+  <div class="loading-wrap container">
+    <nz-spin nzSize="large" nzTip="Loading profile…"></nz-spin>
+  </div>
+}
+
 <!-- ═══ NOT FOUND ═══════════════════════════════════════════════════════ -->
-@if (notFound()) {
+@if (!loading() && notFound()) {
   <div class="not-found-wrap container">
     <nz-empty
       nzNotFoundImage="simple"
@@ -13,7 +20,7 @@
   </div>
 }
 
-@if (vendor(); as v) {
+@if (!loading()) { @if (vendor(); as v) {
 
   <!-- ═══ BREADCRUMB ════════════════════════════════════════════════════ -->
   <div class="breadcrumb-bar">
@@ -226,4 +233,4 @@
     </nz-tabs>
   </div>
 
-}
+} }

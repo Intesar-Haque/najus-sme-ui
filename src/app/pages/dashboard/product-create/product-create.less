@@ -1,0 +1,58 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+@import '../shared';
+
+.create-panel { max-width: 740px; }
+
+.create-form { display: flex; flex-direction: column; gap: @sp-1; }
+
+.cf-row {
+  &--2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: @sp-6;
+    @media (max-width: @bp-sm) { grid-template-columns: 1fr; gap: 0; }
+  }
+}
+
+.cf-optional {
+  font-size: @text-xs;
+  color: @text-muted;
+  font-weight: 400;
+  margin-left: @sp-1;
+}
+
+.img-url-list { display: flex; flex-direction: column; gap: @sp-2; }
+
+.img-url-row {
+  display: flex;
+  gap: @sp-2;
+  align-items: center;
+  input { flex: 1; }
+}
+
+.add-img-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: @sp-2;
+  background: none;
+  border: 1px dashed @border-color;
+  border-radius: @radius-md;
+  color: @text-muted;
+  font-size: @text-sm;
+  font-family: @font-body;
+  padding: @sp-2 @sp-3;
+  cursor: pointer;
+  transition: @transition-base;
+  width: fit-content;
+  &:hover { border-color: @primary; color: @primary; }
+}
+
+.cf-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: @sp-3;
+  padding-top: @sp-4;
+  border-top: 1px solid @border-light;
+  margin-top: @sp-2;
+}

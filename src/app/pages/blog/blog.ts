@@ -2,6 +2,8 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { debounceTime, switchMap } from 'rxjs/operators';
 
 import { NzButtonModule }     from 'ng-zorro-antd/button';
 import { NzIconModule }       from 'ng-zorro-antd/icon';
@@ -14,8 +16,9 @@ import { NzBadgeModule }      from 'ng-zorro-antd/badge';
 import { NzDividerModule }    from 'ng-zorro-antd/divider';
 import { NzAvatarModule }     from 'ng-zorro-antd/avatar';
 import { NzSelectModule }     from 'ng-zorro-antd/select';
+import { NzSpinModule }       from 'ng-zorro-antd/spin';
 
-import { DataService } from '../../core/services/data.service';
+import { ApiService, BlogResponse } from '../../core/services/api.service';
 import { BlogPost } from '../../core/models';
 
 export type BlogSort = 'newest' | 'oldest' | 'read-time';
@@ -26,23 +29,25 @@ interface FilterChip {
   value?: string;
 }
 
+const EMPTY_RESULT: BlogResponse = {
+  data: [],
+  featured: null,
+  meta: { total: 0, current_page: 1, last_page: 1, per_page: 50, all_categories: [], all_tags: [] },
+};
+
 @Component({
   selector: 'app-blog',
   imports: [
     RouterLink, FormsModule, DatePipe, NgTemplateOutlet,
     NzButtonModule, NzIconModule, NzInputModule, NzTagModule,
     NzDrawerModule, NzEmptyModule, NzBreadCrumbModule, NzBadgeModule,
-    NzDividerModule, NzAvatarModule, NzSelectModule,
+    NzDividerModule, NzAvatarModule, NzSelectModule, NzSpinModule,
   ],
   templateUrl: './blog.html',
   styleUrl:    './blog.less',
 })
 export class Blog {
-  private data = inject(DataService);
-
-  readonly allPosts      = this.data.blogPosts;
-  readonly allCategories = this.data.allBlogCategories;
-  readonly allTags       = this.data.allBlogTags;
+  private api = inject(ApiService);
 
   readonly sortOptions = [
     { value: 'newest',    label: 'Newest First'    },
@@ -51,47 +56,37 @@ export class Blog {
   ];
 
   // ── Filter state ──────────────────────────────────────────────────────
-  searchQuery       = signal('');
-  selectedCategory  = signal('');
-  selectedTags      = signal<string[]>([]);
-  sortBy            = signal<BlogSort>('newest');
-  filterDrawerOpen  = signal(false);
+  searchQuery      = signal('');
+  selectedCategory = signal('');
+  selectedTags     = signal<string[]>([]);
+  sortBy           = signal<BlogSort>('newest');
+  filterDrawerOpen = signal(false);
 
-  // ── Computed ──────────────────────────────────────────────────────────
-  featuredPost = computed<BlogPost | null>(() =>
-    this.allPosts.find(p => p.featured) ?? null
+  // ── Combined filter params ────────────────────────────────────────────
+  private filterParams = computed(() => ({
+    q:        this.searchQuery()      || undefined,
+    category: this.selectedCategory() || undefined,
+    tags:     this.selectedTags().length ? this.selectedTags() : undefined,
+    sort:     this.sortBy() !== 'newest' ? this.sortBy() : undefined,
+    per_page: 50,
+  }));
+
+  // ── Reactive API result ───────────────────────────────────────────────
+  private result$ = toObservable(this.filterParams).pipe(
+    debounceTime(300),
+    switchMap(p => this.api.getBlogPosts(p)),
   );
 
-  filteredPosts = computed(() => {
-    let list = [...this.allPosts];
+  private result = toSignal(this.result$, { initialValue: EMPTY_RESULT });
 
-    const q = this.searchQuery().toLowerCase().trim();
-    if (q) {
-      list = list.filter(p =>
-        p.title.toLowerCase().includes(q) ||
-        p.excerpt.toLowerCase().includes(q) ||
-        p.author.toLowerCase().includes(q) ||
-        p.tags.some(t => t.toLowerCase().includes(q)) ||
-        p.category.toLowerCase().includes(q)
-      );
-    }
+  // ── Derived ───────────────────────────────────────────────────────────
+  readonly posts         = computed(() => this.result().data);
+  readonly totalCount    = computed(() => this.result().meta.total);
+  readonly featuredPost  = computed<BlogPost | null>(() => this.result().featured);
+  readonly allCategories = computed(() => this.result().meta.all_categories);
+  readonly allTags       = computed(() => this.result().meta.all_tags);
 
-    const cat = this.selectedCategory();
-    if (cat) list = list.filter(p => p.category === cat);
-
-    const tags = this.selectedTags();
-    if (tags.length) list = list.filter(p => tags.some(t => p.tags.includes(t)));
-
-    switch (this.sortBy()) {
-      case 'newest':    list.sort((a, b) => b.date.localeCompare(a.date));    break;
-      case 'oldest':    list.sort((a, b) => a.date.localeCompare(b.date));    break;
-      case 'read-time': list.sort((a, b) => a.readTime - b.readTime);          break;
-    }
-    return list;
-  });
-
-  totalCount = computed(() => this.filteredPosts().length);
-
+  // ── Active filter chips ───────────────────────────────────────────────
   activeFilterCount = computed(() =>
     (this.searchQuery() ? 1 : 0) +
     (this.selectedCategory() ? 1 : 0) +
@@ -126,9 +121,5 @@ export class Blog {
     this.selectedCategory.set('');
     this.selectedTags.set([]);
     this.sortBy.set('newest');
-  }
-
-  categoryPostCount(cat: string): number {
-    return this.allPosts.filter(p => p.category === cat).length;
   }
 }

@@ -1,0 +1,57 @@
+@if (loading()) {
+  <div class="section-loading">
+    <nz-spin nzSize="large" nzTip="Loading products…"></nz-spin>
+  </div>
+} @else {
+
+  <div class="section-title-row">
+    <h2 class="section-title">My Products</h2>
+    <nz-tag nzColor="blue">{{ products().length }} listed</nz-tag>
+    <a routerLink="/dashboard/products/new" nz-button nzType="primary" class="add-product-btn">
+      <span nz-icon nzType="plus" nzTheme="outline"></span>
+      Add Product
+    </a>
+  </div>
+
+  @if (products().length === 0) {
+    <div class="empty-wrap">
+      <nz-empty nzNotFoundContent="No products listed for your store yet.">
+        <ng-template #nzNotFoundFooter>
+          <a routerLink="/dashboard/products/new" nz-button nzType="primary">
+            <span nz-icon nzType="plus" nzTheme="outline"></span>
+            Add Your First Product
+          </a>
+        </ng-template>
+      </nz-empty>
+    </div>
+  } @else {
+    <div class="product-grid">
+      @for (product of products(); track product.id) {
+        <div class="prod-card">
+          <div class="prod-card__img-wrap">
+            <img [src]="product.images[0]" [alt]="product.name" class="prod-card__img" />
+            @if (!product.inStock) {
+              <div class="prod-card__oos">Out of Stock</div>
+            }
+            @if (product.isNew) {
+              <div class="prod-card__new">New</div>
+            }
+          </div>
+          <div class="prod-card__body">
+            <nz-tag nzColor="default" class="prod-card__cat">{{ product.category }}</nz-tag>
+            <h4 class="prod-card__name">{{ product.name }}</h4>
+            <div class="prod-card__footer">
+              <span class="prod-card__price">BDT {{ product.price | number }}</span>
+              <div class="prod-card__rating">
+                <span nz-icon nzType="star" nzTheme="fill" class="prod-card__star"></span>
+                {{ product.rating }}
+                <span class="prod-card__reviews">({{ product.reviewCount }})</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+}

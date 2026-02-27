@@ -1,0 +1,118 @@
+@if (loading()) {
+  <div class="section-loading">
+    <nz-spin nzSize="large" nzTip="Loading overview…"></nz-spin>
+  </div>
+} @else {
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    @for (kpi of kpis(); track kpi.label) {
+      <div class="kpi-card">
+        <div class="kpi-card__icon" [style.background]="kpi.bg" [style.color]="kpi.color">
+          <span nz-icon [nzType]="kpi.icon" nzTheme="outline"></span>
+        </div>
+        <div class="kpi-card__body">
+          <p class="kpi-card__label">{{ kpi.label }}</p>
+          <p class="kpi-card__value">{{ kpi.prefix }}{{ kpi.value | number }}{{ kpi.suffix }}</p>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Overview row: orders + events -->
+  <div class="overview-row">
+
+    <!-- Recent Orders -->
+    <div class="panel">
+      <div class="panel__header">
+        <h3 class="panel__title">Recent Orders</h3>
+        <nz-tag nzColor="blue">{{ dashOrders().length }} recent</nz-tag>
+      </div>
+      <div class="panel__body">
+        <div class="order-list">
+          <div class="order-row order-row--head">
+            <span class="order-row__id">Order</span>
+            <span class="order-row__product">Product</span>
+            <span class="order-row__customer">Customer</span>
+            <span class="order-row__amount">Amount</span>
+            <span class="order-row__status">Status</span>
+          </div>
+          @for (order of dashOrders(); track order.id) {
+            <div class="order-row">
+              <span class="order-row__id">{{ order.id }}</span>
+              <span class="order-row__product" [nz-tooltip]="order.product">{{ order.product }}</span>
+              <span class="order-row__customer">{{ order.customer }}</span>
+              <span class="order-row__amount">BDT {{ order.amount | number }}</span>
+              <span class="order-row__status">
+                <nz-badge [nzStatus]="statusColor(order.status)" [nzText]="statusLabel(order.status)"></nz-badge>
+              </span>
+            </div>
+          }
+          @if (dashOrders().length === 0) {
+            <p class="order-empty">No orders yet.</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming Events -->
+    <div class="panel">
+      <div class="panel__header">
+        <h3 class="panel__title">Upcoming Events</h3>
+        <a routerLink="/dashboard/events" class="panel__link">See all</a>
+      </div>
+      <div class="panel__body event-list">
+        @for (evt of dashEvents(); track evt.id) {
+          <div class="event-item">
+            <div class="event-item__date">
+              <span class="event-item__day">{{ evt.date | date:'d' }}</span>
+              <span class="event-item__mon">{{ evt.date | date:'MMM' }}</span>
+            </div>
+            <div class="event-item__body">
+              <p class="event-item__title">{{ evt.title }}</p>
+              <p class="event-item__loc">
+                <span nz-icon nzType="environment" nzTheme="outline"></span>
+                {{ evt.location }}
+              </p>
+            </div>
+            @if (evt.isFree) {
+              <nz-tag nzColor="green" class="event-item__tag">Free</nz-tag>
+            } @else {
+              <nz-tag nzColor="orange" class="event-item__tag">BDT {{ evt.price }}</nz-tag>
+            }
+          </div>
+        }
+        @if (dashEvents().length === 0) {
+          <p class="order-empty">No upcoming events.</p>
+        }
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="panel">
+    <div class="panel__header">
+      <h3 class="panel__title">Quick Actions</h3>
+    </div>
+    <div class="panel__body quick-actions">
+      <a routerLink="/dashboard/overview" nz-button nzSize="large">
+        <span nz-icon nzType="shop" nzTheme="outline"></span>
+        My Store
+      </a>
+      <a routerLink="/dashboard/products" nz-button nzSize="large">
+        <span nz-icon nzType="shopping" nzTheme="outline"></span>
+        My Products
+      </a>
+      <a routerLink="/dashboard/analytics" nz-button nzSize="large">
+        <span nz-icon nzType="bar-chart" nzTheme="outline"></span>
+        Analytics
+      </a>
+      <a routerLink="/events" nz-button nzSize="large">
+        <span nz-icon nzType="calendar" nzTheme="outline"></span>
+        Browse Events
+      </a>
+    </div>
+  </div>
+
+}

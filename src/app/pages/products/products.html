@@ -226,7 +226,7 @@
         }
       </div>
       <div class="category-list">
-        @for (cat of categories; track cat.id) {
+        @for (cat of categories(); track cat.id) {
           <button class="cat-filter-btn"
                   [class.cat-filter-btn--active]="isCategorySelected(cat.id)"
                   (click)="onCategoryToggle(cat.id)">
@@ -252,7 +252,7 @@
       <nz-slider
         nzRange
         [nzMin]="0"
-        [nzMax]="maxPrice"
+        [nzMax]="apiMaxPrice()"
         [nzStep]="100"
         [(ngModel)]="priceSlider"
         [nzTipFormatter]="getPriceFormatter"

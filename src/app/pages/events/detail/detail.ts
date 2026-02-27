@@ -1,7 +1,9 @@
-import { Component, inject, signal, computed, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, ViewChild, DestroyRef } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { forkJoin, of, switchMap } from 'rxjs';
 
 import { NzButtonModule }    from 'ng-zorro-antd/button';
 import { NzIconModule }      from 'ng-zorro-antd/icon';
@@ -16,7 +18,7 @@ import { NzMessageService }  from 'ng-zorro-antd/message';
 import { NzSpinModule }      from 'ng-zorro-antd/spin';
 import { NzResultModule }    from 'ng-zorro-antd/result';
 
-import { DataService } from '../../../core/services/data.service';
+import { ApiService } from '../../../core/services/api.service';
 import { SmeEvent, EventType } from '../../../core/models';
 
 export interface RegistrationForm {
@@ -39,20 +41,22 @@ export interface RegistrationForm {
   styleUrl:    './detail.less',
 })
 export class EventDetail implements OnInit {
-  private data    = inject(DataService);
-  private route   = inject(ActivatedRoute);
-  private router  = inject(Router);
-  private message = inject(NzMessageService);
+  private api        = inject(ApiService);
+  private route      = inject(ActivatedRoute);
+  private router     = inject(Router);
+  private message    = inject(NzMessageService);
+  private destroyRef = inject(DestroyRef);
 
-  event          = signal<SmeEvent | null>(null);
-  relatedEvents  = signal<SmeEvent[]>([]);
-  notFound       = signal(false);
+  event         = signal<SmeEvent | null>(null);
+  relatedEvents = signal<SmeEvent[]>([]);
+  notFound      = signal(false);
+  loading       = signal(true);
 
   @ViewChild('regForm') regForm?: NgForm;
 
   // Registration form state
-  submitting    = signal(false);
-  submitted     = signal(false);
+  submitting = signal(false);
+  submitted  = signal(false);
 
   form: RegistrationForm = {
     fullName: '',
@@ -105,13 +109,28 @@ export class EventDetail implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    if (!id) { this.notFound.set(true); return; }
+    if (!id) { this.notFound.set(true); this.loading.set(false); return; }
 
-    const ev = this.data.getEventById(id);
-    if (!ev) { this.notFound.set(true); return; }
-
-    this.event.set(ev);
-    this.relatedEvents.set(this.data.getRelatedEvents(id, ev.type));
+    this.api.getEventById(id).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      switchMap(event => {
+        if (!event) return of({ event: null as SmeEvent | null, related: [] as SmeEvent[] });
+        return this.api.getRelatedEvents(id).pipe(
+          switchMap(related => of({ event, related })),
+        );
+      }),
+    ).subscribe({
+      next: ({ event, related }) => {
+        if (!event) {
+          this.notFound.set(true);
+        } else {
+          this.event.set(event);
+          this.relatedEvents.set(related);
+        }
+        this.loading.set(false);
+      },
+      error: () => { this.notFound.set(true); this.loading.set(false); },
+    });
   }
 
   onSubmit(ngForm: NgForm) {
@@ -123,13 +142,26 @@ export class EventDetail implements OnInit {
       return;
     }
 
+    const id = this.route.snapshot.paramMap.get('id')!;
     this.submitting.set(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      this.submitting.set(false);
-      this.submitted.set(true);
-    }, 1400);
+    this.api.registerForEvent(id, {
+      full_name: this.form.fullName,
+      email:     this.form.email,
+      phone:     this.form.phone,
+      attendees: this.form.attendees,
+      message:   this.form.message,
+    }).subscribe({
+      next: (res) => {
+        this.submitting.set(false);
+        this.submitted.set(true);
+        this.message.success(res.message);
+      },
+      error: (err) => {
+        this.submitting.set(false);
+        this.message.error(err.error?.message ?? 'Registration failed. Please try again.');
+      },
+    });
   }
 
   resetForm() {

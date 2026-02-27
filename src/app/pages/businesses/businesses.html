@@ -14,17 +14,17 @@
     <!-- Network mini-stats -->
     <div class="header-stats hide-mobile">
       <div class="hstat">
-        <span class="hstat__num">{{ allVendors.length }}</span>
+        <span class="hstat__num">{{ totalCount() }}</span>
         <span class="hstat__label">Showcase Members</span>
       </div>
       <div class="hstat-divider"></div>
       <div class="hstat">
-        <span class="hstat__num">{{ allDistricts.length }}</span>
+        <span class="hstat__num">{{ allDistricts().length }}</span>
         <span class="hstat__label">Districts</span>
       </div>
       <div class="hstat-divider"></div>
       <div class="hstat">
-        <span class="hstat__num">{{ allCategories.length }}</span>
+        <span class="hstat__num">{{ allCategories().length }}</span>
         <span class="hstat__label">Industries</span>
       </div>
     </div>
@@ -87,9 +87,9 @@
       <span class="result-count"><strong>{{ totalCount() }}</strong> businesses found</span>
     </div>
 
-    @if (filteredVendors().length) {
+    @if (vendors().length) {
       <div class="vendors-grid">
-        @for (vendor of filteredVendors(); track vendor.id) {
+        @for (vendor of vendors(); track vendor.id) {
           <app-vendor-card [vendor]="vendor" />
         }
       </div>
@@ -146,7 +146,7 @@
         }
       </div>
       <div class="check-list">
-        @for (cat of allCategories; track cat) {
+        @for (cat of allCategories(); track cat) {
           <button class="check-btn" [class.check-btn--active]="selectedCategories().includes(cat)"
                   (click)="toggleCategory(cat)">
             <span class="check-box">
@@ -171,7 +171,7 @@
         }
       </div>
       <div class="check-list">
-        @for (d of allDistricts; track d) {
+        @for (d of allDistricts(); track d) {
           <button class="check-btn" [class.check-btn--active]="selectedDistricts().includes(d)"
                   (click)="toggleDistrict(d)">
             <span class="check-box">

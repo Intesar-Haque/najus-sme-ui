@@ -15,7 +15,7 @@
     <!-- Stats -->
     <div class="header-stats hide-mobile">
       <div class="hstat">
-        <span class="hstat__num">{{ allEvents.length }}</span>
+        <span class="hstat__num">{{ totalCount() }}</span>
         <span class="hstat__label">Total Events</span>
       </div>
       <div class="hstat-divider"></div>
@@ -90,9 +90,9 @@
       </span>
     </div>
 
-    @if (filteredEvents().length) {
+    @if (events().length) {
       <div class="events-list">
-        @for (event of filteredEvents(); track event.id) {
+        @for (event of events(); track event.id) {
           <div class="event-card" [class.event-card--featured]="event.featured">
 
             <!-- Image -->

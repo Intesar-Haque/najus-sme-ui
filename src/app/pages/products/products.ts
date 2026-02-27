@@ -1,7 +1,9 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, effect } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { debounceTime, switchMap } from 'rxjs/operators';
 
 import { NzButtonModule }     from 'ng-zorro-antd/button';
 import { NzIconModule }       from 'ng-zorro-antd/icon';
@@ -17,10 +19,10 @@ import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 import { NzDividerModule }    from 'ng-zorro-antd/divider';
 import { NzBadgeModule }      from 'ng-zorro-antd/badge';
 import { NzToolTipModule }    from 'ng-zorro-antd/tooltip';
-import { NzCheckboxModule }   from 'ng-zorro-antd/checkbox';
+import { NzSpinModule }       from 'ng-zorro-antd/spin';
 
-import { DataService }  from '../../core/services/data.service';
-import { ProductCard }  from '../../shared/components/product-card/product-card';
+import { ApiService } from '../../core/services/api.service';
+import { ProductCard } from '../../shared/components/product-card/product-card';
 import { Category, Product } from '../../core/models';
 
 export type SortOption = 'default' | 'price-asc' | 'price-desc' | 'rating' | 'popular' | 'newest';
@@ -39,116 +41,104 @@ interface FilterChip {
     NzButtonModule, NzIconModule, NzInputModule, NzSelectModule,
     NzSliderModule, NzSwitchModule, NzTagModule, NzPaginationModule,
     NzDrawerModule, NzEmptyModule, NzBreadCrumbModule, NzDividerModule,
-    NzBadgeModule, NzToolTipModule, NzCheckboxModule,
+    NzBadgeModule, NzToolTipModule, NzSpinModule,
     ProductCard, NgTemplateOutlet,
   ],
   templateUrl: './products.html',
   styleUrl:    './products.less',
 })
 export class Products implements OnInit {
-  private data  = inject(DataService);
+  private api   = inject(ApiService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  // ── Static data ───────────────────────────────────────────────────────
-  readonly allProducts  = this.data.products;
-  readonly categories   = this.data.categories;
-  readonly maxPrice     = this.data.maxPrice;
-  readonly PAGE_SIZE    = 12;
+  // ── Static ────────────────────────────────────────────────────────────
+  readonly PAGE_SIZE = 12;
 
   readonly sortOptions = [
-    { value: 'default',    label: 'Relevance'       },
-    { value: 'newest',     label: 'Newest First'    },
+    { value: 'default',    label: 'Relevance'         },
+    { value: 'newest',     label: 'Newest First'      },
     { value: 'price-asc',  label: 'Price: Low → High' },
     { value: 'price-desc', label: 'Price: High → Low' },
-    { value: 'rating',     label: 'Highest Rated'   },
-    { value: 'popular',    label: 'Most Reviewed'   },
+    { value: 'rating',     label: 'Highest Rated'     },
+    { value: 'popular',    label: 'Most Reviewed'     },
   ];
 
   readonly ratingOptions = [
-    { value: 0,   label: 'Any' },
+    { value: 0,   label: 'Any'  },
     { value: 4.5, label: '4.5+' },
-    { value: 4,   label: '4+' },
-    { value: 3,   label: '3+' },
+    { value: 4,   label: '4+'   },
+    { value: 3,   label: '3+'   },
   ];
 
+  // ── Categories (from API) ────────────────────────────────────────────
+  readonly categories = toSignal(this.api.getCategories(), { initialValue: [] as Category[] });
+
   // ── Filter state ──────────────────────────────────────────────────────
-  searchQuery         = signal('');
-  selectedCategories  = signal<string[]>([]);
-  priceRange          = signal<[number, number]>([0, this.maxPrice]);
-  minRating           = signal(0);
-  inStockOnly         = signal(false);
-  sortBy              = signal<SortOption>('default');
-  viewMode            = signal<ViewMode>('grid');
-  currentPage         = signal(1);
-  filterDrawerOpen    = signal(false);
+  searchQuery        = signal('');
+  selectedCategories = signal<string[]>([]);
+  priceRange         = signal<[number, number]>([0, 0]);
+  minRating          = signal(0);
+  inStockOnly        = signal(false);
+  sortBy             = signal<SortOption>('default');
+  viewMode           = signal<ViewMode>('grid');
+  currentPage        = signal(1);
+  filterDrawerOpen   = signal(false);
 
-  // Slider needs a plain array for ngModel (not a signal tuple)
-  priceSlider: [number, number] = [0, this.maxPrice];
+  // Slider needs a plain array for two-way ngModel binding
+  priceSlider: [number, number] = [0, 0];
 
-  // ── Computed ──────────────────────────────────────────────────────────
-  filteredProducts = computed(() => {
-    let list = [...this.allProducts];
+  // ── Combined filter params (drives API query) ─────────────────────────
+  private filterParams = computed(() => ({
+    q:          this.searchQuery(),
+    categories: this.selectedCategories(),
+    min_price:  this.priceRange()[0] > 0   ? this.priceRange()[0] : undefined,
+    max_price:  this.priceRange()[1] > 0   ? this.priceRange()[1] : undefined,
+    min_rating: this.minRating() > 0       ? this.minRating()     : undefined,
+    in_stock:   this.inStockOnly()         || undefined,
+    sort:       this.sortBy() !== 'default' ? this.sortBy()        : undefined,
+    page:       this.currentPage(),
+    per_page:   this.PAGE_SIZE,
+  }));
 
-    const q = this.searchQuery().toLowerCase().trim();
-    if (q) {
-      list = list.filter(p =>
-        p.name.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        p.vendor.name.toLowerCase().includes(q) ||
-        p.tags.some(t => t.toLowerCase().includes(q)) ||
-        p.category.toLowerCase().includes(q)
-      );
-    }
+  // ── API result (debounced search, immediate on other filters) ────────
+  private result$ = toObservable(this.filterParams).pipe(
+    debounceTime(300),
+    switchMap(params => this.api.getProducts(params)),
+  );
 
-    const cats = this.selectedCategories();
-    if (cats.length) list = list.filter(p => cats.includes(p.categoryId));
-
-    const [minP, maxP] = this.priceRange();
-    list = list.filter(p => p.price >= minP && p.price <= maxP);
-
-    const minR = this.minRating();
-    if (minR > 0) list = list.filter(p => p.rating >= minR);
-
-    if (this.inStockOnly()) list = list.filter(p => p.inStock);
-
-    switch (this.sortBy()) {
-      case 'price-asc':  list.sort((a, b) => a.price - b.price);          break;
-      case 'price-desc': list.sort((a, b) => b.price - a.price);          break;
-      case 'rating':     list.sort((a, b) => b.rating - a.rating);        break;
-      case 'popular':    list.sort((a, b) => b.reviewCount - a.reviewCount); break;
-      case 'newest':     list.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0)); break;
-    }
-    return list;
+  private result = toSignal(this.result$, {
+    initialValue: {
+      data: [] as Product[],
+      meta: { total: 0, current_page: 1, last_page: 1, per_page: this.PAGE_SIZE, max_price: 0 },
+    },
   });
 
-  totalCount = computed(() => this.filteredProducts().length);
+  // ── Derived ───────────────────────────────────────────────────────────
+  readonly paginatedProducts = computed(() => this.result().data);
+  readonly totalCount        = computed(() => this.result().meta.total);
+  readonly apiMaxPrice       = computed<number>(() => this.result().meta.max_price || 10000);
 
-  paginatedProducts = computed(() => {
-    const page = this.currentPage();
-    const start = (page - 1) * this.PAGE_SIZE;
-    return this.filteredProducts().slice(start, start + this.PAGE_SIZE);
-  });
-
+  // ── Active filter chips ───────────────────────────────────────────────
   activeFilterCount = computed(() =>
     (this.searchQuery() ? 1 : 0) +
     this.selectedCategories().length +
     (this.minRating() > 0 ? 1 : 0) +
     (this.inStockOnly() ? 1 : 0) +
-    (this.priceRange()[0] > 0 || this.priceRange()[1] < this.maxPrice ? 1 : 0)
+    (this.priceRange()[0] > 0 || (this.priceRange()[1] > 0 && this.priceRange()[1] < this.apiMaxPrice()) ? 1 : 0)
   );
 
   activeChips = computed<FilterChip[]>(() => {
     const chips: FilterChip[] = [];
     if (this.searchQuery()) chips.push({ label: `"${this.searchQuery()}"`, type: 'search' });
     this.selectedCategories().forEach(id => {
-      const cat = this.categories.find(c => c.id === id);
+      const cat = this.categories().find(c => c.id === id);
       if (cat) chips.push({ label: cat.name, type: 'category', value: id });
     });
     if (this.minRating() > 0) chips.push({ label: `${this.minRating()}+ stars`, type: 'rating' });
     if (this.inStockOnly()) chips.push({ label: 'In Stock Only', type: 'stock' });
     const [min, max] = this.priceRange();
-    if (min > 0 || max < this.maxPrice)
+    if (min > 0 || (max > 0 && max < this.apiMaxPrice()))
       chips.push({ label: `৳${min.toLocaleString()} – ৳${max.toLocaleString()}`, type: 'price' });
     return chips;
   });
@@ -156,16 +146,16 @@ export class Products implements OnInit {
   activeCategoryLabel = computed(() => {
     const cats = this.selectedCategories();
     if (!cats.length) return 'All Products';
-    if (cats.length === 1) return this.categories.find(c => c.id === cats[0])?.name ?? 'Products';
+    if (cats.length === 1) return this.categories().find(c => c.id === cats[0])?.name ?? 'Products';
     return `${cats.length} Categories`;
   });
 
   // ── Lifecycle ─────────────────────────────────────────────────────────
   ngOnInit() {
     const params = this.route.snapshot.queryParamMap;
-    const q = params.get('q');
+    const q        = params.get('q');
     const category = params.get('category');
-    if (q) this.searchQuery.set(q);
+    if (q)        this.searchQuery.set(q);
     if (category) this.selectedCategories.set([category]);
   }
 
@@ -213,7 +203,7 @@ export class Products implements OnInit {
       case 'category': this.selectedCategories.update(c => c.filter(v => v !== chip.value)); break;
       case 'rating':   this.minRating.set(0); break;
       case 'stock':    this.inStockOnly.set(false); break;
-      case 'price':    this.priceRange.set([0, this.maxPrice]); this.priceSlider = [0, this.maxPrice]; break;
+      case 'price':    this.priceRange.set([0, 0]); this.priceSlider = [0, 0]; break;
     }
     this.currentPage.set(1);
   }
@@ -221,8 +211,8 @@ export class Products implements OnInit {
   clearAllFilters() {
     this.searchQuery.set('');
     this.selectedCategories.set([]);
-    this.priceRange.set([0, this.maxPrice]);
-    this.priceSlider = [0, this.maxPrice];
+    this.priceRange.set([0, 0]);
+    this.priceSlider = [0, 0];
     this.minRating.set(0);
     this.inStockOnly.set(false);
     this.sortBy.set('default');

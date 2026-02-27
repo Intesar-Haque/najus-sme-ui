@@ -31,13 +31,22 @@
         <button class="lang-btn" [class.lang-btn--active]="lang() === 'bn'" (click)="switchLang('bn')">বাং</button>
       </div>
 
-      <!-- Login CTA -->
-      <a routerLink="/login">
-        <button nz-button nzType="primary" class="login-btn hide-mobile">
-          <span nz-icon nzType="user"></span>
-          {{ 'nav.login' | translate }}
-        </button>
-      </a>
+      <!-- Login / Dashboard CTA -->
+      @if (isAuthenticated()) {
+        <a routerLink="/dashboard">
+          <button nz-button nzType="primary" class="login-btn hide-mobile">
+            <span nz-icon nzType="dashboard"></span>
+            Dashboard
+          </button>
+        </a>
+      } @else {
+        <a routerLink="/login">
+          <button nz-button nzType="primary" class="login-btn hide-mobile">
+            <span nz-icon nzType="user"></span>
+            {{ 'nav.login' | translate }}
+          </button>
+        </a>
+      }
 
       <!-- Mobile hamburger -->
       <button class="hamburger hide-desktop" (click)="mobileOpen.set(true)">
@@ -73,11 +82,20 @@
         <button class="lang-btn" [class.lang-btn--active]="lang() === 'bn'" (click)="switchLang('bn')">বাংলা</button>
       </div>
 
-      <a routerLink="/login" (click)="mobileOpen.set(false)">
-        <button nz-button nzType="primary" nzBlock style="margin-top:16px">
-          {{ 'nav.login' | translate }}
-        </button>
-      </a>
+      @if (isAuthenticated()) {
+        <a routerLink="/dashboard" (click)="mobileOpen.set(false)">
+          <button nz-button nzType="primary" nzBlock style="margin-top:16px">
+            <span nz-icon nzType="dashboard"></span>
+            Dashboard
+          </button>
+        </a>
+      } @else {
+        <a routerLink="/login" (click)="mobileOpen.set(false)">
+          <button nz-button nzType="primary" nzBlock style="margin-top:16px">
+            {{ 'nav.login' | translate }}
+          </button>
+        </a>
+      }
     </nav>
   </ng-container>
 </nz-drawer>

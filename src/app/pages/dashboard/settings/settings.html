@@ -1,0 +1,124 @@
+@if (loading()) {
+  <div class="section-loading">
+    <nz-spin nzSize="large" nzTip="Loading settings…"></nz-spin>
+  </div>
+} @else {
+
+  <h2 class="section-title">Settings</h2>
+
+  <!-- Membership card -->
+  <div class="panel">
+    <div class="panel__header">
+      <h3 class="panel__title">Membership Information</h3>
+      <nz-tag nzColor="green">
+        <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+        Active
+      </nz-tag>
+    </div>
+    <div class="panel__body">
+      <div class="settings-grid">
+        <div class="settings-field">
+          <p class="settings-field__label">Full Name</p>
+          <p class="settings-field__value">{{ member()?.name }}</p>
+        </div>
+        <div class="settings-field">
+          <p class="settings-field__label">Email Address</p>
+          <p class="settings-field__value">{{ member()?.email }}</p>
+        </div>
+        <div class="settings-field">
+          <p class="settings-field__label">Membership Code</p>
+          <p class="settings-field__value"><nz-tag>{{ member()?.code }}</nz-tag></p>
+        </div>
+        <div class="settings-field">
+          <p class="settings-field__label">Role</p>
+          <p class="settings-field__value"><nz-tag nzColor="blue">{{ member()?.role }}</nz-tag></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vendor profile card -->
+  @if (vendor()) {
+    <div class="panel">
+      <div class="panel__header">
+        <h3 class="panel__title">Vendor Profile</h3>
+        <nz-tag [nzColor]="vendor()!.verified ? 'green' : 'orange'">
+          <span nz-icon [nzType]="vendor()!.verified ? 'safety-certificate' : 'clock-circle'"
+                nzTheme="outline"></span>
+          {{ vendor()!.verified ? 'Verified' : 'Pending Verification' }}
+        </nz-tag>
+      </div>
+      <div class="panel__body">
+        <div class="vendor-overview">
+          <img [src]="vendor()!.logo" [alt]="vendor()!.name" class="vendor-logo" />
+          <div class="vendor-stats">
+            <div class="vendor-stat">
+              <span class="vendor-stat__val">{{ vendor()!.productCount }}</span>
+              <span class="vendor-stat__lbl">Products</span>
+            </div>
+            <div class="vendor-stat">
+              <span class="vendor-stat__val">{{ vendor()!.rating }}</span>
+              <span class="vendor-stat__lbl">Rating</span>
+            </div>
+            <div class="vendor-stat">
+              <span class="vendor-stat__val">{{ vendor()!.reviewCount }}</span>
+              <span class="vendor-stat__lbl">Reviews</span>
+            </div>
+            <div class="vendor-stat">
+              <span class="vendor-stat__val">{{ vendor()!.memberSince }}</span>
+              <span class="vendor-stat__lbl">Member Since</span>
+            </div>
+          </div>
+        </div>
+        <nz-divider style="margin: 16px 0"></nz-divider>
+        <div class="settings-grid">
+          <div class="settings-field">
+            <p class="settings-field__label">Business Name</p>
+            <p class="settings-field__value">{{ vendor()!.name }}</p>
+          </div>
+          <div class="settings-field">
+            <p class="settings-field__label">Location</p>
+            <p class="settings-field__value">
+              <span nz-icon nzType="environment" nzTheme="outline"></span>
+              {{ vendor()!.location }}
+            </p>
+          </div>
+          <div class="settings-field">
+            <p class="settings-field__label">District</p>
+            <p class="settings-field__value">{{ vendor()!.district }}</p>
+          </div>
+          <div class="settings-field">
+            <p class="settings-field__label">Categories</p>
+            <p class="settings-field__value settings-field__value--tags">
+              @for (cat of vendor()!.categories; track cat) {
+                <nz-tag>{{ cat }}</nz-tag>
+              }
+            </p>
+          </div>
+          <div class="settings-field settings-field--full">
+            <p class="settings-field__label">About</p>
+            <p class="settings-field__value">{{ vendor()!.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Danger zone -->
+  <div class="panel panel--danger">
+    <div class="panel__header">
+      <h3 class="panel__title">Account Actions</h3>
+    </div>
+    <div class="panel__body danger-zone">
+      <div>
+        <p class="danger-zone__title">Sign Out</p>
+        <p class="danger-zone__desc">Logging out will end your current member session.</p>
+      </div>
+      <button nz-button nzDanger (click)="logout()">
+        <span nz-icon nzType="logout" nzTheme="outline"></span>
+        Logout
+      </button>
+    </div>
+  </div>
+
+}

@@ -1,7 +1,9 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, DestroyRef } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { forkJoin, of, switchMap } from 'rxjs';
 
 import { NzButtonModule }    from 'ng-zorro-antd/button';
 import { NzIconModule }      from 'ng-zorro-antd/icon';
@@ -12,9 +14,10 @@ import { NzEmptyModule }     from 'ng-zorro-antd/empty';
 import { NzAvatarModule }    from 'ng-zorro-antd/avatar';
 import { NzToolTipModule }   from 'ng-zorro-antd/tooltip';
 import { NzDividerModule }   from 'ng-zorro-antd/divider';
+import { NzSpinModule }      from 'ng-zorro-antd/spin';
 import { NzMessageService }  from 'ng-zorro-antd/message';
 
-import { DataService } from '../../../core/services/data.service';
+import { ApiService } from '../../../core/services/api.service';
 import { ProductCard } from '../../../shared/components/product-card/product-card';
 import { Product, Vendor } from '../../../core/models';
 
@@ -24,22 +27,24 @@ import { Product, Vendor } from '../../../core/models';
     RouterLink, FormsModule, DecimalPipe,
     NzButtonModule, NzIconModule, NzTagModule, NzRateModule,
     NzBreadCrumbModule, NzEmptyModule, NzAvatarModule, NzToolTipModule,
-    NzDividerModule,
+    NzDividerModule, NzSpinModule,
     ProductCard,
   ],
   templateUrl: './detail.html',
   styleUrl:    './detail.less',
 })
 export class ProductDetail implements OnInit {
-  private data    = inject(DataService);
-  private route   = inject(ActivatedRoute);
-  private router  = inject(Router);
-  private message = inject(NzMessageService);
+  private api        = inject(ApiService);
+  private route      = inject(ActivatedRoute);
+  private router     = inject(Router);
+  private message    = inject(NzMessageService);
+  private destroyRef = inject(DestroyRef);
 
-  product        = signal<Product | null>(null);
-  vendor         = signal<Vendor | null>(null);
+  product         = signal<Product | null>(null);
+  vendor          = signal<Vendor | null>(null);
   relatedProducts = signal<Product[]>([]);
-  notFound       = signal(false);
+  notFound        = signal(false);
+  loading         = signal(true);
 
   // Gallery
   activeImageIndex = signal(0);
@@ -61,16 +66,32 @@ export class ProductDetail implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    if (!id) { this.notFound.set(true); return; }
+    if (!id) { this.notFound.set(true); this.loading.set(false); return; }
 
-    const product = this.data.getProductById(id);
-    if (!product) { this.notFound.set(true); return; }
-
-    this.product.set(product);
-    this.relatedProducts.set(this.data.getRelatedProducts(id, product.categoryId));
-
-    const vendor = this.data.getVendorById(product.vendor.id);
-    if (vendor) this.vendor.set(vendor);
+    this.api.getProductById(id).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      switchMap(product => {
+        if (!product) return of({ product: null as Product | null, related: [] as Product[], vendor: null as Vendor | null });
+        return forkJoin({
+          related: this.api.getRelatedProducts(id),
+          vendor:  this.api.getVendorById(String(product.vendor.id)),
+        }).pipe(
+          switchMap(({ related, vendor }) => of({ product, related, vendor })),
+        );
+      }),
+    ).subscribe({
+      next: ({ product, related, vendor }) => {
+        if (!product) {
+          this.notFound.set(true);
+        } else {
+          this.product.set(product);
+          this.relatedProducts.set(related);
+          if (vendor) this.vendor.set(vendor);
+        }
+        this.loading.set(false);
+      },
+      error: () => { this.notFound.set(true); this.loading.set(false); },
+    });
   }
 
   selectImage(index: number) {

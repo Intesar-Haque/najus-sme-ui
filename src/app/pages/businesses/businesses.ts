@@ -1,5 +1,9 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { NgTemplateOutlet } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { debounceTime, switchMap } from 'rxjs/operators';
 
 import { NzInputModule }   from 'ng-zorro-antd/input';
 import { NzButtonModule }  from 'ng-zorro-antd/button';
@@ -12,10 +16,9 @@ import { NzEmptyModule }   from 'ng-zorro-antd/empty';
 import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 import { NzBadgeModule }   from 'ng-zorro-antd/badge';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
-import { NgTemplateOutlet } from '@angular/common';
-import { FormsModule }     from '@angular/forms';
+import { NzSpinModule }    from 'ng-zorro-antd/spin';
 
-import { DataService } from '../../core/services/data.service';
+import { ApiService, VendorsResponse } from '../../core/services/api.service';
 import { VendorCard }  from '../../shared/components/vendor-card/vendor-card';
 
 export type BizSort = 'default' | 'rating' | 'products' | 'newest' | 'name';
@@ -26,26 +29,26 @@ interface FilterChip {
   value?: string;
 }
 
+const EMPTY_RESULT: VendorsResponse = {
+  data: [],
+  meta: { total: 0, current_page: 1, last_page: 1, per_page: 20, all_categories: [], all_districts: [] },
+};
+
 @Component({
   selector: 'app-businesses',
   imports: [
     RouterLink, FormsModule, NgTemplateOutlet,
     NzInputModule, NzButtonModule, NzIconModule, NzSelectModule,
     NzSwitchModule, NzTagModule, NzDrawerModule, NzEmptyModule,
-    NzBreadCrumbModule, NzBadgeModule, NzDividerModule,
+    NzBreadCrumbModule, NzBadgeModule, NzDividerModule, NzSpinModule,
     VendorCard,
   ],
   templateUrl: './businesses.html',
   styleUrl:    './businesses.less',
 })
 export class Businesses implements OnInit {
-  private data  = inject(DataService);
+  private api   = inject(ApiService);
   private route = inject(ActivatedRoute);
-
-  // ── Static data ──────────────────────────────────────────────────────
-  readonly allVendors    = this.data.vendors;
-  readonly allCategories = this.data.allVendorCategories;
-  readonly allDistricts  = this.data.allDistricts;
 
   readonly sortOptions = [
     { value: 'default',  label: 'Featured First'   },
@@ -63,40 +66,31 @@ export class Businesses implements OnInit {
   sortBy             = signal<BizSort>('default');
   filterDrawerOpen   = signal(false);
 
-  // ── Computed ─────────────────────────────────────────────────────────
-  filteredVendors = computed(() => {
-    let list = [...this.allVendors];
+  // ── Combined filter params ────────────────────────────────────────────
+  private filterParams = computed(() => ({
+    q:          this.searchQuery() || undefined,
+    categories: this.selectedCategories().length ? this.selectedCategories() : undefined,
+    districts:  this.selectedDistricts().length  ? this.selectedDistricts()  : undefined,
+    verified:   this.verifiedOnly() || undefined,
+    sort:       this.sortBy() !== 'default' ? this.sortBy() : undefined,
+    per_page:   50,
+  }));
 
-    const q = this.searchQuery().toLowerCase().trim();
-    if (q) {
-      list = list.filter(v =>
-        v.name.toLowerCase().includes(q) ||
-        v.description.toLowerCase().includes(q) ||
-        v.location.toLowerCase().includes(q) ||
-        v.categories.some(c => c.toLowerCase().includes(q))
-      );
-    }
+  // ── Reactive API result ───────────────────────────────────────────────
+  private result$ = toObservable(this.filterParams).pipe(
+    debounceTime(300),
+    switchMap(p => this.api.getVendors(p)),
+  );
 
-    const cats = this.selectedCategories();
-    if (cats.length) list = list.filter(v => cats.some(c => v.categories.includes(c)));
+  private result = toSignal(this.result$, { initialValue: EMPTY_RESULT });
 
-    const districts = this.selectedDistricts();
-    if (districts.length) list = list.filter(v => districts.includes(v.district));
+  // ── Derived ───────────────────────────────────────────────────────────
+  readonly vendors       = computed(() => this.result().data);
+  readonly totalCount    = computed(() => this.result().meta.total);
+  readonly allCategories = computed(() => this.result().meta.all_categories);
+  readonly allDistricts  = computed(() => this.result().meta.all_districts);
 
-    if (this.verifiedOnly()) list = list.filter(v => v.verified);
-
-    switch (this.sortBy()) {
-      case 'rating':   list.sort((a, b) => b.rating - a.rating);             break;
-      case 'products': list.sort((a, b) => b.productCount - a.productCount); break;
-      case 'newest':   list.sort((a, b) => +b.memberSince - +a.memberSince); break;
-      case 'name':     list.sort((a, b) => a.name.localeCompare(b.name));    break;
-      default:         list.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
-    }
-    return list;
-  });
-
-  totalCount = computed(() => this.filteredVendors().length);
-
+  // ── Active filter chips ───────────────────────────────────────────────
   activeFilterCount = computed(() =>
     (this.searchQuery() ? 1 : 0) +
     this.selectedCategories().length +

@@ -1,0 +1,109 @@
+@if (loading()) {
+  <div class="section-loading">
+    <nz-spin nzSize="large" nzTip="Loading analytics…"></nz-spin>
+  </div>
+} @else {
+
+  <h2 class="section-title">Analytics</h2>
+
+  <!-- Summary stats -->
+  <div class="astat-row">
+    <div class="astat-card">
+      <p class="astat-card__label">Orders This Month</p>
+      <p class="astat-card__value">{{ ordersThisMonth() | number }}</p>
+      @if (ordersTrend() !== 0) {
+        <p class="astat-card__trend"
+           [class.astat-card__trend--up]="ordersTrend() > 0"
+           [class.astat-card__trend--down]="ordersTrend() < 0">
+          {{ ordersTrend() > 0 ? '+' : '' }}{{ ordersTrend() }}% vs last month
+        </p>
+      } @else {
+        <p class="astat-card__trend">Same as last month</p>
+      }
+    </div>
+    <div class="astat-card">
+      <p class="astat-card__label">Avg. Order Value</p>
+      <p class="astat-card__value">BDT {{ avgOrderValue() | number }}</p>
+      @if (avgOrderTrend() !== 0) {
+        <p class="astat-card__trend"
+           [class.astat-card__trend--up]="avgOrderTrend() > 0"
+           [class.astat-card__trend--down]="avgOrderTrend() < 0">
+          {{ avgOrderTrend() > 0 ? '+' : '' }}{{ avgOrderTrend() }}% vs last month
+        </p>
+      } @else {
+        <p class="astat-card__trend">Same as last month</p>
+      }
+    </div>
+    <div class="astat-card">
+      <p class="astat-card__label">Pending Orders</p>
+      <p class="astat-card__value">{{ pendingOrders() | number }}</p>
+      <p class="astat-card__trend">Awaiting fulfillment</p>
+    </div>
+    <div class="astat-card">
+      <p class="astat-card__label">Cancellation Rate</p>
+      <p class="astat-card__value">{{ cancellationRate() }}%</p>
+      @if (cancelTrend() !== 0) {
+        <!-- Lower cancellation is better, so invert the colour logic -->
+        <p class="astat-card__trend"
+           [class.astat-card__trend--up]="cancelTrend() < 0"
+           [class.astat-card__trend--down]="cancelTrend() > 0">
+          {{ cancelTrend() > 0 ? '+' : '' }}{{ cancelTrend() }}% vs last month
+        </p>
+      } @else {
+        <p class="astat-card__trend">Same as last month</p>
+      }
+    </div>
+  </div>
+
+  <!-- Revenue chart -->
+  <div class="panel">
+    <div class="panel__header">
+      <h3 class="panel__title">Monthly Revenue</h3>
+      <span class="panel__meta">Last 6 months</span>
+    </div>
+    <div class="panel__body">
+      @if (monthlyRevenue().length === 0) {
+        <nz-empty nzNotFoundContent="No revenue data yet."></nz-empty>
+      } @else {
+        <div class="rev-chart">
+          @for (m of monthlyRevenue(); track m.month) {
+            <div class="rev-col" [nz-tooltip]="'BDT ' + (m.revenue | number)">
+              <span class="rev-val">{{ m.revenue | number }}</span>
+              <div class="rev-bar-wrap">
+                <div class="rev-bar" [style.height.%]="barHeight(m.revenue)"></div>
+              </div>
+              <span class="rev-label">{{ m.month }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Product performance -->
+  <div class="panel">
+    <div class="panel__header">
+      <h3 class="panel__title">Top Products by Reviews</h3>
+    </div>
+    <div class="panel__body">
+      @if (productPerformance().length === 0) {
+        <nz-empty nzNotFoundContent="No product data yet."></nz-empty>
+      } @else {
+        <div class="perf-list">
+          @for (p of productPerformance(); track p.name) {
+            <div class="perf-item">
+              <div class="perf-item__header">
+                <span class="perf-item__name">{{ p.name }}</span>
+                <span class="perf-item__meta">{{ p.reviews }} reviews · ★ {{ p.rating }}</span>
+              </div>
+              <nz-progress [nzPercent]="p.pct" nzStatus="active"
+                           [nzShowInfo]="false" [nzStrokeColor]="'#28a745'">
+              </nz-progress>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+}
