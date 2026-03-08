@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Block the authenticated dashboard from indexing
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /login
+
+# Block Angular internals
+Disallow: /*.js$
+Disallow: /*.css$
+
+Sitemap: https://sme.najus.org/sitemap.xml
