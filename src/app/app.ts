@@ -6,7 +6,7 @@ import { Navbar } from './shared/components/navbar/navbar';
 import { Footer } from './shared/components/footer/footer';
 
 /** Routes that use their own full-page layout (no shared navbar/footer). */
-const SHELL_EXCLUDED = ['/login', '/dashboard'];
+const SHELL_EXCLUDED = ['/login', '/join', '/dashboard'];
 
 @Component({
   selector: 'app-root',

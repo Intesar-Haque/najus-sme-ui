@@ -55,7 +55,7 @@
   </nz-drawer>
 
   <!-- ══════════════════════════ DESKTOP SIDEBAR ════════════════════════ -->
-  <aside class="sidebar">
+  <aside class="sidebar" [class.sidebar--locked]="isPending()">
     <div class="sidebar__logo">
       <a routerLink="/">
         <img src="/assets/logo.png" alt="NAJUS SME" />
@@ -67,23 +67,34 @@
       <nz-avatar
         [nzText]="member()?.name?.charAt(0) ?? 'M'"
         [nzSize]="44"
-        [style.background-color]="'#28a745'">
+        [style.background-color]="isPending() ? '#9a8c6e' : '#28a745'">
       </nz-avatar>
       <div class="sidebar__profile-info">
         <p class="sidebar__profile-name">{{ member()?.name }}</p>
         <p class="sidebar__profile-code">{{ member()?.code }}</p>
+        @if (isPending()) {
+          <span class="sidebar__status-badge">Pending Review</span>
+        }
       </div>
     </div>
 
     <nav class="sidebar__nav">
       @for (item of navItems; track item.path) {
-        <a
-          class="sidebar__link"
-          routerLinkActive="sidebar__link--active"
-          [routerLink]="item.path">
-          <span nz-icon [nzType]="item.icon" nzTheme="outline"></span>
-          {{ item.label }}
-        </a>
+        @if (isPending()) {
+          <div class="sidebar__link sidebar__link--disabled">
+            <span nz-icon [nzType]="item.icon" nzTheme="outline"></span>
+            {{ item.label }}
+            <span nz-icon nzType="lock" nzTheme="fill" class="sidebar__lock-icon"></span>
+          </div>
+        } @else {
+          <a
+            class="sidebar__link"
+            routerLinkActive="sidebar__link--active"
+            [routerLink]="item.path">
+            <span nz-icon [nzType]="item.icon" nzTheme="outline"></span>
+            {{ item.label }}
+          </a>
+        }
       }
     </nav>
 
@@ -109,12 +120,97 @@
       <nz-avatar
         [nzText]="member()?.name?.charAt(0) ?? 'M'"
         [nzSize]="44"
-        [style.background-color]="'#28a745'"
+        [style.background-color]="isPending() ? '#9a8c6e' : '#28a745'"
         class="topbar-avatar">
       </nz-avatar>
     </div>
 
-    <router-outlet></router-outlet>
+    @if (isPending()) {
+      <!-- ── PENDING REVIEW STATE ────────────────────────────────────── -->
+      <div class="pending-view">
+
+        <div class="pending-banner">
+          <div class="pending-banner__icon">
+            <span nz-icon nzType="clock-circle" nzTheme="fill"></span>
+          </div>
+          <div class="pending-banner__copy">
+            <h3 class="pending-banner__title">Your application is under review</h3>
+            <p class="pending-banner__sub">
+              Our team is verifying your registration. You'll receive an email at
+              <strong>{{ member()?.email }}</strong> once your account is approved.
+              This typically takes <strong>3–5 business days</strong>.
+            </p>
+          </div>
+        </div>
+
+        <div class="pending-steps">
+          <div class="pending-step pending-step--done">
+            <div class="pending-step__circle">
+              <span nz-icon nzType="check" nzTheme="outline"></span>
+            </div>
+            <div class="pending-step__line"></div>
+            <div class="pending-step__body">
+              <p class="pending-step__label">Registration Submitted</p>
+              <p class="pending-step__desc">Your application has been received.</p>
+            </div>
+          </div>
+
+          <div class="pending-step pending-step--active">
+            <div class="pending-step__circle pending-step__circle--spin">
+              <span nz-icon nzType="loading" nzTheme="outline"></span>
+            </div>
+            <div class="pending-step__line"></div>
+            <div class="pending-step__body">
+              <p class="pending-step__label">Under Review</p>
+              <p class="pending-step__desc">NAJUS team is verifying your documents.</p>
+            </div>
+          </div>
+
+          <div class="pending-step pending-step--waiting">
+            <div class="pending-step__circle">
+              <span nz-icon nzType="shop" nzTheme="outline"></span>
+            </div>
+            <div class="pending-step__line pending-step__line--hidden"></div>
+            <div class="pending-step__body">
+              <p class="pending-step__label">Dashboard Unlocked</p>
+              <p class="pending-step__desc">Manage products, analytics, and more.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pending-preview-grid">
+          <div class="preview-card">
+            <span nz-icon nzType="shopping" nzTheme="fill" class="preview-card__icon preview-card__icon--blue"></span>
+            <p class="preview-card__label">Products Listed</p>
+            <div class="preview-card__value preview-card__value--locked">—</div>
+          </div>
+          <div class="preview-card">
+            <span nz-icon nzType="rise" nzTheme="outline" class="preview-card__icon preview-card__icon--green"></span>
+            <p class="preview-card__label">Monthly Revenue</p>
+            <div class="preview-card__value preview-card__value--locked">—</div>
+          </div>
+          <div class="preview-card">
+            <span nz-icon nzType="file-done" nzTheme="outline" class="preview-card__icon preview-card__icon--orange"></span>
+            <p class="preview-card__label">Total Orders</p>
+            <div class="preview-card__value preview-card__value--locked">—</div>
+          </div>
+          <div class="preview-card">
+            <span nz-icon nzType="star" nzTheme="fill" class="preview-card__icon preview-card__icon--yellow"></span>
+            <p class="preview-card__label">Store Rating</p>
+            <div class="preview-card__value preview-card__value--locked">—</div>
+          </div>
+        </div>
+
+        <div class="pending-help">
+          <span nz-icon nzType="question-circle" nzTheme="fill"></span>
+          Questions about your application?
+          <a routerLink="/contact">Contact NAJUS support →</a>
+        </div>
+
+      </div>
+    } @else {
+      <router-outlet></router-outlet>
+    }
   </main>
 
 </div>

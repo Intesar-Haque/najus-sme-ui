@@ -1,0 +1,348 @@
+<div class="join-page">
+
+  <!-- ═══ LEFT — Brand Panel ══════════════════════════════════════════════ -->
+  <aside class="brand-panel">
+    <div class="brand-panel__inner">
+
+      <a routerLink="/" class="brand-panel__logo">
+        <img src="/assets/logo-white.png" alt="NAJUS SME" />
+        <div>
+          <div class="brand-name">NAJUS SME</div>
+          <div class="brand-tagline">Empowering Local Entrepreneurs</div>
+        </div>
+      </a>
+
+      <div class="brand-panel__copy">
+        <h1 class="brand-panel__title">
+          Join our<br>network<span class="accent">.</span>
+        </h1>
+        <p class="brand-panel__sub">
+          Register your SME and gain access to Bangladesh's fastest-growing
+          marketplace for verified local businesses.
+        </p>
+      </div>
+
+      <ul class="brand-panel__perks">
+        <li>
+          <span class="perk-icon"><span nz-icon nzType="global" nzTheme="fill"></span></span>
+          Reach customers across Bangladesh
+        </li>
+        <li>
+          <span class="perk-icon"><span nz-icon nzType="safety-certificate" nzTheme="fill"></span></span>
+          Get a verified SME badge
+        </li>
+        <li>
+          <span class="perk-icon"><span nz-icon nzType="shop" nzTheme="fill"></span></span>
+          Manage your online store
+        </li>
+        <li>
+          <span class="perk-icon"><span nz-icon nzType="team" nzTheme="fill"></span></span>
+          Connect with 100+ NAJUS members
+        </li>
+      </ul>
+
+      <div class="brand-panel__note">
+        <span nz-icon nzType="info-circle" nzTheme="fill"></span>
+        After review, your NAJUS membership code will be sent to your registered email.
+        The review process typically takes 3–5 business days.
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══ RIGHT — Form Panel ══════════════════════════════════════════════ -->
+  <main class="form-panel">
+    <div class="form-panel__inner">
+
+      <!-- Top bar -->
+      <div class="form-panel__top">
+        <a routerLink="/" class="mobile-brand">
+          <img src="/assets/logo.png" alt="NAJUS SME" />
+          <span>NAJUS SME</span>
+        </a>
+        <a routerLink="/" class="back-link hide-mobile">
+          <span nz-icon nzType="arrow-left"></span>
+          Back to site
+        </a>
+      </div>
+
+      <!-- Step indicator (steps 1 & 2 only) -->
+      @if (step() !== 3) {
+        <div class="step-indicator">
+          <div class="step-item"
+               [class.step-item--active]="step() === 1"
+               [class.step-item--done]="step() > 1">
+            <div class="step-circle">
+              @if (step() > 1) { <span nz-icon nzType="check"></span> } @else { 1 }
+            </div>
+            <span class="step-label">Company Info</span>
+          </div>
+          <div class="step-line" [class.step-line--done]="step() > 1"></div>
+          <div class="step-item" [class.step-item--active]="step() === 2">
+            <div class="step-circle">2</div>
+            <span class="step-label">Contact & Docs</span>
+          </div>
+        </div>
+      }
+
+      <!-- ── STEP 1: Company Information ────────────────────────────────── -->
+      @if (step() === 1) {
+        <div class="form-block step-enter">
+          <div class="form-heading">
+            <h2>Company Information</h2>
+            <p>Tell us about your business. Fields marked <span class="req">*</span> are required.</p>
+          </div>
+
+          @if (errorMessage()) {
+            <nz-alert nzType="error" [nzMessage]="errorMessage()" nzShowIcon></nz-alert>
+          }
+
+          <form [formGroup]="companyForm" autocomplete="off">
+
+            <div class="field-group">
+              <label class="field-label">Company Name <span class="req">*</span></label>
+              <nz-input-group [nzPrefix]="namePfx" nzSize="large">
+                <input nz-input placeholder="e.g. Rupali Handicrafts Ltd" formControlName="company_name"
+                       [class.input-error]="fieldInvalid(companyForm, 'company_name')" />
+              </nz-input-group>
+              <ng-template #namePfx><span nz-icon nzType="shop" class="input-icon"></span></ng-template>
+              @if (fieldInvalid(companyForm, 'company_name')) {
+                <span class="field-error">Company name is required.</span>
+              }
+            </div>
+
+            <div class="field-group mt">
+              <label class="field-label">Registered Address <span class="req">*</span></label>
+              <textarea nz-input formControlName="registered_address"
+                        placeholder="Full business address" [nzAutosize]="{ minRows: 2, maxRows: 4 }"
+                        [class.input-error]="fieldInvalid(companyForm, 'registered_address')"></textarea>
+              @if (fieldInvalid(companyForm, 'registered_address')) {
+                <span class="field-error">Registered address is required.</span>
+              }
+            </div>
+
+            <div class="field-row mt">
+              <div class="field-group">
+                <label class="field-label">Phone <span class="req">*</span></label>
+                <nz-input-group [nzPrefix]="phonePfx" nzSize="large">
+                  <input nz-input placeholder="01XXXXXXXXX" formControlName="registered_phone"
+                         inputmode="tel"
+                         [class.input-error]="fieldInvalid(companyForm, 'registered_phone')" />
+                </nz-input-group>
+                <ng-template #phonePfx><span nz-icon nzType="phone" class="input-icon"></span></ng-template>
+                @if (fieldInvalid(companyForm, 'registered_phone')) {
+                  <span class="field-error">Phone is required.</span>
+                }
+              </div>
+
+              <div class="field-group">
+                <label class="field-label">Website <span class="optional">(optional)</span></label>
+                <nz-input-group [nzPrefix]="webPfx" nzSize="large">
+                  <input nz-input placeholder="https://yoursite.com" formControlName="website"
+                         inputmode="url" />
+                </nz-input-group>
+                <ng-template #webPfx><span nz-icon nzType="global" class="input-icon"></span></ng-template>
+              </div>
+            </div>
+
+            <div class="field-row mt">
+              <div class="field-group">
+                <label class="field-label">Company Type <span class="req">*</span></label>
+                <nz-select formControlName="company_type" nzSize="large" nzPlaceHolder="Select type"
+                           [class.select-error]="fieldInvalid(companyForm, 'company_type')">
+                  @for (opt of companyTypeOptions; track opt.value) {
+                    <nz-option [nzValue]="opt.value" [nzLabel]="opt.label"></nz-option>
+                  }
+                </nz-select>
+                @if (fieldInvalid(companyForm, 'company_type')) {
+                  <span class="field-error">Company type is required.</span>
+                }
+              </div>
+
+              <div class="field-group">
+                <label class="field-label">Company Nature <span class="req">*</span></label>
+                <nz-select formControlName="company_nature" nzSize="large" nzPlaceHolder="Select nature"
+                           [class.select-error]="fieldInvalid(companyForm, 'company_nature')">
+                  @for (opt of companyNatureOptions; track opt.value) {
+                    <nz-option [nzValue]="opt.value" [nzLabel]="opt.label"></nz-option>
+                  }
+                </nz-select>
+                @if (fieldInvalid(companyForm, 'company_nature')) {
+                  <span class="field-error">Company nature is required.</span>
+                }
+              </div>
+            </div>
+
+            <div class="field-row mt">
+              <div class="field-group">
+                <label class="field-label">Trade Licence No. <span class="req">*</span></label>
+                <nz-input-group [nzPrefix]="tlPfx" nzSize="large">
+                  <input nz-input placeholder="TL-XXXXXX" formControlName="trade_licence_number"
+                         [class.input-error]="fieldInvalid(companyForm, 'trade_licence_number')" />
+                </nz-input-group>
+                <ng-template #tlPfx><span nz-icon nzType="file-text" class="input-icon"></span></ng-template>
+                @if (fieldInvalid(companyForm, 'trade_licence_number')) {
+                  <span class="field-error">Trade licence number is required.</span>
+                }
+              </div>
+
+              <div class="field-group">
+                <label class="field-label">Organization Scale <span class="req">*</span></label>
+                <nz-select formControlName="organization_scale" nzSize="large" nzPlaceHolder="Select scale"
+                           [class.select-error]="fieldInvalid(companyForm, 'organization_scale')">
+                  @for (opt of scaleOptions; track opt.value) {
+                    <nz-option [nzValue]="opt.value" [nzLabel]="opt.label"></nz-option>
+                  }
+                </nz-select>
+                @if (fieldInvalid(companyForm, 'organization_scale')) {
+                  <span class="field-error">Organization scale is required.</span>
+                }
+              </div>
+            </div>
+
+            <div class="field-row mt">
+              <div class="field-group">
+                <label class="field-label">TIN <span class="optional">(optional)</span></label>
+                <input nz-input nzSize="large" placeholder="Tax Identification No."
+                       formControlName="tin" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">BIN <span class="optional">(optional)</span></label>
+                <input nz-input nzSize="large" placeholder="Business Identification No."
+                       formControlName="bin" />
+              </div>
+            </div>
+
+          </form>
+
+          <button nz-button nzType="primary" nzSize="large" nzBlock
+                  (click)="nextStep()" class="submit-btn">
+            Continue to Contact & Documents
+            <span nz-icon nzType="arrow-right"></span>
+          </button>
+
+          <p class="form-footer-note">
+            Already a member? <a routerLink="/login">Log in →</a>
+          </p>
+        </div>
+      }
+
+      <!-- ── STEP 2: Contact Person & Documents ─────────────────────────── -->
+      @if (step() === 2) {
+        <div class="form-block step-enter">
+          <div class="form-heading">
+            <h2>Contact & Documents</h2>
+            <p>Provide the applicant's contact details and upload all required documents.</p>
+          </div>
+
+          @if (errorMessage()) {
+            <nz-alert nzType="error" [nzMessage]="errorMessage()" nzShowIcon></nz-alert>
+          }
+
+          <form [formGroup]="contactForm" autocomplete="off">
+
+            <div class="section-label">Contact Person</div>
+
+            <div class="field-row mt">
+              <div class="field-group">
+                <label class="field-label">Full Name <span class="req">*</span></label>
+                <nz-input-group [nzPrefix]="cnPfx" nzSize="large">
+                  <input nz-input placeholder="Applicant's full name" formControlName="contact_name"
+                         [class.input-error]="fieldInvalid(contactForm, 'contact_name')" />
+                </nz-input-group>
+                <ng-template #cnPfx><span nz-icon nzType="user" class="input-icon"></span></ng-template>
+                @if (fieldInvalid(contactForm, 'contact_name')) {
+                  <span class="field-error">Full name is required.</span>
+                }
+              </div>
+
+              <div class="field-group">
+                <label class="field-label">Email Address <span class="req">*</span></label>
+                <nz-input-group [nzPrefix]="cePfx" nzSize="large">
+                  <input nz-input type="email" placeholder="applicant@example.com" formControlName="contact_email"
+                         [class.input-error]="fieldInvalid(contactForm, 'contact_email')" />
+                </nz-input-group>
+                <ng-template #cePfx><span nz-icon nzType="mail" class="input-icon"></span></ng-template>
+                @if (fieldInvalid(contactForm, 'contact_email')) {
+                  <span class="field-error">Valid email address is required.</span>
+                }
+                <p class="field-hint">Your NAJUS membership code will be sent here upon approval.</p>
+              </div>
+            </div>
+
+          </form>
+
+          <!-- Document uploads (not part of a reactive form) -->
+          <div class="section-label">Required Documents</div>
+          <p class="field-hint doc-hint">
+            <span nz-icon nzType="paper-clip"></span>
+            PDF, JPG, JPEG, or PNG — max 5 MB per file.
+          </p>
+
+          <div class="doc-grid">
+            @for (field of fileFields; track field) {
+              <div class="doc-item" [class.doc-item--uploaded]="files[field]">
+                <div class="doc-item__label">
+                  {{ fileLabels[field] }} <span class="req">*</span>
+                </div>
+                <label class="doc-upload-btn" [for]="'file_' + field">
+                  @if (files[field]) {
+                    <span nz-icon nzType="check-circle" nzTheme="fill" class="doc-check"></span>
+                    <span class="doc-filename">{{ files[field]!.name }}</span>
+                  } @else {
+                    <span nz-icon nzType="upload"></span>
+                    Choose file
+                  }
+                </label>
+                <input [id]="'file_' + field" type="file" accept=".pdf,.jpg,.jpeg,.png"
+                       class="file-input" (change)="onFileChange(field, $event)" />
+                @if (fileErrors[field]) {
+                  <span class="field-error">{{ fileErrors[field] }}</span>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="form-actions">
+            <button nz-button nzSize="large" (click)="goBack()" class="back-form-btn">
+              <span nz-icon nzType="arrow-left"></span>
+              Back
+            </button>
+            <button nz-button nzType="primary" nzSize="large" style="flex:1"
+                    [nzLoading]="loading()"
+                    (click)="submit()" class="submit-btn">
+              Submit Registration
+              <span nz-icon nzType="check"></span>
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- ── STEP 3: Success ────────────────────────────────────────────── -->
+      @if (step() === 3) {
+        <div class="success-block step-enter">
+          <div class="success-icon">
+            <span nz-icon nzType="check-circle" nzTheme="fill"></span>
+          </div>
+          <h2 class="success-title">Registration Submitted!</h2>
+          <p class="success-body">
+            Thank you for applying to join NAJUS SME. Our team will review your application
+            and notify you by email within <strong>3–5 business days</strong>.
+            Upon approval, your NAJUS membership code will be sent to your registered email address.
+          </p>
+          <div class="success-actions">
+            <a nz-button nzType="primary" nzSize="large" routerLink="/">
+              <span nz-icon nzType="home"></span>
+              Back to Home
+            </a>
+            <a nz-button nzSize="large" routerLink="/login">
+              <span nz-icon nzType="login"></span>
+              Member Login
+            </a>
+          </div>
+        </div>
+      }
+
+    </div>
+  </main>
+
+</div>

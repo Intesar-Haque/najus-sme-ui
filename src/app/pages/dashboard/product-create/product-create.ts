@@ -15,13 +15,14 @@ import { NzMessageService }    from 'ng-zorro-antd/message';
 
 import { ApiService } from '../../../core/services/api.service';
 import { Category } from '../../../core/models';
+import {NzCardComponent, NzCardModule} from 'ng-zorro-antd/card';
 
 @Component({
   selector: 'app-dash-product-create',
   imports: [
     RouterLink, ReactiveFormsModule,
     NzButtonModule, NzIconModule, NzFormModule, NzInputModule,
-    NzInputNumberModule, NzSelectModule, NzSwitchModule, NzSpinModule,
+    NzInputNumberModule, NzSelectModule, NzSwitchModule, NzSpinModule, NzCardModule,
   ],
   templateUrl: './product-create.html',
   styleUrl:    './product-create.less',
@@ -42,7 +43,7 @@ export class DashProductCreate implements OnInit {
     description:    ['', Validators.required],
     price:          [null, [Validators.required, Validators.min(0)]],
     original_price: [null],
-    category_id:    [null, Validators.required],
+    category_slug:    [null, Validators.required],
     tags_input:     [''],
     image_urls:     this.fb.array([this.fb.control('')]),
     in_stock:       [true],
@@ -84,7 +85,7 @@ export class DashProductCreate implements OnInit {
       description:    raw.description,
       price:          raw.price,
       original_price: raw.original_price || null,
-      category_id:    raw.category_id,
+      category_slug:    raw.category_slug,
       tags,
       image_urls,
       in_stock:       raw.in_stock,

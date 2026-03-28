@@ -21,10 +21,12 @@ import { Contact }            from './pages/contact/contact';
 import { Faq }                from './pages/faq/faq';
 import { Privacy }            from './pages/privacy/privacy';
 import { Terms }              from './pages/terms/terms';
+import { Join }               from './pages/join/join';
 
 export const routes: Routes = [
   { path: '',               component: Landing        },
   { path: 'login',          component: Login          },
+  { path: 'join',           component: Join           },
   {
     path: 'dashboard',
     component: Dashboard,

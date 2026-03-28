@@ -203,11 +203,16 @@
   display: flex;
   flex-direction: column;
   gap: @sp-6;
-  max-width: 1100px;
 
   @media (max-width: @bp-md) {
     padding: calc(56px + @sp-5) @sp-4 @sp-8;
   }
+}
+
+// Cap pending state content on ultra-wide displays
+.pending-view {
+  max-width: 1200px;
+  width: 100%;
 }
 
 // ─── Top bar ──────────────────────────────────────────────────────────
@@ -231,3 +236,290 @@
 .dash-date { font-size: @text-sm; color: @text-muted; margin: @sp-1 0 0; }
 
 .topbar-avatar { @media (max-width: @bp-md) { display: none; } }
+
+// ═══════════════════════════════════════════════════════════════════════
+// SIDEBAR — LOCKED MODIFIERS
+// ═══════════════════════════════════════════════════════════════════════
+.sidebar--locked {
+  .sidebar__profile { background: rgba(154,140,110,.12); }
+}
+
+.sidebar__status-badge {
+  display: inline-block;
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #c8a84b;
+  background: rgba(200,168,75,.15);
+  border: 1px solid rgba(200,168,75,.3);
+  border-radius: @radius-full;
+  padding: 1px 7px;
+  line-height: 18px;
+}
+
+.sidebar__link--disabled {
+  display: flex;
+  align-items: center;
+  gap: @sp-3;
+  width: 100%;
+  padding: @sp-3 @sp-4;
+  border-radius: @radius-md;
+  font-size: @text-sm;
+  color: rgba(255,255,255,.28);
+  cursor: not-allowed;
+  user-select: none;
+}
+
+.sidebar__lock-icon {
+  margin-left: auto;
+  font-size: 11px;
+  color: rgba(255,255,255,.2);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// PENDING REVIEW VIEW
+// ═══════════════════════════════════════════════════════════════════════
+.pending-view {
+  display: flex;
+  flex-direction: column;
+  gap: @sp-6;
+}
+
+// ─── Banner ───────────────────────────────────────────────────────────────────
+.pending-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: @sp-5;
+  padding: @sp-6 @sp-8;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 1px solid #f6d860;
+  border-radius: @radius-xl;
+  box-shadow: 0 2px 12px rgba(246,168,0,.08);
+
+  @media (max-width: @bp-sm) {
+    flex-direction: column;
+    gap: @sp-4;
+    padding: @sp-5;
+  }
+
+  &__icon {
+    width: 52px;
+    height: 52px;
+    border-radius: @radius-xl;
+    background: rgba(246,168,0,.15);
+    border: 1.5px solid rgba(246,168,0,.35);
+    .flex-center();
+    font-size: 24px;
+    color: #d48806;
+    flex-shrink: 0;
+  }
+
+  &__copy { flex: 1; }
+
+  &__title {
+    font-family: @font-heading;
+    font-size: @text-xl;
+    color: #7d5500;
+    margin: 0 0 @sp-2;
+  }
+
+  &__sub {
+    font-size: @text-sm;
+    color: #92610a;
+    line-height: 1.7;
+    margin: 0;
+
+    strong { color: #7d5500; }
+  }
+}
+
+// ─── Progress steps ────────────────────────────────────────────────────────────
+.pending-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: @bg-card;
+  border: 1px solid @border-light;
+  border-radius: @radius-xl;
+  padding: @sp-6 @sp-8;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+.pending-step {
+  display: flex;
+  align-items: flex-start;
+  gap: @sp-4;
+  position: relative;
+
+  &__circle {
+    width: 36px;
+    height: 36px;
+    border-radius: @radius-full;
+    .flex-center();
+    font-size: @text-sm;
+    font-weight: 700;
+    flex-shrink: 0;
+    border: 2px solid @border-color;
+    background: @bg-page;
+    color: @text-muted;
+    position: relative;
+    z-index: 1;
+
+    &--spin { animation: spin 1.4s linear infinite; }
+  }
+
+  &__line {
+    position: absolute;
+    left: 17px;
+    top: 36px;
+    width: 2px;
+    height: @sp-8;
+    background: @border-color;
+  }
+
+  &__line--hidden { display: none; }
+
+  &__body {
+    padding-bottom: @sp-8;
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: @text-sm;
+    font-weight: 600;
+    color: @text-primary;
+    margin: 0 0 2px;
+    line-height: 1.4;
+    padding-top: 6px;
+  }
+
+  &__desc {
+    font-size: @text-xs;
+    color: @text-muted;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  // Done step
+  &--done {
+    .pending-step__circle {
+      background: #e8f5ed;
+      border-color: @primary;
+      color: @primary;
+    }
+    .pending-step__line { background: @primary; }
+    .pending-step__label { color: @primary-dark; }
+  }
+
+  // Active step
+  &--active {
+    .pending-step__circle {
+      background: #fffbeb;
+      border-color: #d48806;
+      color: #d48806;
+    }
+    .pending-step__line { background: @border-color; }
+    .pending-step__label { color: #7d5500; }
+  }
+
+  // Waiting (future)
+  &--waiting {
+    .pending-step__circle { opacity: .4; }
+    .pending-step__label  { color: @text-muted; }
+    .pending-step__body   { padding-bottom: 0; }
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg);   }
+  to   { transform: rotate(360deg); }
+}
+
+// ─── Locked KPI preview grid ──────────────────────────────────────────────────
+.pending-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: @sp-4;
+
+  @media (max-width: @bp-md) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: @bp-sm) { grid-template-columns: 1fr 1fr; }
+}
+
+.preview-card {
+  background: @bg-card;
+  border: 1px solid @border-light;
+  border-radius: @radius-xl;
+  padding: @sp-5 @sp-5;
+  display: flex;
+  flex-direction: column;
+  gap: @sp-2;
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 8px,
+      rgba(0,0,0,.018) 8px,
+      rgba(0,0,0,.018) 16px
+    );
+    pointer-events: none;
+  }
+
+  &__icon {
+    font-size: 22px;
+
+    &--blue   { color: #1976d2; }
+    &--green  { color: @primary; }
+    &--orange { color: @accent; }
+    &--yellow { color: #f59f00; }
+  }
+
+  &__label {
+    font-size: @text-xs;
+    color: @text-muted;
+    margin: 0;
+    font-weight: 500;
+  }
+
+  &__value {
+    font-family: @font-heading;
+    font-size: @text-2xl;
+    color: @text-primary;
+    margin: 0;
+
+    &--locked {
+      color: @border-color;
+      font-size: @text-xl;
+      letter-spacing: .1em;
+    }
+  }
+}
+
+// ─── Help note ────────────────────────────────────────────────────────────────
+.pending-help {
+  display: flex;
+  align-items: center;
+  gap: @sp-2;
+  font-size: @text-sm;
+  color: @text-muted;
+  padding: @sp-4 @sp-5;
+  background: @bg-card;
+  border: 1px solid @border-light;
+  border-radius: @radius-lg;
+
+  .anticon { color: @text-muted; }
+
+  a {
+    color: @primary;
+    font-weight: 500;
+    margin-left: @sp-1;
+    &:hover { color: @primary-dark; }
+  }
+}

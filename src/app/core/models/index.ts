@@ -99,6 +99,8 @@ export interface Member {
   email: string;
   vendorId: string;
   role: 'vendor' | 'admin';
+  membershipSubmitted: boolean;
+  membershipVerified: boolean;
 }
 
 // ─── Site Stats ───────────────────────────────────────────────────────────────

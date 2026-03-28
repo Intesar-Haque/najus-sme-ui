@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, catchError, map, of } from 'rxjs';
+import { Observable, catchError, map, of, throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { Category, Member, Product, Vendor, BlogPost, SmeEvent, SiteStats } from '../models';
@@ -409,5 +409,17 @@ export class ApiService {
 
   updateDashboardSettings(body: object): Observable<{ member: Member }> {
     return this.http.put<{ member: Member }>(`${this.base}/dashboard/settings`, body);
+  }
+
+  // ─── Vendor Registration (public) ─────────────────────────────────────────
+  submitRegistration(data: FormData): Observable<{ message: string; id: string }> {
+    return this.http.post<{ message: string; id: string }>(
+      `${this.base}/register`, data,
+    ).pipe(
+      catchError(err => {
+        const msg = err.error?.message ?? 'Registration submission failed. Please try again.';
+        return throwError(() => new Error(msg));
+      }),
+    );
   }
 }

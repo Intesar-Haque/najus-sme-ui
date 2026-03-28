@@ -99,9 +99,13 @@ export class Login implements OnDestroy {
     this.errorMessage.set('');
 
     this.auth.verifyOtp(this.memberCode(), this.otpValue()).subscribe({
-      next: () => {
+      next: (member) => {
         this.loading.set(false);
-        this.router.navigate(['/dashboard']);
+        if (!member.membershipSubmitted) {
+          this.router.navigate(['/join']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: (err: Error) => {
         this.errorMessage.set(err.message);

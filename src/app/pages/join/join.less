@@ -1,8 +1,8 @@
 @import '../../../styles/variables';
 @import '../../../styles/mixins';
 
-// ─── Page shell ──────────────────────────────────────────────────────────────
-.login-page {
+// ─── Page shell ───────────────────────────────────────────────────────────────
+.join-page {
   display: flex;
   min-height: 100vh;
 }
@@ -11,14 +11,13 @@
 // BRAND PANEL (left)
 // ═══════════════════════════════════════════════════════════════════════
 .brand-panel {
-  width: 44%;
-  max-width: 580px;
+  width: 40%;
+  max-width: 540px;
   flex-shrink: 0;
   background: @dark;
   position: relative;
   overflow: hidden;
 
-  // Ambient glow
   &::before {
     content: '';
     position: absolute;
@@ -29,45 +28,37 @@
     pointer-events: none;
   }
 
-  // Hide on mobile — form takes full width
   @media (max-width: @bp-lg) { display: none; }
 
   &__inner {
     position: relative;
     z-index: 1;
     height: 100%;
-    padding: @sp-10 @sp-10;
+    padding: @sp-10;
     display: flex;
     flex-direction: column;
-    gap: @sp-10;
-    max-width: 500px;
+    gap: @sp-8;
+    max-width: 480px;
     margin: 0 auto;
   }
 
-  // ── Logo ───────────────────────────────────────────────────────────
   &__logo {
     display: flex;
     align-items: center;
     gap: @sp-3;
     text-decoration: none;
     flex-shrink: 0;
-
-    img {
-      height: 40px;
-      width: auto;
-    }
+    img { height: 40px; width: auto; }
   }
 
-  // ── Copy ───────────────────────────────────────────────────────────
-  &__copy { flex: 1; padding-top: @sp-6; }
+  &__copy { flex: 1; padding-top: @sp-4; }
 
   &__title {
     font-family: @font-heading;
-    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    font-size: clamp(2.2rem, 3.5vw, 3.2rem);
     color: @text-white;
     margin: 0 0 @sp-4;
     line-height: 1.05;
-
     .accent { color: @primary-light; }
   }
 
@@ -76,10 +67,8 @@
     color: rgba(255,255,255,.65);
     line-height: 1.75;
     margin: 0;
-    max-width: 380px;
   }
 
-  // ── Perks ──────────────────────────────────────────────────────────
   &__perks {
     list-style: none;
     padding: 0;
@@ -95,6 +84,21 @@
       font-size: @text-sm;
       color: rgba(255,255,255,.8);
     }
+  }
+
+  &__note {
+    display: flex;
+    align-items: flex-start;
+    gap: @sp-3;
+    padding: @sp-4 @sp-5;
+    background: rgba(40,167,69,.12);
+    border: 1px solid rgba(40,167,69,.25);
+    border-radius: @radius-lg;
+    font-size: @text-xs;
+    color: rgba(255,255,255,.7);
+    line-height: 1.6;
+
+    .anticon { color: @primary-light; font-size: 16px; flex-shrink: 0; margin-top: 2px; }
   }
 }
 
@@ -126,66 +130,6 @@
   flex-shrink: 0;
 }
 
-// ── Testimonial ──────────────────────────────────────────────────────────────
-.testimonial {
-  padding: @sp-5 @sp-6;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.1);
-  border-radius: @radius-lg;
-  backdrop-filter: blur(8px);
-
-  &__quote {
-    font-size: @text-base;
-    color: rgba(255,255,255,.88);
-    line-height: 1.7;
-    margin: 0 0 @sp-4;
-    font-style: italic;
-  }
-
-  &__author {
-    display: flex;
-    align-items: center;
-    gap: @sp-4;
-  }
-
-  &__dot-row {
-    display: flex;
-    gap: @sp-1;
-  }
-
-  &__name {
-    display: block;
-    font-size: @text-sm;
-    font-weight: 600;
-    color: @text-white;
-    line-height: 1;
-  }
-
-  &__biz {
-    display: block;
-    font-size: @text-xs;
-    color: rgba(255,255,255,.5);
-    margin-top: 2px;
-  }
-}
-
-.t-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: @radius-full;
-  background: rgba(255,255,255,.25);
-  border: none;
-  cursor: pointer;
-  transition: @transition-base;
-  padding: 0;
-
-  &--active {
-    background: @primary-light;
-    width: 18px;
-  }
-}
-
-
 // ═══════════════════════════════════════════════════════════════════════
 // FORM PANEL (right)
 // ═══════════════════════════════════════════════════════════════════════
@@ -193,7 +137,6 @@
   flex: 1;
   background: @bg-card;
   display: flex;
-  align-items: center;
   justify-content: center;
   min-height: 100vh;
   padding: @sp-8 @sp-6;
@@ -201,18 +144,16 @@
 
   &__inner {
     width: 100%;
-    max-width: 420px;
+    max-width: 680px;
     display: flex;
     flex-direction: column;
     gap: @sp-6;
+    padding-bottom: @sp-12;
   }
 
-  &__top {
-    .flex-between();
-  }
+  &__top { .flex-between(); }
 }
 
-// ── Mobile brand (visible only on mobile) ────────────────────────────────────
 .mobile-brand {
   display: none;
   align-items: center;
@@ -222,12 +163,7 @@
   font-size: @text-lg;
   color: @primary;
   font-weight: 700;
-
-  img {
-    height: 32px;
-    width: auto;
-  }
-
+  img { height: 32px; width: auto; }
   @media (max-width: @bp-lg) { display: flex; }
 }
 
@@ -241,19 +177,13 @@
   transition: @transition-base;
   padding: @sp-2;
   border-radius: @radius-md;
-
-  &:hover {
-    color: @primary;
-    background: @primary-bg;
-  }
+  &:hover { color: @primary; background: @primary-bg; }
 }
-
 
 // ─── Step indicator ───────────────────────────────────────────────────────────
 .step-indicator {
   display: flex;
   align-items: center;
-  gap: 0;
 }
 
 .step-item {
@@ -283,21 +213,13 @@
   }
 
   &--active {
-    .step-circle {
-      border-color: @primary;
-      background: @primary;
-      color: #fff;
-    }
-    .step-label { color: @primary; font-weight: 600; }
+    .step-circle { border-color: @primary; background: @primary; color: #fff; }
+    .step-label  { color: @primary; font-weight: 600; }
   }
 
   &--done {
-    .step-circle {
-      border-color: @primary;
-      background: @primary-bg;
-      color: @primary;
-    }
-    .step-label { color: @primary; }
+    .step-circle { border-color: @primary; background: @primary-bg; color: @primary; }
+    .step-label  { color: @primary; }
   }
 }
 
@@ -306,12 +228,10 @@
   height: 2px;
   background: @border-color;
   margin: 0 @sp-2;
-  margin-bottom: 18px;  // align with circle center
+  margin-bottom: 18px;
   transition: @transition-slow;
-
   &--done { background: @primary; }
 }
-
 
 // ─── Form block ───────────────────────────────────────────────────────────────
 .form-block {
@@ -320,16 +240,15 @@
   gap: @sp-5;
 }
 
-// Step enter animation
 .step-enter {
   animation: stepIn .3s ease;
 }
 @keyframes stepIn {
-  from { opacity: 0; transform: translateX(16px); }
+  from { opacity: 0; transform: translateX(12px); }
   to   { opacity: 1; transform: translateX(0); }
 }
 
-// ── Form heading ─────────────────────────────────────────────────────────────
+// ── Form heading ──────────────────────────────────────────────────────────────
 .form-heading {
   display: flex;
   flex-direction: column;
@@ -351,38 +270,34 @@
   }
 }
 
-.email-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: @radius-xl;
-  background: @primary-bg;
-  .flex-center();
-  font-size: 22px;
-  color: @primary;
-  margin-bottom: @sp-1;
-}
-
-.masked-email {
-  color: @primary;
-  letter-spacing: .03em;
-}
-
-// ── Demo hint ─────────────────────────────────────────────────────────────────
-.demo-hint {
-  border-radius: @radius-md !important;
-  padding: @sp-2 @sp-3 !important;
+// ── Section divider label ─────────────────────────────────────────────────────
+.section-label {
   font-size: @text-xs;
-  display: flex;
-  align-items: center;
-  gap: @sp-2;
-  width: fit-content;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: @text-muted;
+  border-bottom: 1px solid @border-color;
+  padding-bottom: @sp-2;
+  margin-bottom: -@sp-2;
 }
 
-// ── Field ─────────────────────────────────────────────────────────────────────
+// ── Field components ──────────────────────────────────────────────────────────
 .field-group {
   display: flex;
   flex-direction: column;
   gap: @sp-2;
+  flex: 1;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: @sp-4;
+
+  @media (max-width: @bp-sm) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .field-label {
@@ -397,7 +312,21 @@
   margin: 0;
 }
 
+.field-error {
+  font-size: @text-xs;
+  color: #dc3545;
+}
+
 .input-icon { color: @text-muted; }
+
+.req { color: #dc3545; }
+.optional { font-weight: 400; color: @text-muted; }
+
+// Error state wrappers
+.input-error {
+  border-color: #dc3545 !important;
+  &:focus { box-shadow: 0 0 0 2px rgba(220,53,69,.15) !important; }
+}
 
 // ── Submit button ─────────────────────────────────────────────────────────────
 .submit-btn {
@@ -405,108 +334,133 @@
   font-size: @text-base !important;
   font-weight: 600 !important;
   border-radius: @radius-lg !important;
+
+  &--flex { flex: 1; }
 }
 
-// ── OTP boxes ─────────────────────────────────────────────────────────────────
-.otp-label {
-  font-size: @text-sm;
-  font-weight: 600;
-  color: @text-secondary;
-  margin-bottom: -@sp-2;
-}
-
-.otp-row {
+// ── Form actions row (back + submit) ──────────────────────────────────────────
+.form-actions {
   display: flex;
   gap: @sp-3;
-  justify-content: space-between;
+  align-items: center;
+  margin-top: @sp-2;
+}
 
-  &--shake {
-    animation: shake .5s ease;
+.back-form-btn {
+  height: 48px !important;
+  border-radius: @radius-lg !important;
+}
+
+// ── Document upload grid ──────────────────────────────────────────────────────
+.doc-hint {
+  display: flex;
+  align-items: center;
+  gap: @sp-2;
+  margin-top: -@sp-3;
+}
+
+.doc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: @sp-3;
+
+  @media (max-width: @bp-sm) {
+    grid-template-columns: 1fr;
   }
 }
 
-@keyframes shake {
-  0%,100% { transform: translateX(0); }
-  20%      { transform: translateX(-6px); }
-  40%      { transform: translateX(6px); }
-  60%      { transform: translateX(-4px); }
-  80%      { transform: translateX(4px); }
-}
-
-.otp-box {
-  flex: 1;
-  aspect-ratio: 1;
-  max-width: 52px;
-  text-align: center;
-  font-size: @text-xl;
-  font-weight: 700;
-  font-family: @font-heading;
-  color: @text-primary;
-  border: 2px solid @border-color;
+.doc-item {
+  display: flex;
+  flex-direction: column;
+  gap: @sp-2;
+  padding: @sp-3 @sp-4;
+  border: 2px dashed @border-color;
   border-radius: @radius-lg;
-  background: @bg-page;
-  outline: none;
   transition: @transition-base;
-  caret-color: @primary;
+  background: @bg-page;
 
-  &:focus {
-    border-color: @primary;
-    background: @bg-card;
-    box-shadow: 0 0 0 3px rgba(40,167,69,.15);
-  }
+  &:hover { border-color: @primary; background: @primary-bg; }
 
-  &--filled {
+  &--uploaded {
+    border-style: solid;
     border-color: @primary;
     background: @primary-bg;
-    color: @primary;
   }
 
-  &:disabled {
-    opacity: .5;
-    cursor: not-allowed;
+  &__label {
+    font-size: @text-xs;
+    font-weight: 600;
+    color: @text-secondary;
   }
 }
 
-// ── OTP action row ────────────────────────────────────────────────────────────
-.otp-actions {
-  .flex-between();
-  gap: @sp-3;
-}
-
-.resend-btn {
+.doc-upload-btn {
   display: inline-flex;
   align-items: center;
-  gap: @sp-1;
-  background: none;
-  border: none;
-  font-size: @text-sm;
-  color: @text-muted;
-  cursor: not-allowed;
-  padding: 0;
-  font-family: @font-body;
-  transition: @transition-base;
-
-  &--active {
-    color: @primary;
-    cursor: pointer;
-    &:hover { color: @primary-dark; text-decoration: underline; }
-  }
-}
-
-.back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: @sp-1;
-  background: none;
-  border: none;
-  font-size: @text-sm;
-  color: @text-muted;
+  gap: @sp-2;
   cursor: pointer;
-  padding: 0;
-  font-family: @font-body;
+  font-size: @text-sm;
+  color: @primary;
+  font-weight: 500;
   transition: @transition-base;
 
-  &:hover { color: @text-primary; }
+  &:hover { color: @primary-dark; }
+}
+
+.doc-check { color: @primary; font-size: 16px; }
+
+.doc-filename {
+  .clamp(1);
+  max-width: 180px;
+  font-size: @text-xs;
+  color: @text-secondary;
+  font-weight: 400;
+}
+
+.file-input {
+  display: none;
+}
+
+// ─── Success block ────────────────────────────────────────────────────────────
+.success-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: @sp-5;
+  padding: @sp-12 @sp-6;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: @radius-full;
+  background: @primary-bg;
+  .flex-center();
+  font-size: 40px;
+  color: @primary;
+}
+
+.success-title {
+  font-family: @font-heading;
+  font-size: @text-3xl;
+  color: @text-primary;
+  margin: 0;
+}
+
+.success-body {
+  font-size: @text-base;
+  color: @text-secondary;
+  line-height: 1.75;
+  max-width: 460px;
+  margin: 0;
+}
+
+.success-actions {
+  display: flex;
+  gap: @sp-3;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 // ── Footer note ───────────────────────────────────────────────────────────────
@@ -523,5 +477,4 @@
   }
 }
 
-// ── Utilities ─────────────────────────────────────────────────────────────────
 .hide-mobile { .hide-mobile(); }
