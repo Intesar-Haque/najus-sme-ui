@@ -128,6 +128,28 @@
   font-size: @text-xs;
 }
 
+// ── Cart Icon ─────────────────────────────────────────────────────────────────
+.cart-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: @radius-md;
+  color: @text-secondary;
+  transition: @transition-base;
+  text-decoration: none;
+
+  &:hover {
+    background: @bg-subtle;
+    color: @primary;
+  }
+
+  .cart-icon {
+    font-size: 20px;
+  }
+}
+
 // ── Login Button ──────────────────────────────────────────────────────────────
 .login-btn {
   height: 36px !important;

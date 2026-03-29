@@ -6,9 +6,11 @@ import { Dashboard }          from './pages/dashboard/dashboard';
 import { DashOverview }       from './pages/dashboard/overview/overview';
 import { DashProducts }       from './pages/dashboard/products/products';
 import { DashProductCreate }  from './pages/dashboard/product-create/product-create';
+import { DashProductEdit }    from './pages/dashboard/product-edit/product-edit';
 import { DashAnalytics }      from './pages/dashboard/analytics/analytics';
 import { DashEvents }         from './pages/dashboard/dash-events/dash-events';
 import { DashSettings }       from './pages/dashboard/settings/settings';
+import { DashOrders }         from './pages/dashboard/orders/orders';
 import { Products }           from './pages/products/products';
 import { ProductDetail }      from './pages/products/detail/detail';
 import { Businesses }         from './pages/businesses/businesses';
@@ -22,6 +24,7 @@ import { Faq }                from './pages/faq/faq';
 import { Privacy }            from './pages/privacy/privacy';
 import { Terms }              from './pages/terms/terms';
 import { Join }               from './pages/join/join';
+import { Cart }               from './pages/cart/cart';
 
 export const routes: Routes = [
   { path: '',               component: Landing        },
@@ -36,8 +39,10 @@ export const routes: Routes = [
       { path: 'overview',      component: DashOverview       },
       { path: 'products',      component: DashProducts       },
       { path: 'products/new',  component: DashProductCreate  },
+      { path: 'products/:id',  component: DashProductEdit    },
       { path: 'analytics',     component: DashAnalytics      },
       { path: 'events',        component: DashEvents         },
+      { path: 'orders',        component: DashOrders         },
       { path: 'settings',      component: DashSettings       },
     ],
   },
@@ -53,5 +58,6 @@ export const routes: Routes = [
   { path: 'faq',             component: Faq            },
   { path: 'privacy',         component: Privacy        },
   { path: 'terms',           component: Terms          },
+  { path: 'cart',            component: Cart           },
   { path: '**',              redirectTo: ''            },
 ];

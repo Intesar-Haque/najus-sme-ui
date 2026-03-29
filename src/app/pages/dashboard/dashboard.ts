@@ -41,11 +41,12 @@ export class Dashboard {
   });
 
   readonly navItems = [
-    { label: 'Overview',    icon: 'dashboard', path: '/dashboard/overview'  },
-    { label: 'My Products', icon: 'shopping',  path: '/dashboard/products'  },
-    { label: 'Analytics',   icon: 'bar-chart', path: '/dashboard/analytics' },
-    { label: 'Events',      icon: 'calendar',  path: '/dashboard/events'    },
-    { label: 'Settings',    icon: 'setting',   path: '/dashboard/settings'  },
+    { label: 'Overview',    icon: 'dashboard',   path: '/dashboard/overview'  },
+    { label: 'My Products', icon: 'shopping',    path: '/dashboard/products'  },
+    { label: 'Orders',      icon: 'file-done',   path: '/dashboard/orders'    },
+    { label: 'Analytics',   icon: 'bar-chart',   path: '/dashboard/analytics' },
+    { label: 'Events',      icon: 'calendar',    path: '/dashboard/events'    },
+    { label: 'Settings',    icon: 'setting',     path: '/dashboard/settings'  },
   ];
 
   logout() {

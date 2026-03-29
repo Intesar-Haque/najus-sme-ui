@@ -2,6 +2,7 @@ import { Component, inject, signal, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
+import { CartService } from '../../../core/services/cart.service';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
@@ -23,8 +24,10 @@ import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 export class Navbar {
   private translate = inject(TranslateService);
   private auth      = inject(AuthService);
+  private cart      = inject(CartService);
 
   isAuthenticated = this.auth.isAuthenticated;
+  cartCount       = this.cart.count;
 
   lang = signal<'en' | 'bn'>(
     (localStorage.getItem('lang') as 'en' | 'bn') ?? 'en'

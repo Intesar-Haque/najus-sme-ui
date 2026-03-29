@@ -17,8 +17,9 @@ import { NzDividerModule }   from 'ng-zorro-antd/divider';
 import { NzSpinModule }      from 'ng-zorro-antd/spin';
 import { NzMessageService }  from 'ng-zorro-antd/message';
 
-import { ApiService } from '../../../core/services/api.service';
-import { ProductCard } from '../../../shared/components/product-card/product-card';
+import { ApiService }  from '../../../core/services/api.service';
+import { CartService }  from '../../../core/services/cart.service';
+import { ProductCard }  from '../../../shared/components/product-card/product-card';
 import { Product, Vendor } from '../../../core/models';
 
 @Component({
@@ -35,6 +36,7 @@ import { Product, Vendor } from '../../../core/models';
 })
 export class ProductDetail implements OnInit {
   private api        = inject(ApiService);
+  private cart       = inject(CartService);
   private route      = inject(ActivatedRoute);
   private router     = inject(Router);
   private message    = inject(NzMessageService);
@@ -109,7 +111,10 @@ export class ProductDetail implements OnInit {
   addToCart() {
     const p = this.product();
     if (!p) return;
+    const wasEmpty = this.cart.count() === 0;
+    this.cart.add(p, this.quantity());
     this.message.success(`${p.name} added to cart (×${this.quantity()})`);
+    if (wasEmpty) this.router.navigate(['/cart']);
   }
 
   goBack() {

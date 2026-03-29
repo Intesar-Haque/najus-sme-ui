@@ -136,6 +136,48 @@ export interface DashApiOrder {
   status:        'pending' | 'processing' | 'delivered' | 'cancelled';
 }
 
+export type OrderStatus = 'pending' | 'processing' | 'delivered' | 'cancelled';
+
+export interface OrderItem {
+  productName: string;
+  quantity:    number;
+  unitPrice:   number;
+  subtotal:    number;
+}
+
+export interface Order {
+  id:            string;
+  source:        string | null;
+  status:        OrderStatus;
+  totalAmount:   number;
+  customerName:  string | null;
+  customerEmail: string | null;
+  notes:         string | null;
+  membership:    { id: string; name: string; email: string } | null;
+  items:         OrderItem[];
+  createdAt:     string;
+}
+
+export interface OrdersMeta {
+  currentPage: number;
+  lastPage:    number;
+  total:       number;
+  perPage:     number;
+}
+
+export interface OrdersResponse {
+  data: Order[];
+  meta: OrdersMeta;
+}
+
+export interface OrdersParams {
+  membership_id?: number;
+  source?:        string;
+  status?:        OrderStatus;
+  per_page?:      number;
+  page?:          number;
+}
+
 /** Map frontend sort keys to API sort keys */
 const PRODUCT_SORT_MAP: Record<string, string> = {
   'price-asc':  'price_asc',
@@ -403,12 +445,63 @@ export class ApiService {
     );
   }
 
+  getDashboardProductById(id: string): Observable<Product | null> {
+    return this.http.get<{ data: Product }>(`${this.base}/dashboard/products/${id}`).pipe(
+      map(r => r.data),
+      catchError(() => of(null)),
+    );
+  }
+
   createDashboardProduct(body: object): Observable<{ data: Product }> {
     return this.http.post<{ data: Product }>(`${this.base}/dashboard/products`, body);
   }
 
+  updateDashboardProduct(id: string, body: object): Observable<{ data: Product }> {
+    return this.http.put<{ data: Product }>(`${this.base}/dashboard/products/${id}`, body);
+  }
+
+  deleteDashboardProduct(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/dashboard/products/${id}`);
+  }
+
   updateDashboardSettings(body: object): Observable<{ member: Member }> {
     return this.http.put<{ member: Member }>(`${this.base}/dashboard/settings`, body);
+  }
+
+  // ─── Vendor Registration (public) ─────────────────────────────────────────
+  // ─── Orders ───────────────────────────────────────────────────────────────
+  getOrders(p: OrdersParams = {}): Observable<OrdersResponse> {
+    let params = new HttpParams();
+    if (p.membership_id) params = params.set('membership_id', p.membership_id);
+    if (p.source)        params = params.set('source',        p.source);
+    if (p.status)        params = params.set('status',        p.status);
+    if (p.per_page)      params = params.set('per_page',      p.per_page);
+    if (p.page)          params = params.set('page',          p.page);
+
+    const empty: OrdersResponse = {
+      data: [],
+      meta: { currentPage: 1, lastPage: 1, total: 0, perPage: 20 },
+    };
+    return this.http.get<OrdersResponse>(`${this.base}/orders`, { params }).pipe(
+      catchError(() => of(empty)),
+    );
+  }
+
+  placeOrder(body: {
+    customer_name?: string;
+    customer_email?: string;
+    notes?: string;
+    source?: string;
+    items: { product_name: string; quantity: number; unit_price: number }[];
+  }): Observable<{ message: string; id: string; total: number; status: string }> {
+    return this.http.post<{ message: string; id: string; total: number; status: string }>(
+      `${this.base}/orders`, body,
+    ).pipe(
+      catchError(err => {
+        const msg = err.error?.message ?? 'Order submission failed. Please try again.';
+        return throwError(() => new Error(msg));
+      }),
+    );
   }
 
   // ─── Vendor Registration (public) ─────────────────────────────────────────

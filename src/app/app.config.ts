@@ -3,6 +3,7 @@ import {
   provideZoneChangeDetection, importProvidersFrom, APP_INITIALIZER,
 } from '@angular/core';
 import { provideRouter, withInMemoryScrolling, withRouterConfig } from '@angular/router';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { routes } from './app.routes';
 import { en_US, provideNzI18n } from 'ng-zorro-antd/i18n';
 import { registerLocaleData } from '@angular/common';
@@ -34,6 +35,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
+    provideNoopAnimations(),
     provideRouter(
       routes,
       withRouterConfig({ paramsInheritanceStrategy: 'always' }),

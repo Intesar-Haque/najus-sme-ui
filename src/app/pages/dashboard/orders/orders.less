@@ -1,0 +1,225 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+@import '../shared';
+
+// ── Status Tabs ───────────────────────────────────────────────────────────────
+.status-tabs {
+  display: flex;
+  gap: @sp-2;
+  flex-wrap: wrap;
+  margin: @sp-5 0;
+}
+
+.status-tab {
+  padding: @sp-2 @sp-4;
+  border: 1px solid @border-color;
+  border-radius: @radius-full;
+  background: @bg-card;
+  font-size: @text-sm;
+  color: @text-secondary;
+  cursor: pointer;
+  transition: @transition-base;
+  font-family: @font-body;
+
+  &:hover {
+    border-color: @primary;
+    color: @primary;
+  }
+
+  &--active {
+    background: @primary;
+    border-color: @primary;
+    color: #fff;
+    font-weight: 600;
+  }
+}
+
+// ── Orders List ───────────────────────────────────────────────────────────────
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: @sp-4;
+  margin-top: @sp-2;
+}
+
+// ── Order Card ────────────────────────────────────────────────────────────────
+.order-card {
+  background: @bg-card;
+  border: 1px solid @border-light;
+  border-radius: @radius-lg;
+  box-shadow: @shadow-xs;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: @sp-4 @sp-5;
+    cursor: pointer;
+    user-select: none;
+    transition: background @transition-base;
+    gap: @sp-4;
+
+    &:hover { background: @bg-subtle; }
+  }
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: @sp-3;
+    flex-wrap: wrap;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: @sp-4;
+    flex-shrink: 0;
+  }
+
+  &__customer {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: @sp-4;
+    padding: @sp-3 @sp-5;
+    background: @bg-subtle;
+    border-top: 1px solid @border-light;
+  }
+
+  &__body {
+    padding: @sp-5;
+    border-top: 1px solid @border-light;
+  }
+}
+
+.order-id {
+  font-size: @text-sm;
+  font-weight: 700;
+  color: @text-primary;
+  font-family: monospace;
+}
+
+.status-tag { font-size: @text-xs !important; }
+
+.order-date {
+  font-size: @text-xs;
+  color: @text-muted;
+}
+
+.order-total {
+  font-size: @text-base;
+  font-weight: 700;
+  color: @primary;
+}
+
+.expand-icon {
+  font-size: @text-xs;
+  color: @text-muted;
+}
+
+// ── Customer Row ──────────────────────────────────────────────────────────────
+.customer-item {
+  display: flex;
+  align-items: center;
+  gap: @sp-1;
+  font-size: @text-xs;
+  color: @text-secondary;
+
+  [nz-icon] { color: @text-muted; }
+}
+
+// ── Detail Rows ───────────────────────────────────────────────────────────────
+.detail-row {
+  display: flex;
+  gap: @sp-4;
+  align-items: baseline;
+  margin-bottom: @sp-3;
+  font-size: @text-sm;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: @text-muted;
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.detail-value { color: @text-primary; }
+
+.cod-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: @sp-1;
+  background: @primary-bg;
+  color: @primary-dark;
+  font-size: @text-xs;
+  font-weight: 600;
+  padding: 2px @sp-3;
+  border-radius: @radius-full;
+  border: 1px solid fade(@primary, 20%);
+}
+
+// ── Items Table ───────────────────────────────────────────────────────────────
+.items-table {
+  margin-top: @sp-4;
+  border: 1px solid @border-light;
+  border-radius: @radius-md;
+  overflow: hidden;
+  font-size: @text-sm;
+
+  &__head {
+    display: grid;
+    grid-template-columns: 1fr 60px 100px 100px;
+    gap: @sp-2;
+    background: @bg-subtle;
+    padding: @sp-2 @sp-4;
+    font-size: @text-xs;
+    font-weight: 700;
+    color: @text-muted;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 60px 100px 100px;
+    gap: @sp-2;
+    padding: @sp-3 @sp-4;
+    border-top: 1px solid @border-light;
+    color: @text-primary;
+
+    &--shipping {
+      color: @text-muted;
+      font-style: italic;
+      font-size: @text-xs;
+    }
+  }
+
+  &__total {
+    display: grid;
+    grid-template-columns: 1fr 100px;
+    gap: @sp-2;
+    padding: @sp-3 @sp-4;
+    border-top: 2px solid @border-color;
+    font-weight: 700;
+    color: @text-primary;
+    background: @bg-subtle;
+  }
+}
+
+.item-name {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-right { text-align: right; }
+
+// ── Pagination ────────────────────────────────────────────────────────────────
+.orders-pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: @sp-6;
+}

@@ -20,9 +20,11 @@ import { NzDividerModule }    from 'ng-zorro-antd/divider';
 import { NzBadgeModule }      from 'ng-zorro-antd/badge';
 import { NzToolTipModule }    from 'ng-zorro-antd/tooltip';
 import { NzSpinModule }       from 'ng-zorro-antd/spin';
+import { NzMessageService }  from 'ng-zorro-antd/message';
 
-import { ApiService } from '../../core/services/api.service';
-import { ProductCard } from '../../shared/components/product-card/product-card';
+import { ApiService }  from '../../core/services/api.service';
+import { CartService }  from '../../core/services/cart.service';
+import { ProductCard }  from '../../shared/components/product-card/product-card';
 import { Category, Product } from '../../core/models';
 
 export type SortOption = 'default' | 'price-asc' | 'price-desc' | 'rating' | 'popular' | 'newest';
@@ -48,9 +50,11 @@ interface FilterChip {
   styleUrl:    './products.less',
 })
 export class Products implements OnInit {
-  private api   = inject(ApiService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  private api     = inject(ApiService);
+  private cart    = inject(CartService);
+  private message = inject(NzMessageService);
+  private route   = inject(ActivatedRoute);
+  private router  = inject(Router);
 
   // ── Static ────────────────────────────────────────────────────────────
   readonly PAGE_SIZE = 12;
@@ -220,7 +224,10 @@ export class Products implements OnInit {
   }
 
   onAddToCart(product: Product) {
-    console.log('Add to cart:', product.name);
+    const wasEmpty = this.cart.count() === 0;
+    this.cart.add(product);
+    this.message.success(`${product.name} added to cart`);
+    if (wasEmpty) this.router.navigate(['/cart']);
   }
 
   getPriceFormatter(value: number): string {

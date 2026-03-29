@@ -103,6 +103,12 @@ export interface Member {
   membershipVerified: boolean;
 }
 
+// ─── Cart ─────────────────────────────────────────────────────────────────────
+export interface CartItem {
+  product: Product;
+  quantity: number;
+}
+
 // ─── Site Stats ───────────────────────────────────────────────────────────────
 export interface SiteStats {
   members: number;

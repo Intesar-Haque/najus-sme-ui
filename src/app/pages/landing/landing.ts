@@ -14,10 +14,12 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzBadgeModule } from 'ng-zorro-antd/badge';
-import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzSpinModule }    from 'ng-zorro-antd/spin';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
+import { CartService } from '../../core/services/cart.service';
 import { ProductCard } from '../../shared/components/product-card/product-card';
 import { VendorCard } from '../../shared/components/vendor-card/vendor-card';
 import { Product, SiteStats } from '../../core/models';
@@ -39,9 +41,11 @@ const EMPTY_STATS: SiteStats = {
   styleUrl: './landing.less',
 })
 export class Landing {
-  private api    = inject(ApiService);
-  private auth   = inject(AuthService);
-  private router = inject(Router);
+  private api     = inject(ApiService);
+  private auth    = inject(AuthService);
+  private cart    = inject(CartService);
+  private router  = inject(Router);
+  private message = inject(NzMessageService);
 
   isAuthenticated = this.auth.isAuthenticated;
 
@@ -77,8 +81,10 @@ export class Landing {
   }
 
   onAddToCart(product: Product) {
-    // cart logic
-    console.log('Add to cart:', product.name);
+    const wasEmpty = this.cart.count() === 0;
+    this.cart.add(product);
+    this.message.success(`${product.name} added to cart`);
+    if (wasEmpty) this.router.navigate(['/cart']);
   }
 
   getEventTypeColor(type: string): string {

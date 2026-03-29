@@ -31,6 +31,13 @@
         <button class="lang-btn" [class.lang-btn--active]="lang() === 'bn'" (click)="switchLang('bn')">বাং</button>
       </div>
 
+      <!-- Cart Icon -->
+      <a routerLink="/cart" class="cart-icon-btn">
+        <nz-badge [nzCount]="cartCount()" [nzOverflowCount]="99">
+          <span nz-icon nzType="shopping-cart" class="cart-icon"></span>
+        </nz-badge>
+      </a>
+
       <!-- Login / Dashboard CTA -->
       @if (isAuthenticated()) {
         <a routerLink="/dashboard">

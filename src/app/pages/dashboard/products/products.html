@@ -48,6 +48,11 @@
                 <span class="prod-card__reviews">({{ product.reviewCount }})</span>
               </div>
             </div>
+            <a [routerLink]="['/dashboard/products', product.id]"
+               nz-button nzSize="small" nzBlock class="prod-card__edit-btn">
+              <span nz-icon nzType="edit" nzTheme="outline"></span>
+              Edit Details
+            </a>
           </div>
         </div>
       }

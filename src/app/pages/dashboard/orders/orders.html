@@ -1,0 +1,142 @@
+@if (loading()) {
+  <div class="section-loading">
+    <nz-spin nzSize="large" nzTip="Loading orders…"></nz-spin>
+  </div>
+} @else {
+
+  <!-- Header -->
+  <div class="section-title-row">
+    <h2 class="section-title">Orders</h2>
+    <nz-tag nzColor="blue">{{ meta().total }} total</nz-tag>
+  </div>
+
+  <!-- Status Tabs -->
+  <div class="status-tabs">
+    @for (tab of statusTabs; track tab.value) {
+      <button
+        class="status-tab"
+        [class.status-tab--active]="statusFilter() === tab.value"
+        (click)="setFilter(tab.value)">
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  @if (orders().length === 0) {
+    <div class="empty-wrap">
+      <nz-empty nzNotFoundContent="No orders found."></nz-empty>
+    </div>
+  } @else {
+
+    <div class="orders-list">
+      @for (order of orders(); track order.id) {
+        <div class="order-card">
+
+          <!-- Order Header -->
+          <div class="order-card__header" (click)="toggleExpand(order.id)">
+            <div class="order-card__left">
+              <span class="order-id">#{{ order.id }}</span>
+              <nz-tag [nzColor]="statusColor(order.status)" class="status-tag">
+                {{ order.status | titlecase }}
+              </nz-tag>
+              <span class="order-date">{{ order.createdAt | date:'dd MMM yyyy, h:mm a' }}</span>
+            </div>
+            <div class="order-card__right">
+              <span class="order-total">৳ {{ order.totalAmount | number }}</span>
+              <span nz-icon
+                    [nzType]="isExpanded(order.id) ? 'up' : 'down'"
+                    class="expand-icon"></span>
+            </div>
+          </div>
+
+          <!-- Customer Row (always visible) -->
+          <div class="order-card__customer">
+            <span class="customer-item">
+              <span nz-icon nzType="user"></span>
+              {{ order.customerName ?? '—' }}
+            </span>
+            @if (order.customerEmail) {
+              <span class="customer-item">
+                <span nz-icon nzType="mail"></span>
+                {{ order.customerEmail }}
+              </span>
+            }
+            <span class="customer-item">
+              <span nz-icon nzType="phone"></span>
+              {{ contactFrom(order.notes) }}
+            </span>
+            <span class="customer-item">
+              <span nz-icon nzType="environment"></span>
+              {{ zoneFrom(order.notes) }}
+            </span>
+          </div>
+
+          <!-- Expanded Detail -->
+          @if (isExpanded(order.id)) {
+            <div class="order-card__body">
+
+              <!-- Delivery Address -->
+              <div class="detail-row">
+                <span class="detail-label">Delivery Address</span>
+                <span class="detail-value">{{ addressFrom(order.notes) }}</span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">Payment</span>
+                <span class="detail-value cod-pill">
+                  <span nz-icon nzType="wallet"></span> Cash on Delivery
+                </span>
+              </div>
+
+              <!-- Items -->
+              <div class="items-table">
+                <div class="items-table__head">
+                  <span>Product</span>
+                  <span class="text-right">Qty</span>
+                  <span class="text-right">Unit Price</span>
+                  <span class="text-right">Subtotal</span>
+                </div>
+                @for (item of productItems(order); track item.productName) {
+                  <div class="items-table__row">
+                    <span class="item-name">{{ item.productName }}</span>
+                    <span class="text-right">{{ item.quantity }}</span>
+                    <span class="text-right">৳ {{ item.unitPrice | number }}</span>
+                    <span class="text-right">৳ {{ item.subtotal | number }}</span>
+                  </div>
+                }
+                @if (shippingItem(order); as ship) {
+                  <div class="items-table__row items-table__row--shipping">
+                    <span>{{ ship.productName }}</span>
+                    <span></span>
+                    <span></span>
+                    <span class="text-right">৳ {{ ship.subtotal | number }}</span>
+                  </div>
+                }
+                <div class="items-table__total">
+                  <span>Total</span>
+                  <span class="text-right">৳ {{ order.totalAmount | number }}</span>
+                </div>
+              </div>
+
+            </div>
+          }
+
+        </div>
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (meta().lastPage > 1) {
+      <div class="orders-pagination">
+        <nz-pagination
+          [nzPageIndex]="meta().currentPage"
+          [nzTotal]="meta().total"
+          [nzPageSize]="meta().perPage"
+          nzShowSizeChanger
+          (nzPageIndexChange)="load($event)">
+        </nz-pagination>
+      </div>
+    }
+
+  }
+}
