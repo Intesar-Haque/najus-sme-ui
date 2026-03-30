@@ -69,7 +69,7 @@ export class DashOverview implements OnInit {
         this.overviewData.set(overview);
         this.rawOrders.set(orders);
         this.dashEvents.set(events);
-        if (overview?.member) this.auth.currentMember.set(overview.member);
+        if (overview?.member) this.auth.updateMember(overview.member);
         this.loading.set(false);
       },
       error: () => { this.loading.set(false); },

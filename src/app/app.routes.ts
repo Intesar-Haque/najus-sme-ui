@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard }          from './core/guards/auth.guard';
+import { joinGuard }          from './core/guards/join.guard';
 import { Landing }            from './pages/landing/landing';
 import { Login }              from './pages/login/login';
 import { Dashboard }          from './pages/dashboard/dashboard';
@@ -29,7 +30,7 @@ import { Cart }               from './pages/cart/cart';
 export const routes: Routes = [
   { path: '',               component: Landing        },
   { path: 'login',          component: Login          },
-  { path: 'join',           component: Join           },
+  { path: 'join',           component: Join,           canActivate: [joinGuard] },
   {
     path: 'dashboard',
     component: Dashboard,

@@ -101,9 +101,16 @@ export class Login implements OnDestroy {
     this.auth.verifyOtp(this.memberCode(), this.otpValue()).subscribe({
       next: (member) => {
         this.loading.set(false);
-        if (!member.membershipSubmitted) {
+        const status = member.registrationStatus;
+        if (status === 'rejected') {
+          this.errorMessage.set(
+            'Your vendor application was rejected. Please contact contact@najus-msme.com for assistance.'
+          );
+          this.auth.invalidateSession();
+        } else if (status === null) {
           this.router.navigate(['/join']);
         } else {
+          // pending or approved
           this.router.navigate(['/dashboard']);
         }
       },

@@ -27,11 +27,10 @@ export class Dashboard {
 
   readonly today = new Date();
 
-  /** True when registration is submitted but admin has not yet verified the vendor. */
-  readonly isPending = computed(() => {
-    const m = this.member();
-    return !!m && m.membershipSubmitted && !m.membershipVerified;
-  });
+  /** True when the vendor application is awaiting admin review. */
+  readonly isPending = computed(() =>
+    this.member()?.registrationStatus === 'pending'
+  );
 
   readonly greeting = computed(() => {
     const h = this.today.getHours();

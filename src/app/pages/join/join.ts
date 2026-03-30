@@ -172,7 +172,7 @@ export class Join {
         // Mark the member as submitted so the dashboard shows the pending-review state
         const m = this.auth.currentMember();
         if (m) {
-          this.auth.currentMember.set({ ...m, membershipSubmitted: true });
+          this.auth.updateMember({ ...m, registrationStatus: 'pending' });
         }
         this.router.navigate(['/dashboard']);
       },

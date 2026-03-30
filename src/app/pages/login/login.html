@@ -89,7 +89,7 @@
               <span nz-icon nzType="check"></span>
             } @else { 1 }
           </div>
-          <span class="step-label">Enter Code</span>
+          <span class="step-label">Enter Code / Email</span>
         </div>
         <div class="step-line" [class.step-line--done]="step() > 1"></div>
         <div class="step-item" [class.step-item--active]="step() === 2">
@@ -103,7 +103,7 @@
         <div class="form-block step-enter">
           <div class="form-heading">
             <h2>Member Login</h2>
-            <p>Enter your NAJUS SME membership code to receive a one-time password via email.</p>
+            <p>Enter your membership code or registered email to receive a one-time password.</p>
           </div>
 
 
@@ -113,22 +113,21 @@
           }
 
           <div class="field-group">
-            <label class="field-label">Membership Code</label>
+            <label class="field-label">Membership Code or Email</label>
             <nz-input-group [nzPrefix]="codePfx" nzSize="large">
               <input
                 nz-input
-                placeholder="e.g. NAJUS-001"
+                placeholder="e.g. NAJUS-001 or you@example.com"
                 [(ngModel)]="memberCode"
                 (keyup.enter)="submitCode()"
                 [disabled]="loading()"
                 autocomplete="off"
-                style="text-transform: uppercase; letter-spacing: .1em"
               />
             </nz-input-group>
             <ng-template #codePfx>
               <span nz-icon nzType="idcard" nzTheme="outline" class="input-icon"></span>
             </ng-template>
-            <p class="field-hint">Your code was provided when you joined NAJUS SME.</p>
+            <p class="field-hint">Use your NAJUS membership code or the email address on file.</p>
           </div>
 
           <button nz-button nzType="primary" nzSize="large" nzBlock
@@ -210,7 +209,7 @@
 
             <button class="back-btn" (click)="goBack()">
               <span nz-icon nzType="arrow-left"></span>
-              Change code
+              Change identifier
             </button>
           </div>
         </div>

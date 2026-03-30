@@ -33,9 +33,9 @@ export class Contact {
   ];
 
   readonly contactInfo = [
-    { icon: 'environment',  label: 'Address',      value: '123 NGO Road, Mohakhali, Dhaka 1212, Bangladesh' },
-    { icon: 'phone',        label: 'Phone',        value: '+880-1700-000000' },
-    { icon: 'mail',         label: 'Email',        value: 'info@najussme.org' },
+    { icon: 'environment',  label: 'Address',      value: 'Level 4, lily pond center, 3 rk mission road Dhaka 1203, Bangladesh' },
+    { icon: 'phone',        label: 'Phone',        value: '+880-1345-593601' },
+    { icon: 'mail',         label: 'Email',        value: 'contact@najus-msme.com' },
     { icon: 'clock-circle', label: 'Office Hours', value: 'Sun – Thu: 9 AM – 6 PM (BST)' },
   ];
 

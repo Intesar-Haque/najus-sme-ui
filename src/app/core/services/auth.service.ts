@@ -28,7 +28,7 @@ export class AuthService {
   requestOtp(memberCode: string): Observable<{ maskedEmail: string }> {
     return this.http.post<{ maskedEmail: string }>(
       `${this.base}/auth/request-otp`,
-      { member_code: memberCode.trim().toUpperCase() },
+      { identifier: memberCode.trim() },
     ).pipe(
       catchError(err => throwError(() => new Error(
         err.error?.message ?? 'Membership code not found. Please check and try again.'
@@ -43,7 +43,7 @@ export class AuthService {
   verifyOtp(memberCode: string, otp: string): Observable<Member> {
     return this.http.post<{ member: Member; token: string }>(
       `${this.base}/auth/verify-otp`,
-      { member_code: memberCode.trim().toUpperCase(), otp },
+      { identifier: memberCode.trim(), otp },
     ).pipe(
       map(res => {
         this.setSession(res.member, res.token);
@@ -52,6 +52,26 @@ export class AuthService {
       catchError(err => throwError(() => new Error(
         err.error?.message ?? 'Invalid or expired OTP. Please try again.'
       ))),
+    );
+  }
+
+  /**
+   * Fetch fresh member data from the server.
+   * Updates currentMember signal and localStorage on success.
+   * Invalidates session on 401.
+   */
+  fetchMe(): Observable<Member> {
+    return this.http.get<{ data: Member }>(`${this.base}/auth/me`).pipe(
+      map(res => {
+        this.setSession(res.data, this.authToken()!);
+        return res.data;
+      }),
+      catchError(err => {
+        if (err.status === 401) this.invalidateSession();
+        return throwError(() => new Error(
+          err.error?.message ?? 'Session expired. Please log in again.'
+        ));
+      }),
     );
   }
 
@@ -73,6 +93,12 @@ export class AuthService {
     this.authToken.set(token);
     localStorage.setItem(MEMBER_KEY, JSON.stringify(member));
     localStorage.setItem(TOKEN_KEY, token);
+  }
+
+  /** Update the current member in both the signal and localStorage. */
+  updateMember(member: Member): void {
+    this.currentMember.set(member);
+    localStorage.setItem(MEMBER_KEY, JSON.stringify(member));
   }
 
   /** Call when a 401 is received — clears state without making an API call. */

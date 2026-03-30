@@ -99,8 +99,9 @@ export interface Member {
   email: string;
   vendorId: string;
   role: 'vendor' | 'admin';
-  membershipSubmitted: boolean;
-  membershipVerified: boolean;
+  membershipSubmitted?: boolean;
+  membershipVerified?: boolean;
+  registrationStatus: null | 'pending' | 'approved' | 'rejected';
 }
 
 // ─── Cart ─────────────────────────────────────────────────────────────────────
