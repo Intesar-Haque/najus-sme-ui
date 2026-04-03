@@ -1,0 +1,162 @@
+@if (loading()) {
+  <div class="section-loading">
+    <nz-spin nzSize="large" nzTip="Loading…"></nz-spin>
+  </div>
+} @else if (!vendor()) {
+  <div class="empty-wrap">
+    <p>No vendor profile found.</p>
+    <a routerLink="/dashboard/settings" nz-button>Back to Settings</a>
+  </div>
+} @else {
+
+  <div class="section-title-row">
+    <a routerLink="/dashboard/settings" class="back-btn">
+      <span nz-icon nzType="arrow-left" nzTheme="outline"></span> Back
+    </a>
+    <h2 class="section-title">Edit Vendor Profile</h2>
+  </div>
+
+  <form nz-form nzLayout="vertical" [formGroup]="form" (ngSubmit)="save()">
+
+    <!-- Cover Image -->
+    <div class="panel">
+      <div class="panel__header">
+        <h3 class="panel__title">Cover Image</h3>
+        <span class="panel__meta">Recommended: 1200 × 400 px · max 4 MB</span>
+      </div>
+      <div class="panel__body">
+        <div class="cover-upload" (click)="coverInputEl.nativeElement.click()">
+          @if (coverPreview()) {
+            <img [src]="coverPreview()!" class="cover-img" alt="Cover" />
+            <div class="img-overlay">
+              <span nz-icon nzType="camera" nzTheme="outline"></span>
+              Change
+            </div>
+          } @else {
+            <div class="upload-placeholder">
+              <span nz-icon nzType="picture" nzTheme="outline" style="font-size:36px"></span>
+              <p>Click to upload cover image</p>
+            </div>
+          }
+        </div>
+        <input #coverInput type="file" accept="image/jpg,image/jpeg,image/png,image/webp"
+               style="display:none" (change)="onCoverChange($event)" />
+      </div>
+    </div>
+
+    <!-- Basic Information -->
+    <div class="panel">
+      <div class="panel__header">
+        <h3 class="panel__title">Basic Information</h3>
+      </div>
+      <div class="panel__body">
+
+        <!-- Logo picker -->
+        <div class="logo-row">
+          <div class="logo-upload" (click)="logoInputEl.nativeElement.click()">
+            @if (logoPreview()) {
+              <img [src]="logoPreview()!" class="logo-img" alt="Logo" />
+              <div class="img-overlay">
+                <span nz-icon nzType="camera" nzTheme="outline"></span>
+              </div>
+            } @else {
+              <span nz-icon nzType="shop" nzTheme="outline" style="font-size:28px"></span>
+            }
+          </div>
+          <div class="logo-hint">
+            <p>Business Logo</p>
+            <small>Recommended: 400 × 400 px · max 2 MB</small>
+          </div>
+          <input #logoInput type="file" accept="image/jpg,image/jpeg,image/png,image/webp"
+                 style="display:none" (change)="onLogoChange($event)" />
+        </div>
+
+        <nz-form-item>
+          <nz-form-label nzRequired>Business Name</nz-form-label>
+          <nz-form-control nzErrorTip="Business name is required.">
+            <input nz-input formControlName="name" placeholder="Your business name" />
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>About / Description</nz-form-label>
+          <nz-form-control>
+            <textarea nz-input formControlName="description"
+                      [nzAutosize]="{ minRows: 4, maxRows: 8 }"
+                      placeholder="Tell customers about your business…"></textarea>
+          </nz-form-control>
+        </nz-form-item>
+
+        <div class="form-grid">
+          <nz-form-item>
+            <nz-form-label>Location</nz-form-label>
+            <nz-form-control>
+              <input nz-input formControlName="location" placeholder="Full address" />
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label>District</nz-form-label>
+            <nz-form-control>
+              <input nz-input formControlName="district" placeholder="District" />
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label>Phone</nz-form-label>
+            <nz-form-control>
+              <input nz-input formControlName="phone" placeholder="+880 …" />
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label>Email</nz-form-label>
+            <nz-form-control nzErrorTip="Enter a valid email address.">
+              <input nz-input formControlName="email" placeholder="business@example.com" />
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item class="full">
+            <nz-form-label>Facebook Page URL</nz-form-label>
+            <nz-form-control>
+              <input nz-input formControlName="facebook" placeholder="https://facebook.com/yourpage" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="panel">
+      <div class="panel__header">
+        <h3 class="panel__title">Categories</h3>
+      </div>
+      <div class="panel__body">
+        <nz-form-item>
+          <nz-form-label>Product Categories</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="category_slugs" nzMode="multiple"
+                       nzPlaceHolder="Select the categories your business sells in"
+                       style="width:100%">
+              @for (cat of categories(); track cat.id) {
+                <nz-option [nzValue]="cat.slug ?? cat.id" [nzLabel]="cat.name"></nz-option>
+              }
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+      <a routerLink="/dashboard/settings" nz-button>Cancel</a>
+      <button nz-button nzType="primary" type="submit" [nzLoading]="saving()">
+        <span nz-icon nzType="save" nzTheme="outline"></span>
+        Save Changes
+      </button>
+    </div>
+
+  </form>
+
+}

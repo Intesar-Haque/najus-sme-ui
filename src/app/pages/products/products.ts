@@ -75,8 +75,66 @@ export class Products implements OnInit {
     { value: 3,   label: '3+'   },
   ];
 
-  // ── Categories (from API) ────────────────────────────────────────────
+  // ── Categories (from API — L1 with nested children) ─────────────────
   readonly categories = toSignal(this.api.getCategories(), { initialValue: [] as Category[] });
+
+  // Which L1 is active (directly selected, or a descendant is selected)
+  readonly activeL1 = computed(() => {
+    const [id] = this.selectedCategories();
+    if (!id) return null;
+    for (const l1 of this.categories()) {
+      if (l1.id === id) return id;
+      for (const l2 of l1.children ?? []) {
+        if (l2.id === id || l2.children?.some(l3 => l3.id === id)) return l1.id;
+      }
+    }
+    return null;
+  });
+
+  // L2 children of the active L1 (for sub-strip)
+  readonly l2Visible = computed(() =>
+    this.categories().find(c => c.id === this.activeL1())?.children ?? [] as Category[]
+  );
+
+  // Which L2 is active
+  readonly activeL2 = computed(() => {
+    const [id] = this.selectedCategories();
+    if (!id) return null;
+    for (const l1 of this.categories()) {
+      for (const l2 of l1.children ?? []) {
+        if (l2.id === id) return id;
+        if (l2.children?.some(l3 => l3.id === id)) return l2.id;
+      }
+    }
+    return null;
+  });
+
+  // L3 children of the active L2 (for sub-sub-strip)
+  readonly l3Visible = computed(() => {
+    const l2id = this.activeL2();
+    if (!l2id) return [] as Category[];
+    for (const l1 of this.categories()) {
+      const l2 = l1.children?.find(c => c.id === l2id);
+      if (l2) return l2.children ?? [];
+    }
+    return [] as Category[];
+  });
+
+  // Sidebar expand state
+  sidebarExpanded = signal<Set<string>>(new Set());
+
+  isSidebarExpanded(id: string): boolean {
+    return this.sidebarExpanded().has(id) || this.activeL1() === id || this.activeL2() === id;
+  }
+
+  toggleSidebarExpand(id: string, event: Event) {
+    event.stopPropagation();
+    this.sidebarExpanded.update(s => {
+      const next = new Set(s);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
 
   // ── Filter state ──────────────────────────────────────────────────────
   searchQuery        = signal('');
@@ -165,6 +223,39 @@ export class Products implements OnInit {
 
   // ── Handlers ──────────────────────────────────────────────────────────
   onSearchChange() { this.currentPage.set(1); }
+
+  clearCategories() {
+    this.selectedCategories.set([]);
+    this.currentPage.set(1);
+  }
+
+  onL1StripClick(id: string) {
+    const [cur] = this.selectedCategories();
+    this.selectedCategories.set(this.selectedCategories().length === 1 && cur === id ? [] : [id]);
+    this.currentPage.set(1);
+  }
+
+  onL2StripClick(id: string) {
+    const [cur] = this.selectedCategories();
+    if (this.selectedCategories().length === 1 && cur === id) {
+      const l1id = this.activeL1();
+      this.selectedCategories.set(l1id ? [l1id] : []);
+    } else {
+      this.selectedCategories.set([id]);
+    }
+    this.currentPage.set(1);
+  }
+
+  onL3StripClick(id: string) {
+    const [cur] = this.selectedCategories();
+    if (this.selectedCategories().length === 1 && cur === id) {
+      const l2id = this.activeL2();
+      this.selectedCategories.set(l2id ? [l2id] : []);
+    } else {
+      this.selectedCategories.set([id]);
+    }
+    this.currentPage.set(1);
+  }
 
   onCategoryToggle(categoryId: string) {
     this.selectedCategories.update(cats =>

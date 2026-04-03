@@ -4,35 +4,67 @@
   </div>
 } @else if (product()) {
 
-  <!-- Page header -->
+  <!-- ─── Page header ──────────────────────────────────────────────────────── -->
   <div class="pe-header">
     <a routerLink="/dashboard/products" class="back-btn">
       <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
       My Products
     </a>
-    <button nz-button nzDanger (click)="confirmDelete()" [nzLoading]="deleting()">
-      <span nz-icon nzType="delete" nzTheme="outline"></span>
-      Delete Product
-    </button>
+    <div class="pe-header__actions">
+      @if (isDeleted()) {
+        <button nz-button nzType="default" (click)="confirmRestore()" [nzLoading]="restoring()">
+          <span nz-icon nzType="undo" nzTheme="outline"></span>
+          Restore
+        </button>
+      } @else {
+        <button nz-button nzDanger (click)="confirmDelete()" [nzLoading]="deleting()">
+          <span nz-icon nzType="delete" nzTheme="outline"></span>
+          Delete
+        </button>
+      }
+    </div>
   </div>
 
-  <!-- Product summary strip -->
+  <!-- ─── Status banners ───────────────────────────────────────────────────── -->
+  @if (willResetToUnderQa()) {
+    <nz-alert nzType="warning" nzShowIcon
+      [nzMessage]="'Saving will reset status to Under Review'"
+      [nzDescription]="'This product is currently ' + statusLabel() + '. Any edits will move it back to Under Review until re-approved.'"
+      style="margin-bottom:16px">
+    </nz-alert>
+  }
+  @if (isDeleted()) {
+    <nz-alert nzType="error" nzShowIcon
+      nzMessage="This product has been deleted"
+      nzDescription="Restore it to draft using the Restore button above."
+      style="margin-bottom:16px">
+    </nz-alert>
+  }
+
+  <!-- ─── Product summary strip ────────────────────────────────────────────── -->
   <div class="pe-summary">
-    @if (product()!.images[0]) {
-      <img [src]="product()!.images[0]" [alt]="product()!.name" class="pe-summary__img" />
-    }
+    <div class="pe-summary__thumb">
+      @if (firstPreviewImage()) {
+        <img [src]="firstPreviewImage()!" [alt]="product()!.name" class="pe-summary__img" />
+      } @else {
+        <div class="pe-summary__no-img">
+          <span nz-icon nzType="picture" nzTheme="outline"></span>
+        </div>
+      }
+    </div>
     <div class="pe-summary__info">
       <h2 class="pe-summary__name">{{ product()!.name }}</h2>
       <div class="pe-summary__tags">
         <nz-tag nzColor="blue">{{ product()!.category }}</nz-tag>
-        @if (product()!.inStock) {
-          <nz-tag nzColor="success">In Stock</nz-tag>
-        } @else {
-          <nz-tag nzColor="error">Out of Stock</nz-tag>
+        @switch (product()!.status) {
+          @case ('draft')        { <nz-tag>Draft</nz-tag> }
+          @case ('under_qa')     { <nz-tag nzColor="orange">Under Review</nz-tag> }
+          @case ('live')         { <nz-tag nzColor="success">Live</nz-tag> }
+          @case ('out_of_stock') { <nz-tag nzColor="warning">Out of Stock</nz-tag> }
+          @case ('inactive')     { <nz-tag nzColor="default">Inactive</nz-tag> }
+          @case ('deleted')      { <nz-tag nzColor="error">Deleted</nz-tag> }
         }
-        @if (product()!.isNew) {
-          <nz-tag nzColor="orange">New</nz-tag>
-        }
+        @if (product()!.isNew) { <nz-tag nzColor="orange">New</nz-tag> }
       </div>
       <div class="pe-summary__pricing">
         <span class="pe-price">BDT {{ product()!.price | number }}</span>
@@ -40,136 +72,410 @@
           <span class="pe-orig-price">BDT {{ product()!.originalPrice | number }}</span>
         }
       </div>
-      <div class="pe-summary__rating">
-        <span nz-icon nzType="star" nzTheme="fill" class="pe-star"></span>
-        {{ product()!.rating }}
-        <span class="pe-reviews">({{ product()!.reviewCount }} reviews)</span>
+      <div class="pe-summary__stats">
+        <div class="pe-stat">
+          <span nz-icon nzType="star" nzTheme="fill" class="pe-stat__icon pe-stat__icon--star"></span>
+          <span class="pe-stat__val">{{ product()!.rating | number:'1.1-1' }}</span>
+          <span class="pe-stat__lbl">({{ product()!.reviewCount }} reviews)</span>
+        </div>
+        <div class="pe-stat">
+          <span nz-icon nzType="bg-colors" nzTheme="outline" class="pe-stat__icon"></span>
+          <span class="pe-stat__val">{{ product()!.variants?.length ?? 0 }}</span>
+          <span class="pe-stat__lbl">variants</span>
+        </div>
+        <div class="pe-stat">
+          <span nz-icon nzType="picture" nzTheme="outline" class="pe-stat__icon"></span>
+          <span class="pe-stat__val">{{ existingImages().length }}</span>
+          <span class="pe-stat__lbl">images</span>
+        </div>
       </div>
+      @if (product()!.variants?.length) {
+        <div class="pe-variants">
+          @for (v of product()!.variants!; track v.id) {
+            <span class="pe-variant-chip">
+              @if (v.colorHex) {
+                <span class="pe-variant-dot" [style.background]="v.colorHex"></span>
+              }
+              {{ v.colorName }} — BDT {{ v.price | number }} ({{ v.stock }})
+            </span>
+          }
+        </div>
+      }
     </div>
   </div>
 
-  <!-- Edit form -->
-  <nz-card nzTitle="Edit Details" nzSize="small" class="pe-form-card">
-    <form nz-form nzLayout="vertical" [formGroup]="form" (ngSubmit)="submit()">
+  <!-- ─── Two-column layout ────────────────────────────────────────────────── -->
+  <div class="pc-layout">
 
-      <!-- Row: Name + Category -->
-      <div class="cf-row cf-row--2">
+    <!-- ══ Form (left) ═══════════════════════════════════════════════════════ -->
+    <form id="productForm" class="pc-form" nz-form nzLayout="vertical"
+          [formGroup]="form" (ngSubmit)="submit()">
+
+      <!-- ─── Basic Info ──────────────────────────────────────────────────── -->
+      <nz-card nzTitle="Basic Info" nzSize="small" class="form-section">
+
+        <div class="cf-row cf-row--2">
+          <nz-form-item>
+            <nz-form-label nzRequired>Product Name</nz-form-label>
+            <nz-form-control nzErrorTip="Product name is required">
+              <input nz-input formControlName="name" placeholder="e.g. Handmade Jute Bag" />
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label nzRequired>Category</nz-form-label>
+            <nz-form-control [nzValidateStatus]="form.controls['category_id']"
+                             nzErrorTip="Please select a category">
+              <nz-cascader
+                [nzOptions]="categoryOptions()"
+                formControlName="category_path"
+                nzPlaceHolder="Select category (L1 › L2 › L3)"
+                [nzShowSearch]="true"
+                [nzDisabled]="catLoading()"
+                nzSize="large"
+                nzPopupClassName="cat-cascader-popup"
+                style="width:100%">
+              </nz-cascader>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <!-- Rich Text: Description -->
         <nz-form-item>
-          <nz-form-label nzRequired>Product Name</nz-form-label>
-          <nz-form-control nzErrorTip="Product name is required">
-            <input nz-input formControlName="name" placeholder="e.g. Handmade Jute Bag" />
+          <nz-form-label nzRequired>Description</nz-form-label>
+          <nz-form-control nzErrorTip="Description is required">
+            <div class="rte-wrap"
+                 [class.rte-wrap--invalid]="form.get('description')!.invalid && form.get('description')!.touched">
+              <div class="rte-toolbar">
+                <button type="button" class="rte-btn rte-btn--b" title="Bold"
+                        (mousedown)="execRteCmd($event, 'bold')"><b>B</b></button>
+                <button type="button" class="rte-btn rte-btn--i" title="Italic"
+                        (mousedown)="execRteCmd($event, 'italic')"><i>I</i></button>
+                <button type="button" class="rte-btn rte-btn--u" title="Underline"
+                        (mousedown)="execRteCmd($event, 'underline')"><u>U</u></button>
+                <span class="rte-sep"></span>
+                <button type="button" class="rte-btn" title="Bullet list"
+                        (mousedown)="execRteCmd($event, 'insertUnorderedList')">
+                  <span nz-icon nzType="unordered-list" nzTheme="outline"></span>
+                </button>
+                <button type="button" class="rte-btn" title="Numbered list"
+                        (mousedown)="execRteCmd($event, 'insertOrderedList')">
+                  <span nz-icon nzType="ordered-list" nzTheme="outline"></span>
+                </button>
+                <span class="rte-sep"></span>
+                <button type="button" class="rte-btn" title="Clear formatting"
+                        (mousedown)="execRteCmd($event, 'removeFormat')">
+                  <span nz-icon nzType="clear" nzTheme="outline"></span>
+                </button>
+              </div>
+              <div #descRte
+                   class="rte-content"
+                   [class.rte-content--empty]="descEmpty()"
+                   contenteditable="true"
+                   data-placeholder="Describe your product — material, size, use case, target buyers…"
+                   (input)="onRteInput('description', $event)">
+              </div>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+
+        <div class="cf-row cf-row--2">
+          <nz-form-item>
+            <nz-form-label>
+              Tags <span class="cf-optional">comma-separated</span>
+            </nz-form-label>
+            <nz-form-control>
+              <input nz-input formControlName="tags_input" placeholder="handmade, jute, eco-friendly" />
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label>Mark as New</nz-form-label>
+            <nz-form-control>
+              <nz-switch formControlName="is_new"
+                         nzCheckedChildren="Yes" nzUnCheckedChildren="No"></nz-switch>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </nz-card>
+
+      <!-- ─── Media ──────────────────────────────────────────────────────── -->
+      <nz-card nzTitle="Media" nzSize="small" class="form-section">
+
+        <nz-form-item>
+          <nz-form-label>Product Images</nz-form-label>
+          <nz-form-control>
+            <!-- Current images (read-only) -->
+            @if (existingImages().length) {
+              <p class="media-section-label">Current images</p>
+              <div class="media-images-grid" style="margin-bottom:12px">
+                @for (img of existingImages(); track img; let i = $index) {
+                  <div class="media-thumb media-thumb--existing">
+                    <img [src]="img" alt="Product image {{ i + 1 }}" />
+                    @if (i === 0) {
+                      <span class="media-thumb__badge">Cover</span>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- New uploads -->
+            <p class="media-section-label">
+              @if (newImageFiles().length) {
+                New images <span class="cf-optional">will replace all current images on save</span>
+              } @else {
+                Upload new images
+                <span class="cf-optional">up to 8 · replaces current images</span>
+              }
+            </p>
+            <div class="media-images-grid">
+              @for (preview of newImagePreviews(); track $index; let j = $index) {
+                <div class="media-thumb media-thumb--new">
+                  <img [src]="preview" alt="New image {{ j + 1 }}" />
+                  @if (j === 0) {
+                    <span class="media-thumb__badge media-thumb__badge--new">
+                      {{ existingImages().length ? 'New Cover' : 'Cover' }}
+                    </span>
+                  }
+                  <button type="button" class="media-thumb__remove" (click)="removeNewImage(j)">
+                    <span nz-icon nzType="close" nzTheme="outline"></span>
+                  </button>
+                </div>
+              }
+              @if (newImageFiles().length < 8) {
+                <label class="media-add-tile">
+                  <span nz-icon nzType="plus" nzTheme="outline" class="media-add-tile__icon"></span>
+                  <span class="media-add-tile__label">
+                    {{ newImageFiles().length ? 'Add More' : 'Choose Files' }}
+                  </span>
+                  <input type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif"
+                         (change)="onNewImagesSelected($event)" hidden />
+                </label>
+              }
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+
+        <!-- Video -->
+        <nz-form-item>
+          <nz-form-label>Video <span class="cf-optional">optional</span></nz-form-label>
+          <nz-form-control>
+            @if (existingVideoUrl() && !removeVideo()) {
+              <div class="pe-existing-video">
+                <span nz-icon nzType="video-camera" nzTheme="outline"></span>
+                <span class="pe-existing-video__url">{{ existingVideoUrl() }}</span>
+                <button type="button" nz-button nzDanger nzSize="small"
+                        (click)="removeVideo.set(true)">Remove</button>
+              </div>
+            } @else {
+              @if (removeVideo()) {
+                <p class="cf-hint" style="color:#ff7875; margin:0 0 8px">
+                  Video will be removed on save.
+                  <button type="button" nz-button nzSize="small" style="margin-left:8px"
+                          (click)="removeVideo.set(false)">Undo</button>
+                </p>
+              } @else {
+                <div class="video-mode-toggle" style="margin-bottom:8px">
+                  <button type="button" nz-button nzSize="small"
+                          [nzType]="videoMode() === 'url' ? 'primary' : 'default'"
+                          (click)="videoMode.set('url')">YouTube / URL</button>
+                  <button type="button" nz-button nzSize="small"
+                          [nzType]="videoMode() === 'file' ? 'primary' : 'default'"
+                          (click)="videoMode.set('file')">Upload File</button>
+                </div>
+                @if (videoMode() === 'url') {
+                  <input nz-input formControlName="video_url"
+                         placeholder="https://youtube.com/watch?v=… or direct video URL" />
+                } @else {
+                  <label class="media-add-btn">
+                    <span nz-icon nzType="video-camera" nzTheme="outline"></span>
+                    {{ videoFile() ? videoFile()!.name : 'Choose file (mp4/mov/avi · max 50 MB)' }}
+                    <input type="file" accept="video/mp4,video/mpeg,video/quicktime,video/x-msvideo"
+                           (change)="onVideoSelected($event)" hidden />
+                  </label>
+                }
+              }
+            }
+          </nz-form-control>
+        </nz-form-item>
+      </nz-card>
+
+      <!-- ─── Color Variants & Pricing ──────────────────────────────────── -->
+      <nz-card nzTitle="Color Variants &amp; Pricing" nzSize="small" class="form-section">
+        <p class="cf-hint">
+          Changes here replace all existing variants.
+          The lowest price becomes the product's listed price.
+        </p>
+
+        <div class="variants-header">
+          <span>Color Name <span style="color:#ff4d4f">*</span></span>
+          <span>Hex</span>
+          <span>Price (BDT) <span style="color:#ff4d4f">*</span></span>
+          <span>Stock</span>
+          <span></span>
+        </div>
+
+        <div formArrayName="variants" class="variants-list">
+          @for (ctrl of variants.controls; track $index) {
+            <div class="variant-row" [formGroupName]="$index">
+              <input nz-input formControlName="color_name" placeholder="e.g. Red"
+                     [class.ng-invalid]="variantGroup($index).get('color_name')!.invalid
+                                         && variantGroup($index).get('color_name')!.touched" />
+              <input type="color" formControlName="color_hex" class="color-picker" />
+              <nz-input-number formControlName="price" [nzMin]="0" [nzStep]="10"
+                               nzPlaceHolder="0.00" style="width:100%"></nz-input-number>
+              <nz-input-number formControlName="stock" [nzMin]="0" [nzStep]="1"
+                               nzPlaceHolder="0" style="width:100%"></nz-input-number>
+              <button type="button" nz-button nzDanger nzSize="small" nzShape="circle"
+                      [disabled]="variants.length === 1" (click)="removeVariant($index)">
+                <span nz-icon nzType="delete" nzTheme="outline"></span>
+              </button>
+            </div>
+          }
+        </div>
+
+        <button type="button" class="add-img-btn" style="margin-top:8px" (click)="addVariant()">
+          <span nz-icon nzType="plus-circle" nzTheme="outline"></span>
+          Add Color Variant
+        </button>
+      </nz-card>
+
+      <!-- ─── Product Details ─────────────────────────────────────────────── -->
+      <nz-card nzTitle="Product Details" nzSize="small" class="form-section">
+        <div class="cf-row cf-row--3">
+          <nz-form-item>
+            <nz-form-label>
+              Original Price (BDT)
+              <span class="cf-optional">shows as crossed-out</span>
+            </nz-form-label>
+            <nz-form-control>
+              <nz-input-number formControlName="original_price"
+                               [nzMin]="0" [nzStep]="10" nzPlaceHolder="0.00" style="width:100%">
+              </nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label>Weight (kg)</nz-form-label>
+            <nz-form-control>
+              <nz-input-number formControlName="weight"
+                               [nzMin]="0" [nzStep]="0.1" nzPlaceHolder="0.000" style="width:100%">
+              </nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label>Dimensions</nz-form-label>
+            <nz-form-control>
+              <input nz-input formControlName="dimensions" placeholder="e.g. 30×20×15 cm" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <!-- Rich Text: Highlights -->
+        <nz-form-item>
+          <nz-form-label>Highlights</nz-form-label>
+          <nz-form-control>
+            <div class="rte-wrap rte-wrap--compact">
+              <div class="rte-toolbar">
+                <button type="button" class="rte-btn rte-btn--b" title="Bold"
+                        (mousedown)="execRteCmd($event, 'bold')"><b>B</b></button>
+                <button type="button" class="rte-btn rte-btn--i" title="Italic"
+                        (mousedown)="execRteCmd($event, 'italic')"><i>I</i></button>
+                <span class="rte-sep"></span>
+                <button type="button" class="rte-btn" title="Bullet list"
+                        (mousedown)="execRteCmd($event, 'insertUnorderedList')">
+                  <span nz-icon nzType="unordered-list" nzTheme="outline"></span>
+                </button>
+                <button type="button" class="rte-btn" title="Numbered list"
+                        (mousedown)="execRteCmd($event, 'insertOrderedList')">
+                  <span nz-icon nzType="ordered-list" nzTheme="outline"></span>
+                </button>
+              </div>
+              <div #highlightsRte
+                   class="rte-content rte-content--sm"
+                   [class.rte-content--empty]="hlEmpty()"
+                   contenteditable="true"
+                   data-placeholder="Key selling points, materials, features…"
+                   (input)="onRteInput('highlights', $event)">
+              </div>
+            </div>
           </nz-form-control>
         </nz-form-item>
 
         <nz-form-item>
-          <nz-form-label nzRequired>Category</nz-form-label>
-          <nz-form-control nzErrorTip="Please select a category">
-            <nz-select formControlName="category_slug" nzPlaceHolder="Select category"
-                       nzShowSearch [nzLoading]="catLoading()">
-              @for (cat of categories(); track cat.id) {
-                <nz-option [nzValue]="cat.id" [nzLabel]="cat.name"></nz-option>
+          <nz-form-label>What's in the Box</nz-form-label>
+          <nz-form-control>
+            <textarea nz-input formControlName="whats_in_box"
+                      placeholder="1× product, 1× instruction manual…"
+                      [nzAutosize]="{ minRows: 2, maxRows: 4 }"></textarea>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-card>
+
+      <!-- ─── Shipping & Warranty ─────────────────────────────────────────── -->
+      <nz-card nzTitle="Shipping &amp; Warranty" nzSize="small" class="form-section">
+        <div class="cf-row cf-row--2">
+          <nz-form-item>
+            <nz-form-label>Contains Liquid</nz-form-label>
+            <nz-form-control>
+              <nz-switch formControlName="contains_liquid"
+                         nzCheckedChildren="Yes" nzUnCheckedChildren="No"></nz-switch>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label>Contains Flammable Material</nz-form-label>
+            <nz-form-control>
+              <nz-switch formControlName="contains_flammable"
+                         nzCheckedChildren="Yes" nzUnCheckedChildren="No"></nz-switch>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <nz-form-item>
+          <nz-form-label>Warranty Type</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="warranty_type" style="width:100%">
+              @for (wt of warrantyTypes; track wt.value) {
+                <nz-option [nzValue]="wt.value" [nzLabel]="wt.label"></nz-option>
               }
             </nz-select>
           </nz-form-control>
         </nz-form-item>
-      </div>
 
-      <!-- Row: Price + Original Price -->
-      <div class="cf-row cf-row--2">
-        <nz-form-item>
-          <nz-form-label nzRequired>Price (BDT)</nz-form-label>
-          <nz-form-control nzErrorTip="Valid price is required">
-            <nz-input-number formControlName="price"
-                             [nzMin]="0" [nzStep]="10" nzPlaceHolder="0.00" style="width:100%">
-            </nz-input-number>
-          </nz-form-control>
-        </nz-form-item>
+        <div class="cf-row cf-row--2">
+          <nz-form-item>
+            <nz-form-label>Warranty Policy</nz-form-label>
+            <nz-form-control>
+              <textarea nz-input formControlName="warranty_policy"
+                        placeholder="e.g. 6 months brand warranty…"
+                        [nzAutosize]="{ minRows: 2, maxRows: 4 }"></textarea>
+            </nz-form-control>
+          </nz-form-item>
 
-        <nz-form-item>
-          <nz-form-label>
-            Original Price (BDT)
-            <span class="cf-optional">optional — shows as crossed-out</span>
-          </nz-form-label>
-          <nz-form-control>
-            <nz-input-number formControlName="original_price"
-                             [nzMin]="0" [nzStep]="10" nzPlaceHolder="0.00" style="width:100%">
-            </nz-input-number>
-          </nz-form-control>
-        </nz-form-item>
-      </div>
+          <nz-form-item>
+            <nz-form-label>Return Policy</nz-form-label>
+            <nz-form-control>
+              <textarea nz-input formControlName="return_policy"
+                        placeholder="e.g. 7-day easy return…"
+                        [nzAutosize]="{ minRows: 2, maxRows: 4 }"></textarea>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </nz-card>
 
-      <!-- Description -->
-      <nz-form-item>
-        <nz-form-label nzRequired>Description</nz-form-label>
-        <nz-form-control nzErrorTip="Description is required">
-          <textarea nz-input formControlName="description"
-                    placeholder="Describe your product — material, size, use case, etc."
-                    [nzAutosize]="{ minRows: 4, maxRows: 8 }">
-          </textarea>
-        </nz-form-control>
-      </nz-form-item>
-
-      <!-- Tags -->
-      <nz-form-item>
-        <nz-form-label>
-          Tags <span class="cf-optional">comma-separated (e.g. handmade, jute, eco-friendly)</span>
-        </nz-form-label>
-        <nz-form-control>
-          <input nz-input formControlName="tags_input" placeholder="handmade, jute, eco-friendly" />
-        </nz-form-control>
-      </nz-form-item>
-
-      <!-- Image URLs -->
-      <nz-form-item>
-        <nz-form-label>Image URLs <span class="cf-optional">up to 5</span></nz-form-label>
-        <nz-form-control>
-          <div class="img-url-list" formArrayName="image_urls">
-            @for (ctrl of imageUrls.controls; track $index) {
-              <div class="img-url-row">
-                <input nz-input [formControlName]="$index"
-                       placeholder="https://example.com/image.jpg" />
-                @if (imageUrls.length > 1) {
-                  <button type="button" nz-button nzDanger nzSize="small"
-                          (click)="removeImageUrl($index)">
-                    <span nz-icon nzType="delete" nzTheme="outline"></span>
-                  </button>
-                }
-              </div>
-            }
-            @if (imageUrls.length < 5) {
-              <button type="button" class="add-img-btn" (click)="addImageUrl()">
-                <span nz-icon nzType="plus-circle" nzTheme="outline"></span>
-                Add another image URL
-              </button>
-            }
-          </div>
-        </nz-form-control>
-      </nz-form-item>
-
-      <!-- Toggles -->
-      <div class="cf-row cf-row--2">
-        <nz-form-item>
-          <nz-form-label>In Stock</nz-form-label>
-          <nz-form-control>
-            <nz-switch formControlName="in_stock"
-                       nzCheckedChildren="Yes" nzUnCheckedChildren="No">
-            </nz-switch>
-          </nz-form-control>
-        </nz-form-item>
-
-        <nz-form-item>
-          <nz-form-label>Mark as New</nz-form-label>
-          <nz-form-control>
-            <nz-switch formControlName="is_new"
-                       nzCheckedChildren="Yes" nzUnCheckedChildren="No">
-            </nz-switch>
-          </nz-form-control>
-        </nz-form-item>
-      </div>
-
-      <!-- Actions -->
-      <div class="cf-actions">
+      <!-- ─── Mobile actions ──────────────────────────────────────────────── -->
+      <div class="cf-actions cf-actions--mobile">
         <a routerLink="/dashboard/products" nz-button>Cancel</a>
+        @if (isDraft()) {
+          <button type="button" nz-button nzType="default" [nzLoading]="submitting()"
+                  (click)="submitForReview()">
+            <span nz-icon nzType="send" nzTheme="outline"></span>
+            Submit for Review
+          </button>
+        }
         <button type="submit" nz-button nzType="primary" [nzLoading]="saving()">
           <span nz-icon nzType="save" nzTheme="outline"></span>
           Save Changes
@@ -177,6 +483,68 @@
       </div>
 
     </form>
-  </nz-card>
+
+    <!-- ══ Content Score Sidebar (right) ════════════════════════════════════ -->
+    <aside class="pc-sidebar">
+      <nz-card nzSize="small" class="score-card">
+        <div class="score-card__title">
+          <span nz-icon nzType="bar-chart" nzTheme="outline"></span>
+          Content Score
+        </div>
+
+        <div class="score-ring-wrap">
+          <nz-progress
+            nzType="circle"
+            [nzPercent]="totalScore()"
+            [nzStrokeColor]="scoreColor()"
+            [nzFormat]="scoreFormat"
+            [nzWidth]="110">
+          </nz-progress>
+          <div class="score-label" [style.color]="scoreColor()">{{ scoreLabel() }}</div>
+        </div>
+
+        <div class="score-criteria">
+          @for (item of scoreItems(); track item.label) {
+            <div class="score-item"
+                 [class.score-item--full]="item.earned === item.points"
+                 [class.score-item--partial]="item.earned > 0 && item.earned < item.points"
+                 [nz-tooltip]="item.tip" nzTooltipPlacement="left">
+              <span class="score-item__icon">
+                @if (item.earned === item.points) {
+                  <span nz-icon nzType="check-circle" nzTheme="fill" class="icon-done"></span>
+                } @else if (item.earned > 0) {
+                  <span nz-icon nzType="minus-circle" nzTheme="fill" class="icon-partial"></span>
+                } @else {
+                  <span nz-icon nzType="clock-circle" nzTheme="fill" class="icon-todo"></span>
+                }
+              </span>
+              <span class="score-item__label">{{ item.label }}</span>
+              <span class="score-item__pts">{{ item.earned }}/{{ item.points }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="score-actions">
+          @if (isDraft()) {
+            <button type="button" nz-button nzType="primary" nzBlock
+                    [nzLoading]="submitting()" (click)="submitForReview()">
+              <span nz-icon nzType="send" nzTheme="outline"></span>
+              Submit for Review
+            </button>
+          }
+          <button type="submit" form="productForm" nz-button
+                  [nzType]="isDraft() ? 'default' : 'primary'"
+                  nzBlock [nzLoading]="saving()">
+            <span nz-icon nzType="save" nzTheme="outline"></span>
+            Save Changes
+          </button>
+          <a routerLink="/dashboard/products" nz-button nzBlock class="score-cancel-btn">
+            Cancel
+          </a>
+        </div>
+      </nz-card>
+    </aside>
+
+  </div><!-- /.pc-layout -->
 
 }

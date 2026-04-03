@@ -93,6 +93,56 @@
     <!-- ─── MAIN ──────────────────────────────────────────────────────── -->
     <div class="products-main">
 
+      <!-- Category Strip (3-level) -->
+      @if (categories().length) {
+        <div class="cat-strip-wrap">
+
+          <!-- L1 — top-level categories -->
+          <div class="cat-strip cat-strip--l1">
+            <button class="cat-pill" [class.cat-pill--active]="selectedCategories().length === 0"
+                    (click)="clearCategories()">
+              <span class="cat-pill__emoji">🏪</span>
+              <span class="cat-pill__name">All</span>
+            </button>
+            @for (cat of categories(); track cat.id) {
+              <button class="cat-pill" [class.cat-pill--active]="activeL1() === cat.id"
+                      (click)="onL1StripClick(cat.id)">
+                <span class="cat-pill__emoji">{{ cat.icon || '📦' }}</span>
+                <span class="cat-pill__name">{{ cat.name }}</span>
+              </button>
+            }
+          </div>
+
+          <!-- L2 — subcategories of selected L1 -->
+          @if (l2Visible().length) {
+            <div class="cat-strip cat-strip--l2">
+              @for (sub of l2Visible(); track sub.id) {
+                <button class="cat-sub-pill" [class.cat-sub-pill--active]="activeL2() === sub.id"
+                        (click)="onL2StripClick(sub.id)">
+                  {{ sub.name }}
+                  @if (sub.children?.length) {
+                    <span nz-icon nzType="caret-right" class="sub-arrow"></span>
+                  }
+                </button>
+              }
+            </div>
+          }
+
+          <!-- L3 — sub-subcategories of selected L2 -->
+          @if (l3Visible().length) {
+            <div class="cat-strip cat-strip--l3">
+              @for (leaf of l3Visible(); track leaf.id) {
+                <button class="cat-leaf-pill" [class.cat-leaf-pill--active]="isCategorySelected(leaf.id)"
+                        (click)="onL3StripClick(leaf.id)">
+                  {{ leaf.name }}
+                </button>
+              }
+            </div>
+          }
+
+        </div>
+      }
+
       <!-- Result count -->
       <div class="result-bar">
         <span class="result-count">
@@ -225,17 +275,65 @@
           </button>
         }
       </div>
-      <div class="category-list">
-        @for (cat of categories(); track cat.id) {
-          <button class="cat-filter-btn"
-                  [class.cat-filter-btn--active]="isCategorySelected(cat.id)"
-                  (click)="onCategoryToggle(cat.id)">
-            <span class="cat-filter-icon" [style.background]="cat.bgColor" [style.color]="cat.color">
-              <span nz-icon [nzType]="cat.icon" nzTheme="outline"></span>
-            </span>
-            <span class="cat-filter-name">{{ cat.name }}</span>
-            <span class="cat-filter-count">{{ cat.productCount }}</span>
-          </button>
+      <!-- Category tree -->
+      <div class="cat-tree">
+
+        <!-- All Products -->
+        <button class="tree-item tree-item--all"
+                [class.tree-item--active]="selectedCategories().length === 0"
+                (click)="clearCategories()">
+          <span class="tree-emoji">🏪</span>
+          <span class="tree-name">All Products</span>
+        </button>
+
+        <!-- L1 categories -->
+        @for (l1 of categories(); track l1.id) {
+          <div class="tree-group">
+            <div class="tree-row" [class.tree-row--active]="activeL1() === l1.id">
+              <button class="tree-item tree-item--l1" (click)="onCategoryToggle(l1.id)">
+                <span class="tree-emoji">{{ l1.icon || '📦' }}</span>
+                <span class="tree-name">{{ l1.name }}</span>
+              </button>
+              @if (l1.children?.length) {
+                <button class="tree-expand" (click)="toggleSidebarExpand(l1.id, $event)">
+                  <span nz-icon nzType="right" class="expand-chevron"
+                        [class.expand-chevron--open]="isSidebarExpanded(l1.id)"></span>
+                </button>
+              }
+            </div>
+
+            @if (isSidebarExpanded(l1.id) && l1.children?.length) {
+              <div class="tree-children">
+                @for (l2 of l1.children ?? []; track l2.id) {
+                  <div class="tree-group tree-group--l2">
+                    <div class="tree-row tree-row--l2" [class.tree-row--active]="activeL2() === l2.id">
+                      <button class="tree-item tree-item--l2" (click)="onCategoryToggle(l2.id)">
+                        <span class="tree-name">{{ l2.name }}</span>
+                      </button>
+                      @if (l2.children?.length) {
+                        <button class="tree-expand" (click)="toggleSidebarExpand(l2.id, $event)">
+                          <span nz-icon nzType="right" class="expand-chevron"
+                                [class.expand-chevron--open]="isSidebarExpanded(l2.id)"></span>
+                        </button>
+                      }
+                    </div>
+
+                    @if (isSidebarExpanded(l2.id) && l2.children?.length) {
+                      <div class="tree-children tree-children--l3">
+                        @for (l3 of l2.children ?? []; track l3.id) {
+                          <button class="tree-item tree-item--l3"
+                                  [class.tree-item--active]="isCategorySelected(l3.id)"
+                                  (click)="onCategoryToggle(l3.id)">
+                            <span class="tree-name">{{ l3.name }}</span>
+                          </button>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
         }
       </div>
     </div>

@@ -154,7 +154,7 @@
                 [class.cat-card--active]="activeCategory() === cat.id"
                 (click)="onCategoryClick(cat.id)">
           <div class="cat-card__icon" [style.background]="cat.bgColor" [style.color]="cat.color">
-            <span nz-icon [nzType]="cat.icon" nzTheme="outline"></span>
+            <span nz-icon [nzType]="cat.icon || 'appstore'" nzTheme="outline"></span>
           </div>
           <div class="cat-card__name">{{ cat.name }}</div>
           <div class="cat-card__count">{{ cat.productCount }} items</div>

@@ -4,15 +4,144 @@
   </div>
 } @else {
 
-  <div class="section-title-row">
+  <!-- ─── Page header ────────────────────────────────────────────────────── -->
+  <div class="section-title-row" style="margin-bottom:24px">
     <h2 class="section-title">My Products</h2>
-    <nz-tag nzColor="blue">{{ products().length }} listed</nz-tag>
-    <a routerLink="/dashboard/products/new" nz-button nzType="primary" class="add-product-btn">
+    <a routerLink="/dashboard/products/new" nz-button nzType="primary">
       <span nz-icon nzType="plus" nzTheme="outline"></span>
       Add Product
     </a>
   </div>
 
+  <!-- ─── Status summary cards ───────────────────────────────────────────── -->
+  <div class="status-cards">
+    @for (card of statusCards(); track card.key) {
+      <div class="scard"
+           [class.scard--active]="activeStatus() === card.key"
+           [style.--scard-color]="card.color"
+           [style.--scard-bg]="card.bg"
+           (click)="setStatus(card.key)">
+        <div class="scard__icon">
+          <span nz-icon [nzType]="card.icon" nzTheme="outline"></span>
+        </div>
+        <div class="scard__body">
+          <div class="scard__count">{{ card.count }}</div>
+          <div class="scard__label">{{ card.label }}</div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- ─── Category tree filter ───────────────────────────────────────────── -->
+  @if (categories().length) {
+    <div class="cat-filter">
+
+      <!-- L1 — root categories -->
+      <div class="cat-row">
+        <span class="cat-row__label">Category</span>
+        <div class="cat-pills">
+          <button class="cat-pill"
+                  [class.cat-pill--active]="!selectedL1()"
+                  (click)="clearCategoryFilter()">
+            All
+            <span class="cat-pill__count">{{ statusFilteredProducts().length }}</span>
+          </button>
+          @for (cat of categories(); track cat.id) {
+            @if (catCount(cat) > 0) {
+              <button class="cat-pill"
+                      [class.cat-pill--active]="selectedL1()?.id === cat.id"
+                      (click)="selectL1(cat)">
+                @if (cat.icon) { <span class="cat-pill__icon">{{ cat.icon }}</span> }
+                {{ cat.name }}
+                <span class="cat-pill__count">{{ catCount(cat) }}</span>
+              </button>
+            }
+          }
+        </div>
+      </div>
+
+      <!-- L2 — subcategories of selected L1 -->
+      @if (selectedL1() && l2Categories().length) {
+        <div class="cat-row cat-row--child">
+          <span class="cat-row__label cat-row__label--indent">
+            <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
+            {{ selectedL1()!.name }}
+          </span>
+          <div class="cat-pills">
+            <button class="cat-pill cat-pill--sm"
+                    [class.cat-pill--active]="!selectedL2()"
+                    (click)="selectedL2.set(null); selectedL3.set(null)">
+              All
+              <span class="cat-pill__count">{{ catCount(selectedL1()!) }}</span>
+            </button>
+            @for (cat of l2Categories(); track cat.id) {
+              @if (catCount(cat) > 0) {
+                <button class="cat-pill cat-pill--sm"
+                        [class.cat-pill--active]="selectedL2()?.id === cat.id"
+                        (click)="selectL2(cat)">
+                  {{ cat.name }}
+                  <span class="cat-pill__count">{{ catCount(cat) }}</span>
+                </button>
+              }
+            }
+          </div>
+        </div>
+      }
+
+      <!-- L3 — sub-subcategories of selected L2 -->
+      @if (selectedL2() && l3Categories().length) {
+        <div class="cat-row cat-row--child cat-row--grandchild">
+          <span class="cat-row__label cat-row__label--indent">
+            <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
+            {{ selectedL2()!.name }}
+          </span>
+          <div class="cat-pills">
+            <button class="cat-pill cat-pill--sm"
+                    [class.cat-pill--active]="!selectedL3()"
+                    (click)="selectedL3.set(null)">
+              All
+              <span class="cat-pill__count">{{ catCount(selectedL2()!) }}</span>
+            </button>
+            @for (cat of l3Categories(); track cat.id) {
+              @if (catCount(cat) > 0) {
+                <button class="cat-pill cat-pill--sm"
+                        [class.cat-pill--active]="selectedL3()?.id === cat.id"
+                        (click)="selectedL3.set(cat)">
+                  {{ cat.name }}
+                  <span class="cat-pill__count">{{ catCount(cat) }}</span>
+                </button>
+              }
+            }
+          </div>
+        </div>
+      }
+
+    </div>
+  }
+
+  <!-- ─── Search + Sort toolbar ──────────────────────────────────────────── -->
+  <div class="filter-bar">
+    <nz-input-group [nzPrefix]="searchPfx" class="filter-search">
+      <input nz-input placeholder="Search products…"
+             [ngModel]="searchQuery()"
+             (ngModelChange)="searchQuery.set($event)" />
+    </nz-input-group>
+    <ng-template #searchPfx>
+      <span nz-icon nzType="search" nzTheme="outline"></span>
+    </ng-template>
+
+    <nz-select [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)" class="filter-sort">
+      @for (opt of sortOptions; track opt.value) {
+        <nz-option [nzValue]="opt.value" [nzLabel]="opt.label"></nz-option>
+      }
+    </nz-select>
+
+    <span class="results-count">
+      {{ filteredProducts().length }} product{{ filteredProducts().length === 1 ? '' : 's' }}
+    </span>
+  </div>
+
+  <!-- ─── Grid / Empty states ────────────────────────────────────────────── -->
   @if (products().length === 0) {
     <div class="empty-wrap">
       <nz-empty nzNotFoundContent="No products listed for your store yet.">
@@ -24,35 +153,83 @@
         </ng-template>
       </nz-empty>
     </div>
+  } @else if (filteredProducts().length === 0) {
+    <div class="empty-wrap">
+      <nz-empty
+        [nzNotFoundContent]="searchQuery().trim() ? 'No products match your search.' : 'No products in this view.'">
+        <ng-template #nzNotFoundFooter>
+          <button nz-button (click)="searchQuery.set(''); clearCategoryFilter()">
+            Clear Filters
+          </button>
+        </ng-template>
+      </nz-empty>
+    </div>
   } @else {
     <div class="product-grid">
-      @for (product of products(); track product.id) {
+      @for (product of filteredProducts(); track product.id) {
         <div class="prod-card">
+
+          <!-- Image -->
           <div class="prod-card__img-wrap">
-            <img [src]="product.images[0]" [alt]="product.name" class="prod-card__img" />
-            @if (!product.inStock) {
-              <div class="prod-card__oos">Out of Stock</div>
+            @if (product.images[0]) {
+              <img [src]="product.images[0]" [alt]="product.name" class="prod-card__img" />
+            } @else {
+              <div class="prod-card__no-img">
+                <span nz-icon nzType="picture" nzTheme="outline"></span>
+              </div>
             }
+            <div class="prod-card__status-badge"
+                 [style.background]="statusDotColor(product)">
+              {{ statusTagLabel(product) }}
+            </div>
             @if (product.isNew) {
-              <div class="prod-card__new">New</div>
+              <div class="prod-card__new-badge">New</div>
             }
           </div>
+
+          <!-- Body -->
           <div class="prod-card__body">
-            <nz-tag nzColor="default" class="prod-card__cat">{{ product.category }}</nz-tag>
-            <h4 class="prod-card__name">{{ product.name }}</h4>
-            <div class="prod-card__footer">
-              <span class="prod-card__price">BDT {{ product.price | number }}</span>
-              <div class="prod-card__rating">
-                <span nz-icon nzType="star" nzTheme="fill" class="prod-card__star"></span>
-                {{ product.rating }}
-                <span class="prod-card__reviews">({{ product.reviewCount }})</span>
-              </div>
+            <div class="prod-card__cat">
+              <span nz-icon nzType="tag" nzTheme="outline"></span>
+              {{ product.category }}
             </div>
-            <a [routerLink]="['/dashboard/products', product.id]"
-               nz-button nzSize="small" nzBlock class="prod-card__edit-btn">
-              <span nz-icon nzType="edit" nzTheme="outline"></span>
-              Edit Details
-            </a>
+
+            <h4 class="prod-card__name">{{ product.name }}</h4>
+
+            <div class="prod-card__stats">
+              <span class="prod-card__stat" nz-tooltip
+                    [nzTooltipTitle]="product.reviewCount + ' reviews'">
+                <span nz-icon nzType="star" nzTheme="fill" class="prod-card__star"></span>
+                {{ product.rating | number:'1.1-1' }}
+              </span>
+              @if (product.variants?.length) {
+                <span class="prod-card__stat" nz-tooltip
+                      [nzTooltipTitle]="product.variants!.length + ' colour variants'">
+                  <span nz-icon nzType="bg-colors" nzTheme="outline"></span>
+                  {{ product.variants!.length }}
+                </span>
+              }
+              <span class="prod-card__stat"
+                    [class.prod-card__stat--low]="totalStock(product) === 0"
+                    nz-tooltip nzTooltipTitle="Total stock">
+                <span nz-icon nzType="inbox" nzTheme="outline"></span>
+                {{ totalStock(product) }}
+              </span>
+            </div>
+
+            <div class="prod-card__footer">
+              <div class="prod-card__price-wrap">
+                <span class="prod-card__price">BDT {{ product.price | number }}</span>
+                @if (product.originalPrice) {
+                  <span class="prod-card__orig-price">BDT {{ product.originalPrice | number }}</span>
+                }
+              </div>
+              <a [routerLink]="['/dashboard/products', product.id]"
+                 nz-button nzSize="small" nzType="default" class="prod-card__edit-btn"
+                 nz-tooltip nzTooltipTitle="Edit product">
+                <span nz-icon nzType="edit" nzTheme="outline"></span>
+              </a>
+            </div>
           </div>
         </div>
       }

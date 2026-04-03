@@ -33,94 +33,98 @@
     </div>
   </div>
 
-  <!-- ═══ COVER HERO ════════════════════════════════════════════════════ -->
+  <!-- ═══ COVER + PROFILE CARD ═════════════════════════════════════════ -->
   <div class="cover-section">
     <div class="cover-image" [style.background-image]="'url(' + v.coverImage + ')'">
       <div class="cover-overlay"></div>
     </div>
 
-    <div class="profile-hero container">
-      <!-- Floating logo -->
-      <div class="vendor-avatar">
-        <img [src]="v.logo" [alt]="v.name" class="vendor-avatar__img" />
-        @if (v.verified) {
-          <span class="vendor-avatar__badge" nz-tooltip nzTooltipTitle="NAJUS Verified Member">
-            <span nz-icon nzType="check-circle" nzTheme="fill"></span>
-          </span>
-        }
-      </div>
+    <div class="container">
+      <div class="profile-card">
 
-      <!-- Name & meta -->
-      <div class="vendor-meta">
-        <div class="vendor-meta__top">
-          <h1 class="vendor-name">{{ v.name }}</h1>
-          @if (v.verified) {
-            <nz-tag [nzColor]="'green'" class="verified-tag">
-              <span nz-icon nzType="safety-certificate" nzTheme="fill"></span> Verified
-            </nz-tag>
-          }
-        </div>
-
-        <div class="vendor-meta__info">
-          <span class="meta-item">
-            <span nz-icon nzType="environment"></span> {{ v.location }}
-          </span>
-          <span class="meta-divider"></span>
-          <span class="meta-item">
-            <span nz-icon nzType="calendar"></span> Member since {{ v.memberSince }}
-          </span>
-          <span class="meta-divider"></span>
-          <span class="meta-item">
-            @for (cat of v.categories; track cat; let last = $last) {
-              {{ cat }}@if (!last) {, }
+        <!-- Avatar row: avatar left, action buttons right -->
+        <div class="profile-card__avatar-row">
+          <div class="vendor-avatar">
+            <img [src]="v.logo" [alt]="v.name" class="vendor-avatar__img" />
+            @if (v.verified) {
+              <span class="vendor-avatar__badge" nz-tooltip nzTooltipTitle="NAJUS Verified Member">
+                <span nz-icon nzType="check-circle" nzTheme="fill"></span>
+              </span>
             }
-          </span>
+          </div>
+
+          <div class="profile-card__actions">
+            @if (v.phone) {
+              <a [href]="'tel:' + v.phone" nz-button nzType="default">
+                <span nz-icon nzType="phone"></span> Call
+              </a>
+            }
+            @if (v.email) {
+              <a [href]="'mailto:' + v.email" nz-button nzType="default">
+                <span nz-icon nzType="mail"></span> Email
+              </a>
+            }
+            @if (v.facebook) {
+              <a [href]="'https://facebook.com/' + v.facebook" target="_blank"
+                 nz-button nzType="primary">
+                <span nz-icon nzType="facebook"></span> Follow
+              </a>
+            }
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- ═══ STAT BAR ═════════════════════════════════════════════════════ -->
-  <div class="stat-bar">
-    <div class="container stat-bar__inner">
-      <div class="stat-item">
-        <span class="stat-item__num">{{ v.productCount }}</span>
-        <span class="stat-item__label">Products</span>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat-item">
-        <span class="stat-item__num">{{ v.rating | number: '1.1-1' }}</span>
-        <span class="stat-item__label">Rating</span>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat-item">
-        <span class="stat-item__num">{{ v.reviewCount }}</span>
-        <span class="stat-item__label">Reviews</span>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat-item">
-        <span class="stat-item__num">{{ v.memberSince }}</span>
-        <span class="stat-item__label">Joined</span>
-      </div>
+        <!-- Name & meta -->
+        <div class="profile-card__info">
+          <div class="vendor-meta__top">
+            <h1 class="vendor-name">{{ v.name }}</h1>
+            @if (v.verified) {
+              <nz-tag [nzColor]="'green'" class="verified-tag">
+                <span nz-icon nzType="safety-certificate" nzTheme="fill"></span> Verified
+              </nz-tag>
+            }
+          </div>
 
-      <!-- Contact actions -->
-      <div class="stat-bar__actions">
-        @if (v.phone) {
-          <a [href]="'tel:' + v.phone" nz-button nzType="default" nzSize="small">
-            <span nz-icon nzType="phone"></span> Call
-          </a>
-        }
-        @if (v.email) {
-          <a [href]="'mailto:' + v.email" nz-button nzType="default" nzSize="small">
-            <span nz-icon nzType="mail"></span> Email
-          </a>
-        }
-        @if (v.facebook) {
-          <a [href]="'https://facebook.com/' + v.facebook" target="_blank"
-             nz-button nzType="primary" nzSize="small">
-            <span nz-icon nzType="facebook"></span> Facebook
-          </a>
-        }
+          <div class="vendor-meta__info">
+            <span class="meta-item">
+              <span nz-icon nzType="environment"></span> {{ v.location }}, Bangladesh
+            </span>
+            <span class="meta-divider"></span>
+            <span class="meta-item">
+              <span nz-icon nzType="calendar"></span> Member since {{ v.memberSince }}
+            </span>
+            <span class="meta-divider"></span>
+            <span class="meta-item">
+              <span nz-icon nzType="appstore"></span>
+              @for (cat of v.categories; track cat; let last = $last) {
+                {{ cat }}@if (!last) {, }
+              }
+            </span>
+          </div>
+        </div>
+
+        <!-- Stats strip -->
+        <div class="profile-card__stats">
+          <div class="stat-item">
+            <span class="stat-item__num">{{ v.productCount }}</span>
+            <span class="stat-item__label">Products</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-item__num">{{ v.rating | number: '1.1-1' }}</span>
+            <span class="stat-item__label">Rating</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-item__num">{{ v.reviewCount }}</span>
+            <span class="stat-item__label">Reviews</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-item__num">{{ v.memberSince }}</span>
+            <span class="stat-item__label">Joined</span>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -151,10 +155,12 @@
           <!-- Story card -->
           <div class="about-card">
             <h3 class="about-card__title">
-              <span nz-icon nzType="read"></span> Our Story
+              <span class="about-card__icon about-card__icon--blue">
+                <span nz-icon nzType="read"></span>
+              </span>
+              Our Story
             </h3>
             <p class="about-card__body">{{ v.description }}</p>
-
             <div class="about-tags">
               @for (cat of v.categories; track cat) {
                 <nz-tag [nzColor]="'geekblue'">{{ cat }}</nz-tag>
@@ -165,7 +171,10 @@
           <!-- Rating card -->
           <div class="about-card">
             <h3 class="about-card__title">
-              <span nz-icon nzType="star"></span> Ratings & Reviews
+              <span class="about-card__icon about-card__icon--gold">
+                <span nz-icon nzType="star"></span>
+              </span>
+              Ratings & Reviews
             </h3>
             <div class="rating-display">
               <span class="rating-big">{{ v.rating | number: '1.1-1' }}</span>
@@ -179,7 +188,10 @@
           <!-- Contact card -->
           <div class="about-card">
             <h3 class="about-card__title">
-              <span nz-icon nzType="contacts"></span> Contact & Location
+              <span class="about-card__icon about-card__icon--green">
+                <span nz-icon nzType="contacts"></span>
+              </span>
+              Contact & Location
             </h3>
             <ul class="contact-list">
               <li>
@@ -212,7 +224,10 @@
           <!-- Membership card -->
           <div class="about-card about-card--highlight">
             <h3 class="about-card__title">
-              <span nz-icon nzType="idcard"></span> Membership
+              <span class="about-card__icon about-card__icon--primary">
+                <span nz-icon nzType="idcard"></span>
+              </span>
+              Membership
             </h3>
             <p class="about-card__body">
               {{ v.name }} has been a proud NAJUS SME Network member since

@@ -456,7 +456,11 @@ export class ApiService {
     return this.http.post<{ data: Product }>(`${this.base}/dashboard/products`, body);
   }
 
-  updateDashboardProduct(id: string, body: object): Observable<{ data: Product }> {
+  updateDashboardProduct(id: string, body: FormData | object): Observable<{ data: Product }> {
+    if (body instanceof FormData) {
+      body.append('_method', 'PUT');
+      return this.http.post<{ data: Product }>(`${this.base}/dashboard/products/${id}`, body);
+    }
     return this.http.put<{ data: Product }>(`${this.base}/dashboard/products/${id}`, body);
   }
 
@@ -464,8 +468,20 @@ export class ApiService {
     return this.http.delete<void>(`${this.base}/dashboard/products/${id}`);
   }
 
+  submitDashboardProductForReview(id: string): Observable<{ data: Product }> {
+    return this.http.post<{ data: Product }>(`${this.base}/dashboard/products/${id}/submit`, {});
+  }
+
+  restoreDashboardProduct(id: string): Observable<{ data: Product }> {
+    return this.http.post<{ data: Product }>(`${this.base}/dashboard/products/${id}/restore`, {});
+  }
+
   updateDashboardSettings(body: object): Observable<{ member: Member }> {
     return this.http.put<{ member: Member }>(`${this.base}/dashboard/settings`, body);
+  }
+
+  updateDashboardVendor(body: FormData): Observable<{ data: Vendor }> {
+    return this.http.post<{ data: Vendor }>(`${this.base}/dashboard/vendor`, body);
   }
 
   // ─── Vendor Registration (public) ─────────────────────────────────────────

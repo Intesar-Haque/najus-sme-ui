@@ -1,12 +1,17 @@
 // ─── Category ─────────────────────────────────────────────────────────────────
 export interface Category {
   id: string;
+  slug?: string;
   name: string;
-  nameBn: string;
-  icon: string;           // nz-icon type
-  color: string;
-  bgColor: string;
-  productCount: number;
+  nameBn?: string;
+  icon?: string | null;
+  color?: string;
+  bgColor?: string;
+  productCount?: number;
+  parent_id?: string | null;
+  parentId?: string | null;
+  level?: number;
+  children?: Category[];
 }
 
 // ─── Vendor summary (embedded in Product) ────────────────────────────────────
@@ -15,6 +20,15 @@ export interface VendorSummary {
   name: string;
   logo: string;
   verified: boolean;
+}
+
+// ─── Product Variant ──────────────────────────────────────────────────────────
+export interface ProductVariant {
+  id: string;
+  colorName: string;
+  colorHex?: string | null;
+  price: number;
+  stock: number;
 }
 
 // ─── Product ──────────────────────────────────────────────────────────────────
@@ -26,6 +40,17 @@ export interface Product {
   originalPrice?: number;
   currency: string;
   images: string[];
+  videoUrl?: string | null;
+  highlights?: string | null;
+  whatsInBox?: string | null;
+  weight?: number | null;
+  dimensions?: string | null;
+  containsLiquid?: boolean;
+  containsFlammable?: boolean;
+  warrantyType?: 'no_warranty' | 'brand_warranty' | 'seller_warranty' | null;
+  warrantyPolicy?: string | null;
+  returnPolicy?: string | null;
+  variants?: ProductVariant[];
   categoryId: string;
   category: string;
   vendor: VendorSummary;
@@ -35,6 +60,7 @@ export interface Product {
   inStock: boolean;
   featured: boolean;
   isNew: boolean;
+  status?: string;
 }
 
 // ─── Vendor / SME ─────────────────────────────────────────────────────────────
@@ -56,6 +82,7 @@ export interface Vendor {
   phone?: string;
   email?: string;
   facebook?: string;
+  categorySlugs?: string[];
 }
 
 // ─── Blog Post ────────────────────────────────────────────────────────────────

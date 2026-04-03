@@ -11,6 +11,7 @@ import { DashProductEdit }    from './pages/dashboard/product-edit/product-edit'
 import { DashAnalytics }      from './pages/dashboard/analytics/analytics';
 import { DashEvents }         from './pages/dashboard/dash-events/dash-events';
 import { DashSettings }       from './pages/dashboard/settings/settings';
+import { DashVendorEdit }     from './pages/dashboard/vendor-edit/vendor-edit';
 import { DashOrders }         from './pages/dashboard/orders/orders';
 import { Products }           from './pages/products/products';
 import { ProductDetail }      from './pages/products/detail/detail';
@@ -45,6 +46,7 @@ export const routes: Routes = [
       { path: 'events',        component: DashEvents         },
       { path: 'orders',        component: DashOrders         },
       { path: 'settings',      component: DashSettings       },
+      { path: 'vendor',        component: DashVendorEdit     },
     ],
   },
   { path: 'products',        component: Products       },

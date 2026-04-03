@@ -2,6 +2,8 @@ import { Component, inject, signal, computed, OnInit, DestroyRef } from '@angula
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import { RouterLink }      from '@angular/router';
+
 import { NzTagModule }     from 'ng-zorro-antd/tag';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzIconModule }    from 'ng-zorro-antd/icon';
@@ -14,7 +16,7 @@ import { Vendor } from '../../../core/models';
 
 @Component({
   selector: 'app-dash-settings',
-  imports: [NzTagModule, NzDividerModule, NzIconModule, NzButtonModule, NzSpinModule],
+  imports: [RouterLink, NzTagModule, NzDividerModule, NzIconModule, NzButtonModule, NzSpinModule],
   templateUrl: './settings.html',
   styleUrl:    './settings.less',
 })

@@ -141,3 +141,24 @@ img { max-width: 100%; display: block; }
 ::-webkit-scrollbar-track { background: @bg-page; }
 ::-webkit-scrollbar-thumb { background: @border-color; border-radius: @radius-full; }
 ::-webkit-scrollbar-thumb:hover { background: @text-muted; }
+
+// ─── Category cascader dropdown (dashboard product forms) ─────────────────────
+.cat-cascader-popup {
+  .ant-cascader-menus {
+    .ant-cascader-menu {
+      width: 240px;
+      max-height: 400px;
+      font-size: 15px;
+
+      &-item {
+        padding: 10px 20px;
+        line-height: 1.6;
+        font-size: 15px;
+
+        &-expand-icon {
+          font-size: 13px;
+        }
+      }
+    }
+  }
+}

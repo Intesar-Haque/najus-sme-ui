@@ -42,11 +42,17 @@
     <div class="panel">
       <div class="panel__header">
         <h3 class="panel__title">Vendor Profile</h3>
-        <nz-tag [nzColor]="vendor()!.verified ? 'green' : 'orange'">
-          <span nz-icon [nzType]="vendor()!.verified ? 'safety-certificate' : 'clock-circle'"
-                nzTheme="outline"></span>
-          {{ vendor()!.verified ? 'Verified' : 'Pending Verification' }}
-        </nz-tag>
+        <div style="display:flex;align-items:center;gap:8px">
+          <a routerLink="/dashboard/vendor" nz-button nzSize="small">
+            <span nz-icon nzType="edit" nzTheme="outline"></span>
+            Edit Profile
+          </a>
+          <nz-tag [nzColor]="vendor()!.verified ? 'green' : 'orange'">
+            <span nz-icon [nzType]="vendor()!.verified ? 'safety-certificate' : 'clock-circle'"
+                  nzTheme="outline"></span>
+            {{ vendor()!.verified ? 'Verified' : 'Pending Verification' }}
+          </nz-tag>
+        </div>
       </div>
       <div class="panel__body">
         <div class="vendor-overview">
