@@ -34,7 +34,11 @@
   <!-- ═══ HERO ══════════════════════════════════════════════════════════ -->
   <div class="hero">
     <div class="hero__img-wrap">
-      <img [src]="ev.image" [alt]="ev.title" class="hero__img" />
+      @if (ev.image) {
+        <img [src]="ev.image" [alt]="ev.title" class="hero__img" />
+      } @else {
+        <div class="hero__img-placeholder"></div>
+      }
       <div class="hero__overlay"></div>
     </div>
 
@@ -51,6 +55,9 @@
         @if (ev.isFree) {
           <nz-tag nzColor="success">Free Entry</nz-tag>
         }
+        @if (isSoldOut()) {
+          <nz-tag nzColor="error">Sold Out</nz-tag>
+        }
       </div>
 
       <h1 class="hero__title">{{ ev.title }}</h1>
@@ -63,6 +70,10 @@
           } @else {
             {{ ev.date | date: 'dd MMM yyyy' }}
           }
+        </span>
+        <span class="hero__meta-sep">·</span>
+        <span class="hero__meta-item">
+          <span nz-icon nzType="home"></span> {{ ev.venue }}
         </span>
         <span class="hero__meta-sep">·</span>
         <span class="hero__meta-item">
@@ -110,9 +121,16 @@
             </div>
           </li>
           <li>
-            <span nz-icon nzType="environment" class="hi-icon"></span>
+            <span nz-icon nzType="home" class="hi-icon"></span>
             <div>
               <strong>Venue</strong>
+              <span>{{ ev.venue }}</span>
+            </div>
+          </li>
+          <li>
+            <span nz-icon nzType="environment" class="hi-icon"></span>
+            <div>
+              <strong>Location</strong>
               <span>{{ ev.location }}</span>
             </div>
           </li>
@@ -134,6 +152,22 @@
               }
             </div>
           </li>
+          @if (ev.maxTickets !== null) {
+            <li>
+              <span nz-icon nzType="profile" class="hi-icon"></span>
+              <div>
+                <strong>Capacity</strong>
+                <span>
+                  {{ ev.ticketsSold }} / {{ ev.maxTickets }} tickets sold
+                  @if (ev.ticketsRemaining !== null && ev.ticketsRemaining > 0) {
+                    — <strong>{{ ev.ticketsRemaining }} remaining</strong>
+                  } @else if (ev.ticketsRemaining === 0) {
+                    — <strong class="sold-out-text">Sold Out</strong>
+                  }
+                </span>
+              </div>
+            </li>
+          }
         </ul>
       </section>
 
@@ -146,7 +180,9 @@
           <div class="related-list">
             @for (rel of relatedEvents(); track rel.id) {
               <a [routerLink]="['/events', rel.id]" class="related-card">
-                <img [src]="rel.image" [alt]="rel.title" class="related-card__img" />
+                @if (rel.image) {
+                  <img [src]="rel.image" [alt]="rel.title" class="related-card__img" />
+                }
                 <div class="related-card__body">
                   <nz-tag [nzColor]="'default'" class="related-card__type">{{ rel.type }}</nz-tag>
                   <p class="related-card__title">{{ rel.title }}</p>
@@ -191,6 +227,13 @@
             </div>
           </li>
           <li>
+            <span nz-icon nzType="home"></span>
+            <div>
+              <strong>Venue</strong>
+              <span>{{ ev.venue }}</span>
+            </div>
+          </li>
+          <li>
             <span nz-icon nzType="environment"></span>
             <div>
               <strong>Location</strong>
@@ -204,21 +247,36 @@
               <span>{{ ev.organizer }}</span>
             </div>
           </li>
-          <li>
-            <span nz-icon [nzType]="typeIcon()"></span>
-            <div>
-              <strong>Type</strong>
-              <span>{{ typeLabel() }}</span>
-            </div>
-          </li>
+          @if (ev.maxTickets !== null) {
+            <li>
+              <span nz-icon nzType="profile"></span>
+              <div>
+                <strong>Tickets</strong>
+                @if (ev.ticketsRemaining !== null) {
+                  <span>{{ ev.ticketsRemaining }} of {{ ev.maxTickets }} available</span>
+                } @else {
+                  <span>{{ ev.maxTickets }} total</span>
+                }
+              </div>
+            </li>
+          }
         </ul>
 
         <nz-divider></nz-divider>
 
-        <!-- Registration status indicator -->
-        @if (ev.registrationOpen) {
-          <div class="reg-open-pill">
-            <span nz-icon nzType="check-circle" nzTheme="fill"></span> Registration is Open
+        <!-- Registration action -->
+        @if (registered()) {
+          <div class="reg-confirmed-pill">
+            <span nz-icon nzType="check-circle" nzTheme="fill"></span> You are registered!
+          </div>
+        } @else if (canRegister()) {
+          <button nz-button nzType="primary" nzBlock nzSize="large" (click)="openModal()">
+            <span nz-icon nzType="form"></span>
+            {{ ev.isFree ? 'Register Now (Free)' : 'Register — ৳' + ev.price }}
+          </button>
+        } @else if (isSoldOut()) {
+          <div class="reg-closed-pill">
+            <span nz-icon nzType="close-circle" nzTheme="fill"></span> Sold Out
           </div>
         } @else {
           <div class="reg-closed-pill">
@@ -227,110 +285,124 @@
         }
       </div>
 
-      <!-- ── Registration form ───────────────────────────────────────── -->
-      @if (ev.registrationOpen) {
-        <div class="reg-card">
-          <h3 class="reg-card__title">
-            <span nz-icon nzType="form"></span> Register for This Event
-          </h3>
-
-          @if (submitted()) {
-            <!-- Success state -->
-            <nz-result
-              nzStatus="success"
-              nzTitle="Registration Confirmed!"
-              nzSubTitle="We've received your registration. Check your email for confirmation details.">
-              <div nz-result-extra>
-                <button nz-button nzType="default" nzSize="small" (click)="resetForm()">
-                  Register Another
-                </button>
-              </div>
-            </nz-result>
-
-          } @else {
-            <!-- Form -->
-            <form #regForm="ngForm" (ngSubmit)="onSubmit(regForm)" class="reg-form" novalidate>
-
-              <!-- Full Name -->
-              <nz-form-item>
-                <nz-form-label [nzRequired]="true">Full Name</nz-form-label>
-                <nz-form-control nzErrorTip="Please enter your full name">
-                  <input nz-input name="fullName" placeholder="e.g. Fatema Begum"
-                         [(ngModel)]="form.fullName" required
-                         #fullNameCtrl="ngModel"
-                         [nzStatus]="fullNameCtrl.invalid && fullNameCtrl.dirty ? 'error' : ''" />
-                </nz-form-control>
-              </nz-form-item>
-
-              <!-- Email -->
-              <nz-form-item>
-                <nz-form-label [nzRequired]="true">Email Address</nz-form-label>
-                <nz-form-control nzErrorTip="Please enter a valid email">
-                  <input nz-input name="email" type="email" placeholder="you@example.com"
-                         [(ngModel)]="form.email" required email
-                         #emailCtrl="ngModel"
-                         [nzStatus]="emailCtrl.invalid && emailCtrl.dirty ? 'error' : ''" />
-                </nz-form-control>
-              </nz-form-item>
-
-              <!-- Phone -->
-              <nz-form-item>
-                <nz-form-label>Phone Number</nz-form-label>
-                <nz-form-control>
-                  <nz-input-group nzAddOnBefore="+880">
-                    <input nz-input name="phone" placeholder="1XXXXXXXXX"
-                           [(ngModel)]="form.phone" />
-                  </nz-input-group>
-                </nz-form-control>
-              </nz-form-item>
-
-              <!-- Attendees -->
-              <nz-form-item>
-                <nz-form-label [nzRequired]="true">Number of Attendees</nz-form-label>
-                <nz-form-control>
-                  <nz-select name="attendees" [(ngModel)]="form.attendees" style="width:100%">
-                    @for (n of attendeeOptions; track n) {
-                      <nz-option [nzValue]="n" [nzLabel]="n + (n === 1 ? ' person' : ' people')"></nz-option>
-                    }
-                  </nz-select>
-                </nz-form-control>
-              </nz-form-item>
-
-              <!-- Message -->
-              <nz-form-item>
-                <nz-form-label>Special Requirements</nz-form-label>
-                <nz-form-control>
-                  <textarea nz-input name="message" rows="3"
-                            placeholder="Dietary needs, accessibility requirements, questions…"
-                            [(ngModel)]="form.message"></textarea>
-                </nz-form-control>
-              </nz-form-item>
-
-              <!-- Price summary -->
-              @if (!ev.isFree) {
-                <div class="price-summary">
-                  <span>{{ form.attendees }} × ৳{{ ev.price }}</span>
-                  <span class="price-total">৳{{ form.attendees * (ev.price ?? 0) }}</span>
-                </div>
-              }
-
-              <button nz-button nzType="primary" nzBlock nzSize="large"
-                      [nzLoading]="submitting()" type="submit">
-                <span nz-icon nzType="check"></span>
-                {{ ev.isFree ? 'Confirm Registration' : 'Proceed to Payment' }}
-              </button>
-
-              <p class="form-note">
-                <span nz-icon nzType="lock"></span>
-                Your information is kept private and used only for this event.
-              </p>
-
-            </form>
-          }
-        </div>
-      }
-
     </aside>
   </div>
+
+  <!-- ═══ REGISTRATION MODAL ════════════════════════════════════════════ -->
+  <nz-modal
+    [nzVisible]="modalVisible()"
+    [nzTitle]="modalTitle"
+    [nzFooter]="modalFooter"
+    [nzClosable]="!submitting()"
+    [nzMaskClosable]="!submitting()"
+    (nzOnCancel)="modalVisible.set(false)">
+
+    <ng-template #modalTitle>
+      <span nz-icon nzType="calendar" style="margin-right:8px"></span>
+      Confirm Registration
+    </ng-template>
+
+    <ng-container *nzModalContent>
+      <div class="reg-modal">
+
+        <!-- Event summary -->
+        <div class="reg-modal__event">
+          @if (ev.image) {
+            <img [src]="ev.image" [alt]="ev.title" class="reg-modal__img" />
+          }
+          <div class="reg-modal__info">
+            <h3 class="reg-modal__title">{{ ev.title }}</h3>
+            <p class="reg-modal__meta">
+              <span nz-icon nzType="calendar"></span>
+              @if (isMultiDay()) {
+                {{ ev.date | date:'dd MMM' }} – {{ ev.endDate | date:'dd MMM yyyy' }}
+              } @else {
+                {{ ev.date | date:'dd MMM yyyy' }}
+              }
+            </p>
+            <p class="reg-modal__meta">
+              <span nz-icon nzType="home"></span> {{ ev.venue }}, {{ ev.location }}
+            </p>
+          </div>
+        </div>
+
+        <nz-divider></nz-divider>
+
+        <!-- Registration form -->
+        <form #regForm="ngForm" nz-form nzLayout="vertical" class="reg-modal__form" novalidate>
+
+          <nz-form-item>
+            <nz-form-label [nzRequired]="true">Full Name</nz-form-label>
+            <nz-form-control nzErrorTip="Please enter your full name">
+              <input nz-input name="full_name" placeholder="e.g. Fatema Begum"
+                     [(ngModel)]="form.full_name" required
+                     #nameCtrl="ngModel"
+                     [nzStatus]="nameCtrl.invalid && nameCtrl.dirty ? 'error' : ''" />
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzRequired]="true">Email Address</nz-form-label>
+            <nz-form-control nzErrorTip="Please enter a valid email">
+              <input nz-input name="email" type="email" placeholder="you@example.com"
+                     [(ngModel)]="form.email" required email
+                     #emailCtrl="ngModel"
+                     [nzStatus]="emailCtrl.invalid && emailCtrl.dirty ? 'error' : ''" />
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzRequired]="true">Number of Attendees</nz-form-label>
+            <nz-form-control>
+              <nz-select name="attendees" [(ngModel)]="form.attendees" style="width:100%" required>
+                @for (n of attendeeOptions; track n) {
+                  <nz-option [nzValue]="n" [nzLabel]="n + (n === 1 ? ' person' : ' people')"></nz-option>
+                }
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+        </form>
+
+        <nz-divider></nz-divider>
+
+        <!-- Price summary -->
+        <div class="reg-modal__summary">
+          <div class="reg-modal__row">
+            <span>{{ form.attendees }} × ticket</span>
+            <strong>{{ ev.isFree ? 'Free' : '৳' + ev.price + ' each' }}</strong>
+          </div>
+          @if (!ev.isFree) {
+            <div class="reg-modal__row reg-modal__row--total">
+              <span>Total charged</span>
+              <strong class="reg-modal__amount">৳{{ (ev.price ?? 0) * form.attendees }}</strong>
+            </div>
+            <p class="reg-modal__note">
+              <span nz-icon nzType="wallet"></span>
+              Deducted from your WEBX balance on confirmation.
+            </p>
+          } @else {
+            <p class="reg-modal__note">
+              <span nz-icon nzType="check-circle"></span>
+              No payment required. Your spot will be reserved instantly.
+            </p>
+          }
+        </div>
+
+      </div>
+    </ng-container>
+
+    <ng-template #modalFooter>
+      <button nz-button nzType="default" [disabled]="submitting()"
+              (click)="modalVisible.set(false)">
+        Cancel
+      </button>
+      <button nz-button nzType="primary" [nzLoading]="submitting()"
+              (click)="confirmRegister()">
+        <span nz-icon nzType="check"></span>
+        {{ ev.isFree ? 'Confirm Registration' : 'Confirm & Pay ৳' + ((ev.price ?? 0) * form.attendees) }}
+      </button>
+    </ng-template>
+  </nz-modal>
 
 } }

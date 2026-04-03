@@ -107,16 +107,20 @@ export interface SmeEvent {
   id: string;
   title: string;
   description: string;
-  image: string;
+  image: string | null;
   date: string;
   endDate: string;
   location: string;
   type: EventType;
   organizer: string;
+  venue: string;
   isFree: boolean;
-  price?: number;
+  price: number | null;
   featured: boolean;
   registrationOpen: boolean;
+  maxTickets: number | null;
+  ticketsSold: number;
+  ticketsRemaining: number | null;
 }
 
 // ─── Member (authenticated user) ─────────────────────────────────────────────

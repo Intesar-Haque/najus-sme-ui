@@ -20,7 +20,7 @@
       </div>
       <div class="hstat-divider"></div>
       <div class="hstat">
-        <span class="hstat__num">{{ upcomingCount() }}</span>
+        <span class="hstat__num">{{ openCount() }}</span>
         <span class="hstat__label">Open Now</span>
       </div>
       <div class="hstat-divider"></div>
@@ -97,7 +97,13 @@
 
             <!-- Image -->
             <div class="event-card__img-wrap">
-              <img [src]="event.image" [alt]="event.title" class="event-card__img" />
+              @if (event.image) {
+                <img [src]="event.image" [alt]="event.title" class="event-card__img" />
+              } @else {
+                <div class="event-card__img-placeholder">
+                  <span nz-icon nzType="calendar" style="font-size:40px;color:#ccc"></span>
+                </div>
+              }
               <div class="event-card__badges">
                 @if (event.featured) {
                   <span class="badge badge--featured">
@@ -128,6 +134,10 @@
                   }
                 </span>
                 <span class="meta-row">
+                  <span nz-icon nzType="home"></span>
+                  {{ event.venue }}
+                </span>
+                <span class="meta-row">
                   <span nz-icon nzType="environment"></span>
                   {{ event.location }}
                 </span>
@@ -147,15 +157,26 @@
                   }
                 </div>
 
+                <!-- Tickets -->
+                @if (event.ticketsRemaining !== null && event.ticketsRemaining !== undefined) {
+                  @if (event.ticketsRemaining === 0) {
+                    <nz-tag nzColor="error" class="tickets-tag">Sold Out</nz-tag>
+                  } @else if (event.ticketsRemaining <= 20) {
+                    <nz-tag nzColor="warning" class="tickets-tag">{{ event.ticketsRemaining }} left</nz-tag>
+                  }
+                }
+
                 <!-- Status & CTA -->
                 <div class="event-actions">
-                  @if (event.registrationOpen) {
+                  @if (event.registrationOpen && (event.ticketsRemaining === null || event.ticketsRemaining > 0)) {
                     <nz-tag nzColor="success" class="reg-tag">
-                      <span nz-icon nzType="check-circle"></span> Registration Open
+                      <span nz-icon nzType="check-circle"></span> Open
                     </nz-tag>
                     <a [routerLink]="['/events', event.id]" nz-button nzType="primary" nzSize="small">
                       Register Now
                     </a>
+                  } @else if (event.ticketsRemaining === 0) {
+                    <nz-tag nzColor="error" class="reg-tag">Sold Out</nz-tag>
                   } @else {
                     <nz-tag nzColor="default" class="reg-tag">Registration Closed</nz-tag>
                   }

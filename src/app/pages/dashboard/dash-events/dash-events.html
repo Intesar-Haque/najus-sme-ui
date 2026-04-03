@@ -21,7 +21,9 @@
       @for (evt of events(); track evt.id) {
         <div class="evt-card">
           <div class="evt-card__img-wrap">
-            <img [src]="evt.image" [alt]="evt.title" class="evt-card__img" />
+            @if (evt.image) {
+              <img [src]="evt.image" [alt]="evt.title" class="evt-card__img" />
+            }
             <nz-tag [nzColor]="typeColor(evt.type)" class="evt-card__type-tag">{{ evt.type }}</nz-tag>
           </div>
           <div class="evt-card__body">
@@ -35,7 +37,7 @@
             </p>
             <p class="evt-card__loc">
               <span nz-icon nzType="environment" nzTheme="outline"></span>
-              {{ evt.location }}
+              {{ evt.venue ? evt.venue + ', ' : '' }}{{ evt.location }}
             </p>
             <div class="evt-card__footer">
               @if (evt.isFree) {
@@ -43,10 +45,12 @@
               } @else {
                 <span class="evt-card__price">BDT {{ evt.price }}</span>
               }
-              @if (evt.registrationOpen) {
+              @if (evt.registrationOpen && (evt.ticketsRemaining === null || evt.ticketsRemaining > 0)) {
                 <a [routerLink]="['/events', evt.id]" nz-button nzType="primary" nzSize="small">
                   Register
                 </a>
+              } @else if (evt.ticketsRemaining === 0) {
+                <button nz-button nzSize="small" disabled>Sold Out</button>
               } @else {
                 <button nz-button nzSize="small" disabled>Registration Closed</button>
               }

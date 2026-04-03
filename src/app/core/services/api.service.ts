@@ -32,18 +32,8 @@ export interface ProductsParams {
   per_page?: number;
 }
 
-export interface EventsMeta {
-  total: number;
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  free_count: number;
-  open_count: number;
-}
-
 export interface EventsResponse {
   data: SmeEvent[];
-  meta: EventsMeta;
 }
 
 export interface EventsParams {
@@ -191,10 +181,7 @@ const EMPTY_STATS: SiteStats = {
   members: 0, products: 0, categories: 0, events: 0, districts: 0, yearsActive: 0,
 };
 
-const EMPTY_EVENTS: EventsResponse = {
-  data: [],
-  meta: { total: 0, current_page: 1, last_page: 1, per_page: 50, free_count: 0, open_count: 0 },
-};
+const EMPTY_EVENTS: EventsResponse = { data: [] };
 
 const EMPTY_VENDORS: VendorsResponse = {
   data: [],
@@ -326,8 +313,8 @@ export class ApiService {
     if (p.types?.length) p.types.forEach(t => { params = params.append('type[]', t); });
     if (p.free) params = params.set('free', '1');
     if (p.open) params = params.set('open', '1');
-    if (p.sort && p.sort !== 'featured') {
-      params = params.set('sort', p.sort === 'date-asc' ? 'date_asc' : 'date_desc');
+    if (p.sort && p.sort !== 'date-asc') {
+      params = params.set('sort', p.sort === 'date-desc' ? 'date_desc' : p.sort);
     }
     if (p.page)     params = params.set('page',     p.page);
     if (p.per_page) params = params.set('per_page', p.per_page);
@@ -338,11 +325,9 @@ export class ApiService {
   }
 
   getFeaturedEvents(limit = 3): Observable<SmeEvent[]> {
-    const params = new HttpParams()
-      .set('featured', '1')
-      .set('per_page', limit);
-    return this.http.get<ApiList<SmeEvent>>(`${this.base}/events`, { params }).pipe(
-      map(r => r.data),
+    const params = new HttpParams().set('per_page', limit);
+    return this.http.get<EventsResponse>(`${this.base}/events`, { params }).pipe(
+      map(r => r.data.slice(0, limit)),
       catchError(() => of([])),
     );
   }
@@ -355,14 +340,14 @@ export class ApiService {
   }
 
   getRelatedEvents(id: string): Observable<SmeEvent[]> {
-    return this.http.get<ApiList<SmeEvent>>(`${this.base}/events/${id}/related`).pipe(
+    return this.http.get<{ data: SmeEvent[] }>(`${this.base}/events/${id}/related`).pipe(
       map(r => r.data),
       catchError(() => of([])),
     );
   }
 
-  registerForEvent(id: string, body: object): Observable<{ message: string; registration_id: number }> {
-    return this.http.post<{ message: string; registration_id: number }>(
+  registerForEvent(id: string, body: { full_name: string; email: string; attendees: number }): Observable<{ message: string; data: { event_id: number; user_id: number; amount_paid: number; registered_at: string } }> {
+    return this.http.post<{ message: string; data: { event_id: number; user_id: number; amount_paid: number; registered_at: string } }>(
       `${this.base}/events/${id}/register`, body,
     );
   }

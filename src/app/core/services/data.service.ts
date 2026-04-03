@@ -367,9 +367,10 @@ export class DataService {
       description: 'Annual showcase of 100+ SME vendors — live demos, wholesale orders, and networking sessions.',
       image: 'https://picsum.photos/seed/tradefair/600/350',
       date: '2025-03-15', endDate: '2025-03-20',
-      location: 'Bangabandhu International Conference Centre, Dhaka',
+      venue: 'Bangabandhu International Conference Centre', location: 'Dhaka',
       type: 'trade-fair', organizer: 'NAJUS', isFree: false, price: 50,
       featured: true, registrationOpen: true,
+      maxTickets: 500, ticketsSold: 400, ticketsRemaining: 100,
     },
     {
       id: 'e2',
@@ -377,9 +378,10 @@ export class DataService {
       description: 'A hands-on workshop on digital marketing, e-commerce setup, and financial management for women-led SMEs.',
       image: 'https://picsum.photos/seed/workshop/600/350',
       date: '2025-02-28', endDate: '2025-02-28',
-      location: 'NAJUS Training Centre, Dhaka',
-      type: 'workshop', organizer: 'NAJUS', isFree: true,
+      venue: 'NAJUS Training Centre', location: 'Dhaka',
+      type: 'workshop', organizer: 'NAJUS', isFree: true, price: null,
       featured: true, registrationOpen: true,
+      maxTickets: null, ticketsSold: 60, ticketsRemaining: null,
     },
     {
       id: 'e3',
@@ -387,9 +389,10 @@ export class DataService {
       description: 'Learn to shoot stunning product photos using only your smartphone. Boost your online sales instantly.',
       image: 'https://picsum.photos/seed/photoclass/600/350',
       date: '2025-03-05', endDate: '2025-03-05',
-      location: 'Online (Zoom)',
-      type: 'webinar', organizer: 'NAJUS Digital', isFree: true,
+      venue: 'Online (Zoom)', location: 'Remote',
+      type: 'webinar', organizer: 'NAJUS Digital', isFree: true, price: null,
       featured: false, registrationOpen: true,
+      maxTickets: 200, ticketsSold: 200, ticketsRemaining: 0,
     },
     {
       id: 'e4',
@@ -397,9 +400,10 @@ export class DataService {
       description: 'Regional exhibition showcasing Rajshahi\'s finest organic produce, silk, and crafts.',
       image: 'https://picsum.photos/seed/agrofair/600/350',
       date: '2025-04-10', endDate: '2025-04-12',
-      location: 'Rajshahi Divisional Stadium',
+      venue: 'Rajshahi Divisional Stadium', location: 'Rajshahi',
       type: 'exhibition', organizer: 'NAJUS Rajshahi Chapter', isFree: false, price: 30,
       featured: false, registrationOpen: false,
+      maxTickets: 300, ticketsSold: 150, ticketsRemaining: 150,
     },
   ];
 
@@ -487,9 +491,9 @@ export class DataService {
     return this.events.find(e => e.id === id);
   }
 
-  getRelatedEvents(eventId: string, type: string, limit = 3): SmeEvent[] {
+  getRelatedEvents(eventId: string, limit = 3): SmeEvent[] {
     return this.events
-      .filter(e => e.id !== eventId && (e.type === type || e.featured))
+      .filter(e => e.id !== eventId)
       .slice(0, limit);
   }
 

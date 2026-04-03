@@ -35,10 +35,7 @@ interface EventTypeOption {
   icon: string;
 }
 
-const EMPTY_RESULT: EventsResponse = {
-  data: [],
-  meta: { total: 0, current_page: 1, last_page: 1, per_page: 50, free_count: 0, open_count: 0 },
-};
+const EMPTY_RESULT: EventsResponse = { data: [] };
 
 @Component({
   selector: 'app-events',
@@ -96,10 +93,10 @@ export class Events implements OnInit {
   private result = toSignal(this.result$, { initialValue: EMPTY_RESULT });
 
   // ── Derived ───────────────────────────────────────────────────────────
-  readonly events       = computed(() => this.result().data);
-  readonly totalCount   = computed(() => this.result().meta.total);
-  readonly freeCount    = computed(() => this.result().meta.free_count);
-  readonly upcomingCount = computed(() => this.result().meta.open_count);
+  readonly events     = computed(() => this.result().data);
+  readonly totalCount = computed(() => this.result().data.length);
+  readonly freeCount  = computed(() => this.result().data.filter(e => e.isFree).length);
+  readonly openCount  = computed(() => this.result().data.filter(e => e.registrationOpen).length);
 
   // ── Active filter chips ───────────────────────────────────────────────
   activeFilterCount = computed(() =>

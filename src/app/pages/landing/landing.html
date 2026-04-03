@@ -240,7 +240,9 @@
       @for (event of events(); track event.id) {
         <article class="event-card">
           <div class="event-card__image">
-            <img [src]="event.image" [alt]="event.title" loading="lazy" />
+            @if (event.image) {
+              <img [src]="event.image" [alt]="event.title" loading="lazy" />
+            }
             <nz-tag [nzColor]="getEventTypeColor(event.type)" class="event-card__type-badge">
               {{ formatEventType(event.type) }}
             </nz-tag>
@@ -255,7 +257,7 @@
               </div>
               <div class="meta-item">
                 <span nz-icon nzType="environment" nzTheme="outline"></span>
-                {{ event.location }}
+                {{ event.venue ? event.venue + ', ' : '' }}{{ event.location }}
               </div>
             </div>
             <div class="event-card__footer">
@@ -266,10 +268,12 @@
                   <nz-tag nzColor="orange">৳ {{ event.price }}</nz-tag>
                 }
               </span>
-              @if (event.registrationOpen) {
+              @if (event.registrationOpen && (event.ticketsRemaining === null || event.ticketsRemaining > 0)) {
                 <a [routerLink]="['/events', event.id]">
                   <button nz-button nzType="primary" nzSize="small">Register</button>
                 </a>
+              } @else if (event.ticketsRemaining === 0) {
+                <button nz-button nzSize="small" disabled>Sold Out</button>
               } @else {
                 <button nz-button nzSize="small" disabled>Coming Soon</button>
               }

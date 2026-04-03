@@ -1,9 +1,9 @@
-import { Component, inject, signal, computed, OnInit, ViewChild, DestroyRef } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, DestroyRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { forkJoin, of, switchMap } from 'rxjs';
+import { of, switchMap } from 'rxjs';
 
 import { NzButtonModule }    from 'ng-zorro-antd/button';
 import { NzIconModule }      from 'ng-zorro-antd/icon';
@@ -11,31 +11,24 @@ import { NzTagModule }       from 'ng-zorro-antd/tag';
 import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 import { NzEmptyModule }     from 'ng-zorro-antd/empty';
 import { NzDividerModule }   from 'ng-zorro-antd/divider';
-import { NzInputModule }     from 'ng-zorro-antd/input';
-import { NzSelectModule }    from 'ng-zorro-antd/select';
-import { NzFormModule }      from 'ng-zorro-antd/form';
 import { NzMessageService }  from 'ng-zorro-antd/message';
 import { NzSpinModule }      from 'ng-zorro-antd/spin';
+import { NzModalModule }     from 'ng-zorro-antd/modal';
 import { NzResultModule }    from 'ng-zorro-antd/result';
+import { NzFormModule }      from 'ng-zorro-antd/form';
+import { NzInputModule }     from 'ng-zorro-antd/input';
+import { NzSelectModule }    from 'ng-zorro-antd/select';
 
 import { ApiService } from '../../../core/services/api.service';
 import { SmeEvent, EventType } from '../../../core/models';
 
-export interface RegistrationForm {
-  fullName: string;
-  email: string;
-  phone: string;
-  attendees: number;
-  message: string;
-}
-
 @Component({
   selector: 'app-event-detail',
   imports: [
-    RouterLink, FormsModule, DatePipe,
+    RouterLink, DatePipe, FormsModule,
     NzButtonModule, NzIconModule, NzTagModule, NzBreadCrumbModule,
-    NzEmptyModule, NzDividerModule, NzInputModule, NzSelectModule,
-    NzFormModule, NzSpinModule, NzResultModule,
+    NzEmptyModule, NzDividerModule, NzSpinModule, NzModalModule, NzResultModule,
+    NzFormModule, NzInputModule, NzSelectModule,
   ],
   templateUrl: './detail.html',
   styleUrl:    './detail.less',
@@ -51,22 +44,15 @@ export class EventDetail implements OnInit {
   relatedEvents = signal<SmeEvent[]>([]);
   notFound      = signal(false);
   loading       = signal(true);
+  submitting    = signal(false);
+  modalVisible  = signal(false);
+  registered    = signal(false);
 
   @ViewChild('regForm') regForm?: NgForm;
 
-  // Registration form state
-  submitting = signal(false);
-  submitted  = signal(false);
-
-  form: RegistrationForm = {
-    fullName: '',
-    email: '',
-    phone: '',
-    attendees: 1,
-    message: '',
-  };
-
   readonly attendeeOptions = [1, 2, 3, 4, 5];
+
+  form = { full_name: '', email: '', attendees: 1 };
 
   // Computed helpers
   typeLabel = computed(() => {
@@ -107,6 +93,17 @@ export class EventDetail implements OnInit {
     return e ? e.date !== e.endDate : false;
   });
 
+  canRegister = computed(() => {
+    const e = this.event();
+    if (!e || !e.registrationOpen || this.registered()) return false;
+    return e.ticketsRemaining === null || e.ticketsRemaining > 0;
+  });
+
+  isSoldOut = computed(() => {
+    const e = this.event();
+    return e ? e.ticketsRemaining !== null && e.ticketsRemaining === 0 : false;
+  });
+
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) { this.notFound.set(true); this.loading.set(false); return; }
@@ -133,41 +130,36 @@ export class EventDetail implements OnInit {
     });
   }
 
-  onSubmit(ngForm: NgForm) {
-    if (ngForm.invalid) {
-      Object.values(ngForm.controls).forEach(c => {
-        c.markAsDirty();
-        c.updateValueAndValidity();
-      });
+  openModal() {
+    this.form = { full_name: '', email: '', attendees: 1 };
+    this.modalVisible.set(true);
+  }
+
+  confirmRegister() {
+    if (this.regForm?.invalid) {
+      Object.values(this.regForm.controls).forEach(c => { c.markAsDirty(); c.updateValueAndValidity(); });
       return;
     }
 
     const id = this.route.snapshot.paramMap.get('id')!;
     this.submitting.set(true);
 
-    this.api.registerForEvent(id, {
-      full_name: this.form.fullName,
-      email:     this.form.email,
-      phone:     this.form.phone,
-      attendees: this.form.attendees,
-      message:   this.form.message,
-    }).subscribe({
+    this.api.registerForEvent(id, this.form).subscribe({
       next: (res) => {
         this.submitting.set(false);
-        this.submitted.set(true);
+        this.modalVisible.set(false);
+        this.registered.set(true);
         this.message.success(res.message);
+        const e = this.event();
+        if (e && e.ticketsRemaining !== null) {
+          this.event.set({ ...e, ticketsRemaining: e.ticketsRemaining - 1, ticketsSold: e.ticketsSold + 1 });
+        }
       },
       error: (err) => {
         this.submitting.set(false);
         this.message.error(err.error?.message ?? 'Registration failed. Please try again.');
       },
     });
-  }
-
-  resetForm() {
-    this.regForm?.resetForm();
-    this.form = { fullName: '', email: '', phone: '', attendees: 1, message: '' };
-    this.submitted.set(false);
   }
 
   goBack() {
