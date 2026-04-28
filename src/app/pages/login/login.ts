@@ -54,9 +54,9 @@ export class Login implements OnDestroy {
 
   // ── Testimonials (cycling on brand panel) ────────────────────────────
   readonly testimonials = [
-    { quote: 'NAJUS SME transformed our reach. We now sell across Bangladesh.', author: 'Fatema B.', biz: 'Rupali Handicrafts' },
+    { quote: 'NAJUS MSME transformed our reach. We now sell across Bangladesh.', author: 'Fatema B.', biz: 'Rupali Handicrafts' },
     { quote: 'The platform is easy to use and the support team is amazing.', author: 'Karim A.',  biz: 'Sylhet Tea Garden' },
-    { quote: 'Joining NAJUS SME was the best business decision we made.', author: 'Nadia I.',   biz: 'Nakshi Collective' },
+    { quote: 'Joining NAJUS MSME was the best business decision we made.', author: 'Nadia I.',   biz: 'Nakshi Collective' },
   ];
   testimonialIdx = signal(0);
 

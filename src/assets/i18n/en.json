@@ -73,7 +73,7 @@
     "events":            "Upcoming Events",
     "events_sub":        "Trade fairs, workshops and networking sessions near you",
     "blog":              "Stories & Insights",
-    "blog_sub":          "Success stories and guides from the NAJUS SME community",
+    "blog_sub":          "Success stories and guides from the NAJUS MSME community",
     "cta_headline":      "Ready to Grow Your Business?",
     "cta_sub":           "Join 148+ SMEs already selling on NAJUS. Apply for membership today.",
     "cta_btn":           "Apply for Membership"
@@ -142,7 +142,7 @@
 
   "login": {
     "title":              "Member Login",
-    "subtitle":           "Access your NAJUS SME dashboard",
+    "subtitle":           "Access your NAJUS MSME dashboard",
     "step1_label":        "Membership Code",
     "step1_placeholder":  "e.g. NAJUS-001",
     "step1_btn":          "Send OTP",
@@ -152,7 +152,7 @@
     "resend":             "Resend OTP",
     "resend_in":          "Resend in",
     "back_to_code":       "Change member code",
-    "welcome":            "Welcome to NAJUS SME"
+    "welcome":            "Welcome to NAJUS MSME"
   },
 
   "reg_form": {

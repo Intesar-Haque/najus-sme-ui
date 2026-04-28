@@ -23,7 +23,7 @@ export class Terms {
       id: 'acceptance',
       title: '1. Acceptance of Terms',
       content: [
-        'By accessing or using the NAJUS SME marketplace ("Platform"), you agree to be bound by these Terms of Use and all applicable laws and regulations.',
+        'By accessing or using the NAJUS MSME marketplace ("Platform"), you agree to be bound by these Terms of Use and all applicable laws and regulations.',
         'If you do not agree with any part of these terms, you must not use the Platform.',
         'These terms apply to all visitors, users, registered members, and vendors on the Platform.',
         'We reserve the right to update these terms at any time. Continued use of the Platform after changes are posted constitutes acceptance of the revised terms.',
@@ -88,7 +88,7 @@ export class Terms {
       id: 'intellectual-property',
       title: '7. Intellectual Property',
       content: [
-        'The NAJUS SME brand, logo, platform design, and all original content are the exclusive property of NAJUS NGO.',
+        'The NAJUS MSME brand, logo, platform design, and all original content are the exclusive property of NAJUS NGO.',
         'You may not reproduce, distribute, modify, or create derivative works from any platform content without prior written permission.',
         'Vendors retain ownership of their product listings and images. By listing on the Platform, vendors grant NAJUS a non-exclusive licence to display their content for marketplace purposes.',
         'If you believe any content on the Platform infringes your intellectual property rights, contact legal@najussme.org.',

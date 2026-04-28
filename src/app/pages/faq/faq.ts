@@ -38,11 +38,11 @@ export class Faq {
     {
       id: 'general', title: 'General', icon: 'info-circle', color: '#1976d2',
       items: [
-        { q: 'What is NAJUS SME?',
-          a: 'NAJUS SME is the marketplace arm of NAJUS NGO — a platform connecting 100+ verified Bangladeshi small and medium enterprises with customers across Bangladesh and beyond. We curate authentic, locally made products and services.' },
-        { q: 'Is NAJUS SME affiliated with any government body?',
+        { q: 'What is NAJUS MSME?',
+          a: 'NAJUS MSME is the marketplace arm of NAJUS NGO — a platform connecting 100+ verified Bangladeshi small and medium enterprises with customers across Bangladesh and beyond. We curate authentic, locally made products and services.' },
+        { q: 'Is NAJUS MSME affiliated with any government body?',
           a: 'NAJUS is a registered non-governmental organisation (NGO) operating independently. While we collaborate with government programmes for SME development, we are not a government entity.' },
-        { q: 'In which areas does NAJUS SME operate?',
+        { q: 'In which areas does NAJUS MSME operate?',
           a: 'We primarily serve customers across Bangladesh with plans to expand internationally. Our vendor base spans Dhaka, Chittagong, Sylhet, Khulna, Rajshahi, and rural regions nationwide.' },
         { q: 'What types of products are available on the platform?',
           a: 'Our marketplace features handcrafts, textiles, food & agro-products, fashion, home décor, beauty & wellness, and more — all sourced from verified local SMEs.' },

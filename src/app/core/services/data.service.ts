@@ -363,7 +363,7 @@ export class DataService {
   readonly events: SmeEvent[] = [
     {
       id: 'e1',
-      title: 'NAJUS SME Trade Fair 2025',
+      title: 'NAJUS MSME Trade Fair 2025',
       description: 'Annual showcase of 100+ SME vendors — live demos, wholesale orders, and networking sessions.',
       image: 'https://picsum.photos/seed/tradefair/600/350',
       date: '2025-03-15', endDate: '2025-03-20',
@@ -420,7 +420,7 @@ export class DataService {
     },
     {
       id: 'b2',
-      title: '5 Ways NAJUS SMEs Are Transforming Bangladesh\'s Economy',
+      title: '5 Ways NAJUS MSMEs Are Transforming Bangladesh\'s Economy',
       excerpt: 'From rural Rajshahi to export markets in Europe — local SMEs are proving that small is mighty.',
       image: 'https://picsum.photos/seed/blog-economy/700/400',
       author: 'Karim Ahmed', authorImage: 'https://picsum.photos/seed/auth2/64/64',
@@ -448,7 +448,7 @@ export class DataService {
     {
       id: 'b5',
       title: 'Understanding the NAJUS Membership: Benefits and How to Join',
-      excerpt: 'Everything you need to know about joining the NAJUS SME network — from application to your first sale.',
+      excerpt: 'Everything you need to know about joining the NAJUS MSME network — from application to your first sale.',
       image: 'https://picsum.photos/seed/blog-membership/700/400',
       author: 'Fatema Begum', authorImage: 'https://picsum.photos/seed/auth1/64/64',
       date: '2024-11-30', tags: ['membership', 'guide', 'network'],

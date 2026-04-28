@@ -34,7 +34,7 @@ export class Privacy {
       id: 'how-we-use',
       title: '2. How We Use Your Information',
       content: [
-        'To provide, maintain, and improve the NAJUS SME marketplace and its services.',
+        'To provide, maintain, and improve the NAJUS MSME marketplace and its services.',
         'To process transactions and send related information such as purchase confirmations, invoices, and shipping updates.',
         'To send promotional communications — newsletters, event invitations, and offers. You may opt out at any time.',
         'To respond to comments, questions, and requests, and to provide customer support.',

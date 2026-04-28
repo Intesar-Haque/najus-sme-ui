@@ -5,7 +5,7 @@
     <button class="mobile-bar__hamburger" (click)="drawerOpen.set(true)">
       <span nz-icon nzType="menu" nzTheme="outline"></span>
     </button>
-    <a routerLink="/" class="mobile-bar__brand">NAJUS SME</a>
+    <a routerLink="/" class="mobile-bar__brand">NAJUS MSME</a>
     <nz-avatar
       [nzText]="member()?.name?.charAt(0) ?? 'M'"
       [nzSize]="36"
@@ -20,7 +20,7 @@
     (nzOnClose)="drawerOpen.set(false)"
     [nzWidth]="256"
     nzPlacement="left"
-    nzTitle="NAJUS SME">
+    nzTitle="NAJUS MSME">
     <ng-container *nzDrawerContent>
       <div class="drawer-profile">
         <nz-avatar
@@ -58,7 +58,7 @@
   <aside class="sidebar" [class.sidebar--locked]="isPending()">
     <div class="sidebar__logo">
       <a routerLink="/">
-        <img src="/assets/logo.png" alt="NAJUS SME" />
+        <img src="/assets/logo.png" alt="NAJUS MSME" />
       </a>
     </div>
 

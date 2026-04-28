@@ -53,7 +53,7 @@ export class About {
       desc: 'Hosted 50 SMEs at our inaugural national trade fair in Dhaka, attracting over 5,000 visitors.' },
     { year: '2020', title: 'Digital Pivot',
       desc: 'Launched an online marketplace to reach customers nationwide — connecting rural producers to urban buyers.' },
-    { year: '2022', title: 'NAJUS SME Platform',
+    { year: '2022', title: 'NAJUS MSME Platform',
       desc: 'Launched the full e-commerce platform connecting 100+ verified vendors with a streamlined buying experience.' },
     { year: '2024', title: '10,000+ Customers',
       desc: 'Crossed a milestone of 10,000 happy customers and 2,500+ products across all categories.' },
