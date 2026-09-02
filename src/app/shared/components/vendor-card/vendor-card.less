@@ -1,9 +1,26 @@
 @import '../../../../styles/variables';
 @import '../../../../styles/mixins';
 
+// Fix for QA bug #05 ("Card height should be same for all generated SMEs
+// under 'Meet Our SMEs'") — see SQA-FIX.md Fix #24. The parent grid
+// (.grid-auto()) already sets CSS Grid's default align-items: stretch, so
+// each <app-vendor-card> HOST element already stretches to the tallest
+// card in its row — but the host had no explicit height of its own, and
+// the <article class="vendor-card"> inside it just sized to its own
+// content (varying by description length / whether categories exist), so
+// the visible card never actually filled that stretched space. Confirmed
+// live: two cards measured 477px vs 499px before this fix.
+:host {
+  display: block;
+  height: 100%;
+}
+
 .vendor-card {
   .card();
   position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 
   // ── Cover ──────────────────────────────────────────────────────────────
   &__cover {
@@ -20,6 +37,17 @@
     }
 
     &:hover img { transform: scale(1.04); }
+  }
+
+  // Fix #23 (SQA-FIX.md Fix #24) — shown instead of a broken image when a
+  // vendor has no cover_image set.
+  &__cover-placeholder {
+    width: 100%;
+    height: 100%;
+    .flex-center();
+    background: @bg-subtle;
+    color: @text-muted;
+    font-size: 32px;
   }
 
   &__verified-badge {
@@ -55,6 +83,7 @@
     display: flex;
     flex-direction: column;
     gap: @sp-3;
+    flex: 1; // fill the now-stretched card — fix #05, see SQA-FIX.md Fix #24
   }
 
   &__name-row {
@@ -91,6 +120,12 @@
     display: flex;
     flex-wrap: wrap;
     gap: @sp-1;
+  }
+
+  // Pins the button to the bottom regardless of how much space desc/cats
+  // take above it — fix #05, see SQA-FIX.md Fix #24.
+  &__cta {
+    margin-top: auto;
   }
 
   // ── Stats ──────────────────────────────────────────────────────────────

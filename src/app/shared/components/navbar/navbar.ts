@@ -29,9 +29,12 @@ export class Navbar {
   isAuthenticated = this.auth.isAuthenticated;
   cartCount       = this.cart.count;
 
-  lang = signal<'en' | 'bn'>(
-    (localStorage.getItem('lang') as 'en' | 'bn') ?? 'en'
-  );
+  // Bangla temporarily disabled — see app.config.ts. Forced to 'en'
+  // regardless of any stale localStorage['lang'] from before this change.
+  // lang = signal<'en' | 'bn'>(
+  //   (localStorage.getItem('lang') as 'en' | 'bn') ?? 'en'
+  // );
+  lang = signal<'en' | 'bn'>('en');
   scrolled = signal(false);
   mobileOpen = signal(false);
 
@@ -54,15 +57,18 @@ export class Navbar {
     this.scrolled.set(window.scrollY > 20);
   }
 
-  switchLang(lang: 'en' | 'bn') {
-    this.lang.set(lang);
-    this.applyLang(lang);
-  }
-
-  private applyLang(lang: 'en' | 'bn') {
-    localStorage.setItem('lang', lang);
-    this.translate.use(lang);
-    document.body.classList.remove('lang-en', 'lang-bn');
-    document.body.classList.add(`lang-${lang}`);
-  }
+  // Bangla temporarily disabled — see app.config.ts. Commented out rather
+  // than removed (not called from any template currently anyway) so a
+  // stray call can't re-enable 'bn' while this is off.
+  // switchLang(lang: 'en' | 'bn') {
+  //   this.lang.set(lang);
+  //   this.applyLang(lang);
+  // }
+  //
+  // private applyLang(lang: 'en' | 'bn') {
+  //   localStorage.setItem('lang', lang);
+  //   this.translate.use(lang);
+  //   document.body.classList.remove('lang-en', 'lang-bn');
+  //   document.body.classList.add(`lang-${lang}`);
+  // }
 }

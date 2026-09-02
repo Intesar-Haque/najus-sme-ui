@@ -22,12 +22,20 @@ const httpLoaderFactory = (http: HttpClient) =>
 
 // Block app startup until the active translation file is fully loaded
 // so that | translate pipes always have data on first render.
+//
+// Bangla temporarily disabled — commented out, not removed, so it's a
+// one-line revert to bring back. Forces English regardless of any
+// previously-saved localStorage['lang'] value from before this change
+// (that's also why navbar.ts's switchLang()/applyLang() are commented
+// out below — leaving them live would let a stray call re-enable 'bn').
 function initTranslate(translate: TranslateService) {
   return () => {
-    translate.addLangs(['en', 'bn']);
+    // translate.addLangs(['en', 'bn']);
+    translate.addLangs(['en']);
     translate.setDefaultLang('en');
-    const saved = (localStorage.getItem('lang') as 'en' | 'bn') ?? 'en';
-    return firstValueFrom(translate.use(saved));
+    // const saved = (localStorage.getItem('lang') as 'en' | 'bn') ?? 'en';
+    // return firstValueFrom(translate.use(saved));
+    return firstValueFrom(translate.use('en'));
   };
 }
 

@@ -10,18 +10,36 @@
         <p class="footer__desc">
           NAJUS MSME is the marketplace arm of NAJUS, connecting 100+ verified small and medium enterprises with customers across Bangladesh and beyond.
         </p>
+        <!-- Fix for QA bug #8 (footer social icons went nowhere) — see
+             SQA-FIX.md Fix #12. Real NAJUS MSME profile URLs. -->
         <div class="footer__social">
-          <a href="#" class="social-icon" aria-label="Facebook">
+          <a href="https://facebook.com/najusmsme/" target="_blank" rel="noopener" class="social-icon" aria-label="Facebook">
             <span nz-icon nzType="facebook" nzTheme="fill"></span>
           </a>
-          <a href="#" class="social-icon" aria-label="Instagram">
+          <a href="https://www.instagram.com/najusmsme" target="_blank" rel="noopener" class="social-icon" aria-label="Instagram">
             <span nz-icon nzType="instagram" nzTheme="fill"></span>
           </a>
-          <a href="#" class="social-icon" aria-label="YouTube">
+          <a href="https://www.youtube.com/@NajusMSME" target="_blank" rel="noopener" class="social-icon" aria-label="YouTube">
             <span nz-icon nzType="youtube" nzTheme="fill"></span>
           </a>
-          <a href="#" class="social-icon" aria-label="WhatsApp">
-            <span nz-icon nzType="whats-app" nzTheme="fill"></span>
+          <a href="https://x.com/najusmsme" target="_blank" rel="noopener" class="social-icon" aria-label="X (Twitter)">
+            <!-- nz-icon's "twitter" glyph doesn't render in this Ant Design
+                 icon set (confirmed blank live) — inlined directly, same
+                 fix as the TikTok icon below, and the X mark reflects the
+                 x.com URL better than the old bird logo would anyway. -->
+            <svg viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em" aria-hidden="true">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
+          <a href="https://www.linkedin.com/company/najus-msme/" target="_blank" rel="noopener" class="social-icon" aria-label="LinkedIn">
+            <span nz-icon nzType="linkedin" nzTheme="fill"></span>
+          </a>
+          <a href="https://www.tiktok.com/@najusmsme" target="_blank" rel="noopener" class="social-icon social-icon--tiktok" aria-label="TikTok">
+            <!-- Ant Design's icon set has no TikTok glyph — inlined directly
+                 rather than risk a silently-blank nz-icon. -->
+            <svg viewBox="0 0 448 512" fill="currentColor" width="1em" height="1em" aria-hidden="true">
+              <path d="M448 209.9a210.1 210.1 0 0 1-122.8-39.3V349.4A162.6 162.6 0 1 1 185 188.3V278a74.6 74.6 0 1 0 52.2 71.2V0h88a121.2 121.2 0 0 0 1.9 22.2A122.2 122.2 0 0 0 381 102.4a121.4 121.4 0 0 0 67 20.1z"/>
+            </svg>
           </a>
         </div>
       </div>

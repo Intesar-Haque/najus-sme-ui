@@ -93,6 +93,16 @@ export class EventDetail implements OnInit {
     return e ? e.date !== e.endDate : false;
   });
 
+  // Fix for QA bug #36 ("if the description is too long, full description
+  // is not displaying — need a tooltip or scrollable field") — see
+  // SQA-FIX.md Fix #24. The description was actually always fully
+  // rendered (confirmed live with a 2000+ character stress-test value —
+  // no overflow, no clipping, text just wraps) — the real gap was no way
+  // to collapse a long one, so the page could run very long. Adds a
+  // clamp + "Show more/less" toggle, which is what was actually asked for.
+  descExpanded = signal(false);
+  descIsLong   = computed(() => (this.event()?.description?.length ?? 0) > 400);
+
   canRegister = computed(() => {
     const e = this.event();
     if (!e || !e.registrationOpen || this.registered()) return false;
@@ -123,6 +133,19 @@ export class EventDetail implements OnInit {
         } else {
           this.event.set(event);
           this.relatedEvents.set(related);
+          // Fix for QA bug #41 ("should display user as registered while
+          // viewing the event detail again") — see SQA-FIX.md Fix #20.
+          // Previously `registered` only ever became true for the rest of
+          // this same browser session (set after a successful submit) —
+          // reloading or revisiting the page lost it entirely, even for a
+          // logged-in member who really is registered.
+          if (event.alreadyRegistered) {
+            this.registered.set(true);
+          }
+          // Reset per-event UI state — otherwise navigating from one event
+          // to another (component reuse) could carry over an expanded
+          // description from the last one. Fix #36, SQA-FIX.md Fix #24.
+          this.descExpanded.set(false);
         }
         this.loading.set(false);
       },
@@ -146,6 +169,15 @@ export class EventDetail implements OnInit {
 
     this.api.registerForEvent(id, this.form).subscribe({
       next: (res) => {
+        // Paid event: registration is only 'pending' until payment clears —
+        // send the browser to the gateway instead of celebrating early
+        // (bugs #26/#43, see SQA-FIX.md Fix #2). The seat isn't reserved
+        // yet either, so ticketsRemaining is intentionally left untouched.
+        if (res.requires_payment && res.payment_url) {
+          window.location.href = res.payment_url;
+          return;
+        }
+
         this.submitting.set(false);
         this.modalVisible.set(false);
         this.registered.set(true);

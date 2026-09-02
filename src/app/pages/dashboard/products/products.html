@@ -224,11 +224,24 @@
                   <span class="prod-card__orig-price">BDT {{ product.originalPrice | number }}</span>
                 }
               </div>
-              <a [routerLink]="['/dashboard/products', product.id]"
-                 nz-button nzSize="small" nzType="default" class="prod-card__edit-btn"
-                 nz-tooltip nzTooltipTitle="Edit product">
-                <span nz-icon nzType="edit" nzTheme="outline"></span>
-              </a>
+              @if (product.deletedAt) {
+                <!-- Fix for QA bug #72 ("no restore feature") — see
+                     SQA-FIX.md Fix #6. A deleted product can't be edited
+                     (it 404s — findOrFail excludes trashed rows), so this
+                     replaces the Edit button rather than sitting beside it. -->
+                <button nz-button nzSize="small" nzType="default" class="prod-card__edit-btn"
+                        [nzLoading]="restoringId() === product.id"
+                        (click)="restore(product)"
+                        nz-tooltip nzTooltipTitle="Restore product">
+                  <span nz-icon nzType="undo" nzTheme="outline"></span>
+                </button>
+              } @else {
+                <a [routerLink]="['/dashboard/products', product.id]"
+                   nz-button nzSize="small" nzType="default" class="prod-card__edit-btn"
+                   nz-tooltip nzTooltipTitle="Edit product">
+                  <span nz-icon nzType="edit" nzTheme="outline"></span>
+                </a>
+              }
             </div>
           </div>
         </div>

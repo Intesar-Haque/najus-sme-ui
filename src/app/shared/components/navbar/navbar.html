@@ -20,13 +20,6 @@
     <!-- Actions -->
     <div class="navbar__actions">
 
-      <!-- Language Switcher -->
-      <div class="lang-switcher hide-mobile">
-        <button class="lang-btn" [class.lang-btn--active]="lang() === 'en'" (click)="switchLang('en')">EN</button>
-        <span class="lang-divider">|</span>
-        <button class="lang-btn" [class.lang-btn--active]="lang() === 'bn'" (click)="switchLang('bn')">বাং</button>
-      </div>
-
       <!-- Cart Icon -->
       <a routerLink="/cart" class="cart-icon-btn">
         <nz-badge [nzCount]="cartCount()" [nzOverflowCount]="99">
@@ -79,11 +72,6 @@
       }
 
       <div class="mobile-nav__divider"></div>
-
-      <div class="mobile-lang">
-        <button class="lang-btn" [class.lang-btn--active]="lang() === 'en'" (click)="switchLang('en')">English</button>
-        <button class="lang-btn" [class.lang-btn--active]="lang() === 'bn'" (click)="switchLang('bn')">বাংলা</button>
-      </div>
 
       @if (isAuthenticated()) {
         <a routerLink="/dashboard" (click)="mobileOpen.set(false)">

@@ -10,11 +10,21 @@
       @if (discountPct) {
         <nz-tag nzColor="red" class="badge">-{{ discountPct }}%</nz-tag>
       }
+      <!-- Fix for QA bug #18 ("product card should display if the product
+           is in stock or not") — see SQA-FIX.md Fix #22. The API already
+           returns inStock on every product; nothing on the card rendered
+           it. -->
+      @if (!product().inStock) {
+        <nz-tag nzColor="default" class="badge badge--out-of-stock">Out of Stock</nz-tag>
+      }
     </div>
 
     <!-- Wishlist -->
-    <button class="product-card__wishlist" (click)="$event.preventDefault()">
-      <span nz-icon nzType="heart" nzTheme="outline"></span>
+    <button class="product-card__wishlist" [class.product-card__wishlist--active]="isFavorite"
+            (click)="onToggleFavorite($event)"
+            [attr.aria-label]="isFavorite ? 'Remove from favourites' : 'Add to favourites'"
+            [attr.aria-pressed]="isFavorite">
+      <span nz-icon nzType="heart" [nzTheme]="isFavorite ? 'fill' : 'outline'"></span>
     </button>
   </a>
 
@@ -48,7 +58,10 @@
           <span class="price-original">৳ {{ product().originalPrice | number }}</span>
         }
       </div>
-      <button nz-button nzType="primary" nzSize="small" (click)="onAddToCart($event)" class="btn-cart">
+      <!-- Fix for QA bug #65 ("no tooltip on the Cart icon") — see
+           SQA-FIX.md Fix #22. -->
+      <button nz-button nzType="primary" nzSize="small" (click)="onAddToCart($event)" class="btn-cart"
+              nz-tooltip nzTooltipTitle="Add to cart">
         <span nz-icon nzType="shopping-cart"></span>
       </button>
     </div>

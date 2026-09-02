@@ -154,6 +154,23 @@
 .rating-count {
   font-size: @text-sm;
   color: @text-muted;
+
+  // Fix for QA bug #66 ("Not being able to rate any product") — see
+  // SQA-FIX.md Fix #3.
+  &--link {
+    cursor: pointer;
+    text-decoration: underline;
+    &:hover { color: @primary; }
+  }
+}
+
+// Fix for QA bug #16 — see SQA-FIX.md Fix #25.
+.view-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: @text-sm;
+  color: @text-muted;
 }
 
 // Price
@@ -198,12 +215,100 @@
 .stock-in  { color: @primary-dark; }
 .stock-out { color: #b71c1c; }
 
-// Description
+// Fix for QA bug #62 — see SQA-FIX.md Fix #22.
+.already-in-cart {
+  display: flex;
+  align-items: center;
+  gap: @sp-2;
+  margin-top: @sp-3;
+  padding: @sp-2 @sp-3;
+  border-radius: @radius-md;
+  background: fade(@primary, 8%);
+  color: @primary-dark;
+  font-size: @text-sm;
+  font-weight: 500;
+}
+
+// Variant picker — fix for QA bug #60 ("no product variant selector").
+// See SQA-FIX.md Fix #4.
+.variant-picker {
+  display: flex;
+  flex-direction: column;
+  gap: @sp-2;
+}
+
+.variant-picker__label {
+  font-size: @text-sm;
+  color: @text-secondary;
+
+  strong { color: @text-primary; }
+}
+
+.variant-picker__swatches {
+  display: flex;
+  gap: @sp-2;
+  flex-wrap: wrap;
+}
+
+.variant-swatch-btn {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  padding: 2px;
+  background: transparent;
+  cursor: pointer;
+  transition: @transition-base;
+
+  &__swatch {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 1px solid @border-color;
+  }
+
+  &__strike {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 140%;
+    height: 2px;
+    background: #b71c1c;
+    transform: rotate(-45deg);
+  }
+
+  &:hover:not(&--disabled) { border-color: @primary-bg; }
+
+  &--active {
+    border-color: @primary;
+  }
+
+  &--disabled {
+    cursor: not-allowed;
+    opacity: .5;
+  }
+}
+
+// Description — fix for QA bug #58 ("description shows literal HTML
+// tags"), see SQA-FIX.md Fix #16. Now rendered as real HTML (sanitized
+// server-side), so it needs spacing for the block-level tags a vendor's
+// rich-text editor can actually produce (bold/italic/underline/lists —
+// see product-create.html's toolbar).
 .product-desc {
   font-size: @text-base;
   color: @text-secondary;
   line-height: 1.75;
-  margin: 0;
+
+  p, ul, ol {
+    margin: 0 0 @sp-3;
+    &:last-child { margin-bottom: 0; }
+  }
+
+  ul, ol {
+    padding-left: @sp-5;
+  }
 }
 
 // Tags
@@ -259,6 +364,30 @@
   max-width: 240px;
   height: 44px !important;
   font-size: @text-base !important;
+}
+
+// Small nz-rate for the reviews list — Angular's view encapsulation means
+// nz-rate's internal .ant-rate markup isn't reachable without :global()
+// even from the component that placed the <nz-rate> tag.
+.rate-sm {
+  :global(.ant-rate) {
+    font-size: 12px !important;
+    line-height: 1 !important;
+  }
+}
+
+// Fix for QA bug #67 ("Not being able to mark any product as favourite")
+// — see SQA-FIX.md Fix #3.
+.favorite-btn {
+  width: 44px;
+  height: 44px !important;
+  padding: 0 !important;
+  flex-shrink: 0;
+
+  &--active {
+    color: #e74c3c;
+    border-color: #e74c3c;
+  }
 }
 
 // ─── Vendor card ─────────────────────────────────────────────────────
@@ -319,6 +448,142 @@
 // ═══════════════════════════════════════════════════════════════════════
 // RELATED PRODUCTS
 // ═══════════════════════════════════════════════════════════════════════
+// Fix for QA bug #66 ("Not being able to rate any product") — see
+// SQA-FIX.md Fix #3.
+// Fix for QA bug #59 — see SQA-FIX.md Fix #22.
+.details-section {
+  padding: @sp-10 0;
+  border-top: 1px solid @border-light;
+}
+
+.details-title {
+  font-family: @font-heading;
+  font-size: @text-2xl;
+  color: @text-primary;
+  margin: 0 0 @sp-6;
+}
+
+.details-block {
+  max-width: 720px;
+  margin-bottom: @sp-6;
+  &:last-child { margin-bottom: 0; }
+}
+
+.details-block__title {
+  font-size: @text-base;
+  font-weight: 600;
+  color: @text-primary;
+  margin: 0 0 @sp-2;
+}
+
+.details-html, .details-text {
+  font-size: @text-base;
+  color: @text-secondary;
+  line-height: 1.75;
+  white-space: pre-line;
+  margin: 0;
+}
+
+.details-video-link {
+  display: inline-flex;
+  align-items: center;
+  gap: @sp-2;
+  color: @primary;
+  font-weight: 500;
+
+  &:hover { text-decoration: underline; }
+}
+
+.details-grid {
+  margin: 0;
+}
+
+.details-grid__row {
+  display: flex;
+  gap: @sp-3;
+  padding: @sp-2 0;
+  border-bottom: 1px solid @border-light;
+  &:last-child { border-bottom: none; }
+
+  dt {
+    flex: 0 0 160px;
+    color: @text-muted;
+    font-size: @text-sm;
+  }
+
+  dd {
+    margin: 0;
+    color: @text-secondary;
+    font-size: @text-sm;
+  }
+}
+
+.reviews-section {
+  padding: @sp-10 0;
+  border-top: 1px solid @border-light;
+}
+
+.reviews-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: @sp-6;
+  flex-wrap: wrap;
+  gap: @sp-3;
+}
+
+.reviews-title {
+  font-family: @font-heading;
+  font-size: @text-2xl;
+  color: @text-primary;
+  margin: 0;
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: @sp-5;
+  max-width: 720px;
+}
+
+.review-item {
+  padding-bottom: @sp-5;
+  border-bottom: 1px solid @border-light;
+
+  &:last-child { border-bottom: none; padding-bottom: 0; }
+}
+
+.review-item__head {
+  display: flex;
+  align-items: center;
+  gap: @sp-3;
+  flex-wrap: wrap;
+  margin-bottom: @sp-2;
+}
+
+.review-item__name {
+  font-weight: 600;
+  color: @text-primary;
+}
+
+.review-item__date {
+  font-size: @text-sm;
+  color: @text-muted;
+  margin-left: auto;
+}
+
+.review-item__comment {
+  color: @text-secondary;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.review-email-note {
+  font-size: @text-xs;
+  color: @text-muted;
+  margin: @sp-1 0 0;
+}
+
 .related-section {
   background: @bg-page;
   border-top: 1px solid @border-light;

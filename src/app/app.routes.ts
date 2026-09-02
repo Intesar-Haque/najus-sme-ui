@@ -20,6 +20,7 @@ import { Profile }            from './pages/businesses/profile/profile';
 import { Events }             from './pages/events/events';
 import { EventDetail }        from './pages/events/detail/detail';
 import { Blog }               from './pages/blog/blog';
+import { BlogDetail }         from './pages/blog/detail/detail';
 import { About }              from './pages/about/about';
 import { Contact }            from './pages/contact/contact';
 import { Faq }                from './pages/faq/faq';
@@ -27,6 +28,7 @@ import { Privacy }            from './pages/privacy/privacy';
 import { Terms }              from './pages/terms/terms';
 import { Join }               from './pages/join/join';
 import { Cart }               from './pages/cart/cart';
+import { PaymentResult }      from './pages/payment-result/payment-result';
 
 export const routes: Routes = [
   { path: '',               component: Landing        },
@@ -56,11 +58,21 @@ export const routes: Routes = [
   { path: 'events',          component: Events         },
   { path: 'events/:id',      component: EventDetail    },
   { path: 'blog',            component: Blog           },
+  // Fix for QA bug #28 ("Read More" did nothing — no detail page existed)
+  // — see SQA-FIX.md Fix #23.
+  { path: 'blog/:id',        component: BlogDetail     },
   { path: 'about',           component: About          },
   { path: 'contact',         component: Contact        },
   { path: 'faq',             component: Faq            },
   { path: 'privacy',         component: Privacy        },
   { path: 'terms',           component: Terms          },
   { path: 'cart',            component: Cart           },
+  // SSLCommerz redirects here after a payment attempt — see SQA-FIX.md
+  // Fix #2 (bugs #26/#43). These routes didn't exist before this fix, so a
+  // customer who actually paid landed on the homepage with no confirmation.
+  { path: 'payment-success', component: PaymentResult, data: { outcome: 'success' } },
+  { path: 'payment-fail',    component: PaymentResult, data: { outcome: 'fail' }    },
+  { path: 'payment-cancel',  component: PaymentResult, data: { outcome: 'cancel' }  },
+  { path: 'payment-error',   component: PaymentResult, data: { outcome: 'error' }   },
   { path: '**',              redirectTo: ''            },
 ];

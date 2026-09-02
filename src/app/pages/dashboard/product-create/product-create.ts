@@ -22,6 +22,7 @@ import { NzToolTipModule }     from 'ng-zorro-antd/tooltip';
 
 import { ApiService } from '../../../core/services/api.service';
 import { Category }   from '../../../core/models';
+import { extractErrorMessage } from '../../../core/utils/http-error';
 
 interface ScoreCriterion {
   label: string;
@@ -271,8 +272,11 @@ export class DashProductCreate implements OnInit, AfterViewInit {
           this.saving.set(false);
           this.router.navigate(['/dashboard/products']);
         },
-        error: () => {
-          this.message.error('Failed to create product. Please try again.');
+        error: err => {
+          // Fix #50 (SQA-FIX.md Fix #9) — surface the real reason (e.g.
+          // "Each product image must be 2MB or smaller.") instead of a
+          // generic message that hides why the submit actually failed.
+          this.message.error(extractErrorMessage(err, 'Failed to create product. Please try again.'));
           this.saving.set(false);
         },
       });
@@ -301,8 +305,8 @@ export class DashProductCreate implements OnInit, AfterViewInit {
               },
             });
         },
-        error: () => {
-          this.message.error('Failed to create product. Please try again.');
+        error: err => {
+          this.message.error(extractErrorMessage(err, 'Failed to create product. Please try again.'));
           this.submitting.set(false);
         },
       });

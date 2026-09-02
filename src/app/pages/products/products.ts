@@ -1,5 +1,5 @@
 import { Component, inject, signal, computed, OnInit, effect } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -27,7 +27,7 @@ import { CartService }  from '../../core/services/cart.service';
 import { ProductCard }  from '../../shared/components/product-card/product-card';
 import { Category, Product } from '../../core/models';
 
-export type SortOption = 'default' | 'price-asc' | 'price-desc' | 'rating' | 'popular' | 'newest';
+export type SortOption = 'default' | 'price-asc' | 'price-desc' | 'rating' | 'popular' | 'most-viewed' | 'newest';
 export type ViewMode   = 'grid' | 'list';
 
 interface FilterChip {
@@ -54,7 +54,6 @@ export class Products implements OnInit {
   private cart    = inject(CartService);
   private message = inject(NzMessageService);
   private route   = inject(ActivatedRoute);
-  private router  = inject(Router);
 
   // ── Static ────────────────────────────────────────────────────────────
   readonly PAGE_SIZE = 12;
@@ -66,6 +65,8 @@ export class Products implements OnInit {
     { value: 'price-desc', label: 'Price: High → Low' },
     { value: 'rating',     label: 'Highest Rated'     },
     { value: 'popular',    label: 'Most Reviewed'     },
+    // Fix for QA bug #16 — see SQA-FIX.md Fix #25.
+    { value: 'most-viewed', label: 'Most Viewed'      },
   ];
 
   readonly ratingOptions = [
@@ -315,10 +316,13 @@ export class Products implements OnInit {
   }
 
   onAddToCart(product: Product) {
-    const wasEmpty = this.cart.count() === 0;
-    this.cart.add(product);
-    this.message.success(`${product.name} added to cart`);
-    if (wasEmpty) this.router.navigate(['/cart']);
+    // Fix for QA bug #62 — see SQA-FIX.md Fix #22.
+    const { wasAlreadyInCart } = this.cart.add(product);
+    this.message.success(
+      wasAlreadyInCart ? `${product.name} is already in your cart — quantity updated` : `${product.name} added to cart`
+    );
+    // Fix for QA bug #61 — see SQA-FIX.md Fix #25. Dropped the
+    // redirect-to-cart-on-first-add; the toast is enough.
   }
 
   getPriceFormatter(value: number): string {

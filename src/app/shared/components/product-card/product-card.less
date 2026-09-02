@@ -69,6 +69,13 @@
       background: #fff;
       color: #e74c3c;
     }
+
+    // Favourited (bug #67, see SQA-FIX.md Fix #3) — stays visible and red
+    // even without hovering, so the state is actually visible at a glance.
+    &--active {
+      opacity: 1;
+      color: #e74c3c;
+    }
   }
 
   // ── Body ────────────────────────────────────────────────────────────────

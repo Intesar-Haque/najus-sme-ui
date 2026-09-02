@@ -82,32 +82,28 @@ export class Cart {
       return;
     }
 
-    const v        = this.checkoutForm.value;
-    const isOutside = v.delivery_zone === 'outside';
-    const zone      = isOutside ? 'Outside Dhaka' : 'Inside Dhaka';
-    const shipping  = isOutside ? SHIPPING_OUTSIDE : SHIPPING_INSIDE;
+    const v = this.checkoutForm.value;
 
-    const deliveryNote =
-      `Address: ${v.delivery_address}, Postal: ${v.postal_code}, ` +
-      `Contact: ${v.contact_number}, Zone: ${zone}, Shipping: ৳${shipping}, ` +
-      `Payment: Cash on Delivery` +
-      (v.notes ? ` | Note: ${v.notes}` : '');
-
-    const items = [
-      ...this.cart.items().map(i => ({
-        product_name: i.product.name,
-        quantity:     i.quantity,
-        unit_price:   i.product.price,
-      })),
-      { product_name: `Shipping (${zone})`, quantity: 1, unit_price: shipping },
-    ];
+    // Price and vendor are resolved server-side from product_id — the
+    // client no longer sends a price or a free-text product name (fix #64,
+    // see SQA-FIX.md; this closes the ৳0-order hole tracked as B-02).
+    // variant_id carries the chosen colour/variant through to checkout
+    // (fix #60, SQA-FIX.md Fix #4) so the right price/stock is charged.
+    const items = this.cart.items().map(i => ({
+      product_id: i.product.id,
+      variant_id: i.variant?.id,
+      quantity:   i.quantity,
+    }));
 
     this.submitting.set(true);
     this.api.placeOrder({
-      customer_name:  v.customer_name!,
-      customer_email: v.customer_email!,
-      notes:          deliveryNote,
-      source:         'web',
+      customer_name:     v.customer_name!,
+      customer_email:    v.customer_email!,
+      customer_phone:    v.contact_number!,
+      delivery_address:  v.delivery_address!,
+      postal_code:       v.postal_code!,
+      delivery_zone:     v.delivery_zone === 'outside' ? 'outside' : 'inside',
+      notes:             v.notes || undefined,
       items,
     }).subscribe({
       next: res => {

@@ -1,7 +1,17 @@
 <article class="vendor-card">
-  <!-- Cover image -->
+  <!-- Cover image — Fix for QA bug #23 ("no image displayed against
+       businesses") — see SQA-FIX.md Fix #24. Root cause: most seeded
+       vendors simply have no cover_image set, and this bound [src]
+       directly with no fallback — an empty/null src renders as a broken
+       image that resolves to the current page URL, not a placeholder. -->
   <div class="vendor-card__cover">
-    <img [src]="vendor().coverImage" [alt]="vendor().name" loading="lazy" />
+    @if (vendor().coverImage) {
+      <img [src]="vendor().coverImage" [alt]="vendor().name" loading="lazy" />
+    } @else {
+      <div class="vendor-card__cover-placeholder">
+        <span nz-icon nzType="shop" nzTheme="outline"></span>
+      </div>
+    }
     @if (vendor().verified) {
       <span class="vendor-card__verified-badge" nzTooltipTitle="NAJUS Verified Member" nz-tooltip>
         <span nz-icon nzType="safety-certificate" nzTheme="fill"></span>
@@ -54,7 +64,7 @@
     </div>
 
     <!-- CTA -->
-    <a [routerLink]="['/businesses', vendor().id]">
+    <a [routerLink]="['/businesses', vendor().id]" class="vendor-card__cta">
       <button nz-button nzType="primary" nzBlock>
         View Store
         <span nz-icon nzType="arrow-right"></span>

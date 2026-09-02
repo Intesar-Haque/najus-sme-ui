@@ -17,7 +17,9 @@
           Restore
         </button>
       } @else {
-        <button nz-button nzDanger (click)="confirmDelete()" [nzLoading]="deleting()">
+        <button nz-button nzDanger (click)="confirmDelete()" [nzLoading]="deleting()"
+                [disabled]="isUnderReview()"
+                nz-tooltip [nzTooltipTitle]="isUnderReview() ? 'Can\'t delete a product that\'s currently under review' : null">
           <span nz-icon nzType="delete" nzTheme="outline"></span>
           Delete
         </button>
@@ -26,6 +28,18 @@
   </div>
 
   <!-- ─── Status banners ───────────────────────────────────────────────────── -->
+  <!-- Fix for QA bug #68 ("business user should be able to view the
+       reject reason") — see SQA-FIX.md Fix #22. reject() already emailed
+       the reason but never stored it anywhere the dashboard could show it
+       back — a vendor who missed/archived that email had no way to find
+       out why. -->
+  @if (isDraft() && product()!.rejectionReason) {
+    <nz-alert nzType="error" nzShowIcon
+      nzMessage="This product was rejected"
+      [nzDescription]="product()!.rejectionReason ?? null"
+      style="margin-bottom:16px">
+    </nz-alert>
+  }
   @if (willResetToUnderQa()) {
     <nz-alert nzType="warning" nzShowIcon
       [nzMessage]="'Saving will reset status to Under Review'"

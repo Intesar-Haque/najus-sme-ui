@@ -48,7 +48,7 @@
           @if (discountPct()) {
             <span class="badge badge--sale">-{{ discountPct() }}%</span>
           }
-          @if (!p.inStock) {
+          @if (!displayInStock()) {
             <span class="badge badge--sold">Sold Out</span>
           }
         </div>
@@ -84,25 +84,40 @@
       <div class="rating-row">
         <nz-rate [ngModel]="p.rating" [nzDisabled]="true" nzAllowHalf></nz-rate>
         <span class="rating-num">{{ p.rating }}</span>
-        <span class="rating-count">({{ p.reviewCount }} reviews)</span>
+        <a class="rating-count rating-count--link" (click)="openReviewModal()">
+          ({{ p.reviewCount }} reviews · Write a review)
+        </a>
+        <!-- Fix for QA bug #16 ("no way to understand if the 'Most Viewed'
+             filter works") — see SQA-FIX.md Fix #25. Real page-view count,
+             visible proof the tracking behind the sort is genuine. -->
+        <span class="view-count">
+          <span nz-icon nzType="eye" nzTheme="outline"></span> {{ p.viewCount | number }} views
+        </span>
       </div>
 
       <nz-divider></nz-divider>
 
       <!-- Price block -->
       <div class="price-block">
-        <span class="price-current">৳{{ p.price | number }}</span>
+        <span class="price-current">৳{{ displayPrice() | number }}</span>
         @if (p.originalPrice) {
           <span class="price-original">৳{{ p.originalPrice | number }}</span>
-          <span class="price-save">Save ৳{{ (p.originalPrice - p.price) | number }}</span>
+          @if (discountPct()) {
+            <span class="price-save">Save ৳{{ (p.originalPrice - displayPrice()) | number }}</span>
+          }
         }
       </div>
 
       <!-- Stock -->
       <div class="stock-row">
-        @if (p.inStock) {
+        @if (displayInStock()) {
           <span class="stock-in">
-            <span nz-icon nzType="check-circle" nzTheme="fill"></span> In Stock — Ready to ship
+            <span nz-icon nzType="check-circle" nzTheme="fill"></span>
+            @if (selectedVariant(); as v) {
+              {{ v.stock }} in stock — Ready to ship
+            } @else {
+              In Stock — Ready to ship
+            }
           </span>
         } @else {
           <span class="stock-out">
@@ -111,10 +126,46 @@
         }
       </div>
 
+      <!-- Variant selector — fix for QA bug #60 ("no product variant
+           selector"). See SQA-FIX.md Fix #4. -->
+      @if (p.variants?.length) {
+        <nz-divider></nz-divider>
+        <div class="variant-picker">
+          <span class="variant-picker__label">
+            Colour: <strong>{{ selectedVariant()?.colorName }}</strong>
+          </span>
+          <div class="variant-picker__swatches">
+            @for (v of p.variants; track v.id) {
+              <button
+                type="button"
+                class="variant-swatch-btn"
+                [class.variant-swatch-btn--active]="selectedVariant()?.id === v.id"
+                [class.variant-swatch-btn--disabled]="v.stock <= 0"
+                [disabled]="v.stock <= 0"
+                (click)="selectVariant(v)"
+                nz-tooltip [nzTooltipTitle]="v.stock > 0 ? v.colorName : v.colorName + ' — out of stock'">
+                <span class="variant-swatch-btn__swatch" [style.background]="v.colorHex || '#ccc'"></span>
+                @if (v.stock <= 0) {
+                  <span class="variant-swatch-btn__strike"></span>
+                }
+              </button>
+            }
+          </div>
+        </div>
+      }
+
       <nz-divider></nz-divider>
 
       <!-- Description -->
-      <p class="product-desc">{{ p.description }}</p>
+      <!-- Fix for QA bug #58 ("description shows literal HTML tags instead
+           of formatted text") — see SQA-FIX.md Fix #16. Vendor
+           descriptions are real HTML from a rich-text editor; sanitized
+           server-side on write (App\Support\HtmlSanitizer), so this is
+           safe to render as HTML rather than escaped plain text. A <div>,
+           not a <p> — the content can contain block-level tags (<p>,
+           <ul>), which would otherwise auto-close a wrapping <p> per
+           HTML's parsing rules. -->
+      <div class="product-desc" [innerHTML]="p.description"></div>
 
       <!-- Tags -->
       <div class="product-tags">
@@ -125,6 +176,18 @@
         }
       </div>
 
+      <!-- Fix for QA bug #62 ("revisiting a product already in the cart
+           should tell the user it's already there") — see SQA-FIX.md
+           Fix #22. Persistent, not just a one-time toast — updates live if
+           the cart changes in another tab/component too, since it reads
+           through the same cart signal. -->
+      @if (cartQuantity() > 0) {
+        <div class="already-in-cart">
+          <span nz-icon nzType="check-circle" nzTheme="fill"></span>
+          Already in your cart (×{{ cartQuantity() }})
+        </div>
+      }
+
       <nz-divider></nz-divider>
 
       <!-- Quantity + Cart -->
@@ -134,15 +197,25 @@
             <span nz-icon nzType="minus"></span>
           </button>
           <span class="qty-val">{{ quantity() }}</span>
-          <button class="qty-btn" (click)="incrementQty()">
+          <button class="qty-btn" (click)="incrementQty()" [disabled]="!displayInStock()">
             <span nz-icon nzType="plus"></span>
           </button>
         </div>
 
         <button nz-button nzType="primary" nzSize="large" class="cart-btn"
-                [disabled]="!p.inStock" (click)="addToCart()">
+                [disabled]="!displayInStock()" (click)="addToCart()">
           <span nz-icon nzType="shopping-cart"></span>
-          {{ p.inStock ? 'Add to Cart' : 'Out of Stock' }}
+          {{ displayInStock() ? 'Add to Cart' : 'Out of Stock' }}
+        </button>
+
+        <!-- Fix for QA bug #67 ("Not being able to mark any product as
+             favourite") — see SQA-FIX.md Fix #3. -->
+        <button nz-button nzSize="large" class="favorite-btn"
+                [class.favorite-btn--active]="isFavorite"
+                (click)="toggleFavorite()"
+                nz-tooltip [nzTooltipTitle]="isFavorite ? 'Remove from favourites' : 'Add to favourites'"
+                [attr.aria-pressed]="isFavorite">
+          <span nz-icon nzType="heart" [nzTheme]="isFavorite ? 'fill' : 'outline'"></span>
         </button>
       </div>
 
@@ -168,6 +241,178 @@
 
     </div>
   </div>
+
+  <!-- ═══ PRODUCT DETAILS ═══════════════════════════════════════════════
+       Fix for QA bug #59 ("video link, weight, dimension, highlight,
+       what's in the box, and shipping & warranty info should be displayed
+       on the product detail page") — see SQA-FIX.md Fix #22. All of these
+       were already returned by ProductResource and used on the vendor's
+       own edit form (product-edit.ts) — the customer-facing detail page
+       just never rendered any of them. Section only appears at all if the
+       product actually has at least one of these fields set. -->
+  @if (p.videoUrl || p.weight || p.dimensions || p.highlights || p.whatsInBox || (p.warrantyType && p.warrantyType !== 'no_warranty') || p.warrantyPolicy || p.returnPolicy) {
+    <div class="details-section">
+      <div class="container">
+        <h2 class="details-title">Product Details</h2>
+
+        @if (p.videoUrl) {
+          <div class="details-block">
+            <h3 class="details-block__title">Product Video</h3>
+            <a [href]="p.videoUrl" target="_blank" rel="noopener" class="details-video-link">
+              <span nz-icon nzType="play-circle" nzTheme="fill"></span> Watch product video
+            </a>
+          </div>
+        }
+
+        @if (p.highlights) {
+          <div class="details-block">
+            <h3 class="details-block__title">Highlights</h3>
+            <!-- Same trust basis as the description above: sanitized
+                 server-side on write (App\Support\HtmlSanitizer). -->
+            <div class="details-html" [innerHTML]="p.highlights"></div>
+          </div>
+        }
+
+        @if (p.whatsInBox) {
+          <div class="details-block">
+            <h3 class="details-block__title">What's in the Box</h3>
+            <p class="details-text">{{ p.whatsInBox }}</p>
+          </div>
+        }
+
+        @if (p.weight || p.dimensions) {
+          <div class="details-block">
+            <h3 class="details-block__title">Weight &amp; Dimensions</h3>
+            <dl class="details-grid">
+              @if (p.weight) {
+                <div class="details-grid__row"><dt>Weight</dt><dd>{{ p.weight }} kg</dd></div>
+              }
+              @if (p.dimensions) {
+                <div class="details-grid__row"><dt>Dimensions</dt><dd>{{ p.dimensions }}</dd></div>
+              }
+            </dl>
+          </div>
+        }
+
+        @if ((p.warrantyType && p.warrantyType !== 'no_warranty') || p.warrantyPolicy || p.returnPolicy) {
+          <div class="details-block">
+            <h3 class="details-block__title">Shipping &amp; Warranty</h3>
+            <dl class="details-grid">
+              @if (p.warrantyType && p.warrantyType !== 'no_warranty') {
+                <div class="details-grid__row">
+                  <dt>Warranty</dt>
+                  <dd>{{ p.warrantyType === 'brand_warranty' ? 'Brand Warranty' : 'Seller Warranty' }}</dd>
+                </div>
+              }
+              @if (p.warrantyPolicy) {
+                <div class="details-grid__row"><dt>Warranty Policy</dt><dd>{{ p.warrantyPolicy }}</dd></div>
+              }
+              @if (p.returnPolicy) {
+                <div class="details-grid__row"><dt>Return Policy</dt><dd>{{ p.returnPolicy }}</dd></div>
+              }
+            </dl>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ═══ REVIEWS ═══════════════════════════════════════════════════════
+       Fix for QA bug #66 ("Not being able to rate any product") — see
+       SQA-FIX.md Fix #3. -->
+  <div class="reviews-section">
+    <div class="container">
+      <div class="reviews-header">
+        <h2 class="reviews-title">Customer Reviews ({{ reviews().length }})</h2>
+        <button nz-button nzType="primary" (click)="openReviewModal()">
+          <span nz-icon nzType="star"></span> Write a Review
+        </button>
+      </div>
+
+      @if (reviews().length) {
+        <div class="reviews-list">
+          @for (r of reviews(); track r.id) {
+            <div class="review-item">
+              <div class="review-item__head">
+                <span class="review-item__name">{{ r.name }}</span>
+                <nz-rate [ngModel]="r.rating" nzDisabled class="rate-sm"></nz-rate>
+                <span class="review-item__date">{{ r.createdAt | date:'mediumDate' }}</span>
+              </div>
+              @if (r.comment) {
+                <p class="review-item__comment">{{ r.comment }}</p>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <nz-empty nzNotFoundImage="simple" nzNotFoundContent="No reviews yet — be the first to review this product."></nz-empty>
+      }
+    </div>
+  </div>
+
+  <!-- Write-a-review modal -->
+  <nz-modal
+    [nzVisible]="reviewModalOpen()"
+    nzTitle="Write a Review"
+    [nzFooter]="reviewModalFooter"
+    [nzClosable]="!submittingReview()"
+    [nzMaskClosable]="!submittingReview()"
+    (nzOnCancel)="reviewModalOpen.set(false)">
+
+    <ng-container *nzModalContent>
+      <form #reviewNgForm="ngForm" nz-form nzLayout="vertical" novalidate>
+
+        <nz-form-item>
+          <nz-form-label [nzRequired]="true">Your Rating</nz-form-label>
+          <nz-form-control>
+            <nz-rate name="rating" [(ngModel)]="reviewForm.rating"></nz-rate>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label [nzRequired]="true">Your Name</nz-form-label>
+          <nz-form-control nzErrorTip="Please enter your name">
+            <input nz-input name="name" placeholder="e.g. Fatema Begum"
+                   [(ngModel)]="reviewForm.name" required
+                   #reviewNameCtrl="ngModel"
+                   [nzStatus]="reviewNameCtrl.invalid && reviewNameCtrl.dirty ? 'error' : ''" />
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label [nzRequired]="true">Email Address</nz-form-label>
+          <nz-form-control nzErrorTip="Please enter a valid email">
+            <input nz-input name="email" type="email" placeholder="you@example.com"
+                   [(ngModel)]="reviewForm.email" required email
+                   #reviewEmailCtrl="ngModel"
+                   [nzStatus]="reviewEmailCtrl.invalid && reviewEmailCtrl.dirty ? 'error' : ''" />
+          </nz-form-control>
+          <p class="review-email-note">Only used to prevent duplicate reviews — never shown publicly.</p>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>Comment (optional)</nz-form-label>
+          <nz-form-control>
+            <textarea nz-input name="comment" rows="3" maxlength="1000"
+                      placeholder="What did you think of this product?"
+                      [(ngModel)]="reviewForm.comment"></textarea>
+          </nz-form-control>
+        </nz-form-item>
+
+      </form>
+    </ng-container>
+
+    <ng-template #reviewModalFooter>
+      <button nz-button nzType="default" [disabled]="submittingReview()"
+              (click)="reviewModalOpen.set(false)">
+        Cancel
+      </button>
+      <button nz-button nzType="primary" [nzLoading]="submittingReview()"
+              (click)="submitReview()">
+        Submit Review
+      </button>
+    </ng-template>
+  </nz-modal>
 
   <!-- ═══ RELATED PRODUCTS ══════════════════════════════════════════════ -->
   @if (relatedProducts().length) {

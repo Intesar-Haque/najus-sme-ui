@@ -41,7 +41,7 @@ export class DataService {
       categoryId: 'textiles',
       category: 'Textiles & Fashion',
       vendor: { id: 'v3', name: 'Dhaka Muslin House', logo: 'https://picsum.photos/seed/dml/64/64', verified: true },
-      rating: 4.8, reviewCount: 124, tags: ['saree', 'handwoven', 'heritage'],
+      rating: 4.8, reviewCount: 124, viewCount: 0, tags: ['saree', 'handwoven', 'heritage'],
       inStock: true, featured: true, isNew: false,
     },
     {
@@ -54,7 +54,7 @@ export class DataService {
       categoryId: 'food',
       category: 'Food & Spices',
       vendor: { id: 'v2', name: 'Sylhet Tea Garden', logo: 'https://picsum.photos/seed/stg/64/64', verified: true },
-      rating: 4.9, reviewCount: 218, tags: ['tea', 'organic', 'sylhet'],
+      rating: 4.9, reviewCount: 218, viewCount: 0, tags: ['tea', 'organic', 'sylhet'],
       inStock: true, featured: true, isNew: false,
     },
     {
@@ -68,7 +68,7 @@ export class DataService {
       categoryId: 'handicrafts',
       category: 'Handicrafts',
       vendor: { id: 'v5', name: 'Nakshi Collective', logo: 'https://picsum.photos/seed/nkc/64/64', verified: true },
-      rating: 4.7, reviewCount: 86, tags: ['kantha', 'embroidery', 'quilt'],
+      rating: 4.7, reviewCount: 86, viewCount: 0, tags: ['kantha', 'embroidery', 'quilt'],
       inStock: true, featured: true, isNew: false,
     },
     {
@@ -81,7 +81,7 @@ export class DataService {
       categoryId: 'food',
       category: 'Food & Spices',
       vendor: { id: 'v4', name: 'Green Earth Organics', logo: 'https://picsum.photos/seed/geo/64/64', verified: false },
-      rating: 4.6, reviewCount: 152, tags: ['oil', 'organic', 'rajshahi'],
+      rating: 4.6, reviewCount: 152, viewCount: 0, tags: ['oil', 'organic', 'rajshahi'],
       inStock: true, featured: true, isNew: false,
     },
     {
@@ -94,7 +94,7 @@ export class DataService {
       categoryId: 'handicrafts',
       category: 'Handicrafts',
       vendor: { id: 'v1', name: 'Rupali Handicrafts', logo: 'https://picsum.photos/seed/rh/64/64', verified: true },
-      rating: 4.5, reviewCount: 67, tags: ['mat', 'eco-friendly', 'sylhet'],
+      rating: 4.5, reviewCount: 67, viewCount: 0, tags: ['mat', 'eco-friendly', 'sylhet'],
       inStock: true, featured: true, isNew: true,
     },
     {
@@ -108,7 +108,7 @@ export class DataService {
       categoryId: 'textiles',
       category: 'Textiles & Fashion',
       vendor: { id: 'v3', name: 'Dhaka Muslin House', logo: 'https://picsum.photos/seed/dml/64/64', verified: true },
-      rating: 4.7, reviewCount: 98, tags: ['silk', 'dupatta', 'rajshahi'],
+      rating: 4.7, reviewCount: 98, viewCount: 0, tags: ['silk', 'dupatta', 'rajshahi'],
       inStock: true, featured: false, isNew: true,
     },
     {
@@ -121,7 +121,7 @@ export class DataService {
       categoryId: 'handicrafts',
       category: 'Handicrafts',
       vendor: { id: 'v6', name: 'Bengal Pottery Studio', logo: 'https://picsum.photos/seed/bps/64/64', verified: false },
-      rating: 4.4, reviewCount: 44, tags: ['pottery', 'terracotta', 'handmade'],
+      rating: 4.4, reviewCount: 44, viewCount: 0, tags: ['pottery', 'terracotta', 'handmade'],
       inStock: true, featured: false, isNew: false,
     },
     {
@@ -134,7 +134,7 @@ export class DataService {
       categoryId: 'home',
       category: 'Home & Living',
       vendor: { id: 'v1', name: 'Rupali Handicrafts', logo: 'https://picsum.photos/seed/rh/64/64', verified: true },
-      rating: 4.3, reviewCount: 58, tags: ['bamboo', 'eco-friendly', 'basket'],
+      rating: 4.3, reviewCount: 58, viewCount: 0, tags: ['bamboo', 'eco-friendly', 'basket'],
       inStock: true, featured: false, isNew: true,
     },
     {
@@ -146,7 +146,7 @@ export class DataService {
       images: ['https://picsum.photos/seed/jamdanidupatta/400/400'],
       categoryId: 'textiles', category: 'Textiles & Fashion',
       vendor: { id: 'v3', name: 'Dhaka Muslin House', logo: 'https://picsum.photos/seed/dml/64/64', verified: true },
-      rating: 4.6, reviewCount: 71, tags: ['dupatta', 'jamdani', 'cotton'],
+      rating: 4.6, reviewCount: 71, viewCount: 0, tags: ['dupatta', 'jamdani', 'cotton'],
       inStock: true, featured: false, isNew: true,
     },
     {
@@ -158,7 +158,7 @@ export class DataService {
       images: ['https://picsum.photos/seed/turmeric/400/400'],
       categoryId: 'food', category: 'Food & Spices',
       vendor: { id: 'v4', name: 'Green Earth Organics', logo: 'https://picsum.photos/seed/geo/64/64', verified: false },
-      rating: 4.7, reviewCount: 139, tags: ['turmeric', 'organic', 'spice'],
+      rating: 4.7, reviewCount: 139, viewCount: 0, tags: ['turmeric', 'organic', 'spice'],
       inStock: true, featured: false, isNew: false,
     },
     {
@@ -170,7 +170,7 @@ export class DataService {
       images: ['https://picsum.photos/seed/bambooorganiser/400/400'],
       categoryId: 'home', category: 'Home & Living',
       vendor: { id: 'v1', name: 'Rupali Handicrafts', logo: 'https://picsum.photos/seed/rh/64/64', verified: true },
-      rating: 4.2, reviewCount: 33, tags: ['bamboo', 'desk', 'organiser'],
+      rating: 4.2, reviewCount: 33, viewCount: 0, tags: ['bamboo', 'desk', 'organiser'],
       inStock: true, featured: false, isNew: true,
     },
     {
@@ -183,7 +183,7 @@ export class DataService {
       images: ['https://picsum.photos/seed/cottonkurti/400/400'],
       categoryId: 'textiles', category: 'Textiles & Fashion',
       vendor: { id: 'v5', name: 'Nakshi Collective', logo: 'https://picsum.photos/seed/nkc/64/64', verified: true },
-      rating: 4.5, reviewCount: 88, tags: ['kurti', 'handloom', 'cotton'],
+      rating: 4.5, reviewCount: 88, viewCount: 0, tags: ['kurti', 'handloom', 'cotton'],
       inStock: true, featured: false, isNew: false,
     },
     {
@@ -195,7 +195,7 @@ export class DataService {
       images: ['https://picsum.photos/seed/herbaltea/400/400'],
       categoryId: 'food', category: 'Food & Spices',
       vendor: { id: 'v2', name: 'Sylhet Tea Garden', logo: 'https://picsum.photos/seed/stg/64/64', verified: true },
-      rating: 4.8, reviewCount: 195, tags: ['tea', 'herbal', 'green tea'],
+      rating: 4.8, reviewCount: 195, viewCount: 0, tags: ['tea', 'herbal', 'green tea'],
       inStock: true, featured: false, isNew: false,
     },
     {
@@ -207,7 +207,7 @@ export class DataService {
       images: ['https://picsum.photos/seed/terraplaque/400/400'],
       categoryId: 'handicrafts', category: 'Handicrafts',
       vendor: { id: 'v6', name: 'Bengal Pottery Studio', logo: 'https://picsum.photos/seed/bps/64/64', verified: false },
-      rating: 4.3, reviewCount: 27, tags: ['terracotta', 'wall', 'decor'],
+      rating: 4.3, reviewCount: 27, viewCount: 0, tags: ['terracotta', 'wall', 'decor'],
       inStock: true, featured: false, isNew: true,
     },
     {
@@ -220,7 +220,7 @@ export class DataService {
       images: ['https://picsum.photos/seed/sidrhoney/400/400'],
       categoryId: 'food', category: 'Food & Spices',
       vendor: { id: 'v4', name: 'Green Earth Organics', logo: 'https://picsum.photos/seed/geo/64/64', verified: false },
-      rating: 4.9, reviewCount: 302, tags: ['honey', 'sidr', 'sundarbans'],
+      rating: 4.9, reviewCount: 302, viewCount: 0, tags: ['honey', 'sidr', 'sundarbans'],
       inStock: true, featured: false, isNew: false,
     },
     {
@@ -232,7 +232,7 @@ export class DataService {
       images: ['https://picsum.photos/seed/juterunner/400/400'],
       categoryId: 'home', category: 'Home & Living',
       vendor: { id: 'v5', name: 'Nakshi Collective', logo: 'https://picsum.photos/seed/nkc/64/64', verified: true },
-      rating: 4.1, reviewCount: 19, tags: ['jute', 'table', 'eco-friendly'],
+      rating: 4.1, reviewCount: 19, viewCount: 0, tags: ['jute', 'table', 'eco-friendly'],
       inStock: false, featured: false, isNew: false,
     },
     {
@@ -244,7 +244,7 @@ export class DataService {
       images: ['https://picsum.photos/seed/blockprint/400/400'],
       categoryId: 'textiles', category: 'Textiles & Fashion',
       vendor: { id: 'v3', name: 'Dhaka Muslin House', logo: 'https://picsum.photos/seed/dml/64/64', verified: true },
-      rating: 4.5, reviewCount: 55, tags: ['fabric', 'block-print', 'muslin'],
+      rating: 4.5, reviewCount: 55, viewCount: 0, tags: ['fabric', 'block-print', 'muslin'],
       inStock: true, featured: false, isNew: false,
     },
     {
@@ -256,7 +256,7 @@ export class DataService {
       images: ['https://picsum.photos/seed/brasstand/400/400'],
       categoryId: 'handicrafts', category: 'Handicrafts',
       vendor: { id: 'v6', name: 'Bengal Pottery Studio', logo: 'https://picsum.photos/seed/bps/64/64', verified: false },
-      rating: 4.6, reviewCount: 41, tags: ['brass', 'candle', 'traditional'],
+      rating: 4.6, reviewCount: 41, viewCount: 0, tags: ['brass', 'candle', 'traditional'],
       inStock: true, featured: false, isNew: false,
     },
     {
@@ -268,7 +268,7 @@ export class DataService {
       images: ['https://picsum.photos/seed/moringa/400/400'],
       categoryId: 'health', category: 'Health & Beauty',
       vendor: { id: 'v4', name: 'Green Earth Organics', logo: 'https://picsum.photos/seed/geo/64/64', verified: false },
-      rating: 4.7, reviewCount: 84, tags: ['moringa', 'superfood', 'organic'],
+      rating: 4.7, reviewCount: 84, viewCount: 0, tags: ['moringa', 'superfood', 'organic'],
       inStock: true, featured: false, isNew: true,
     },
     {
@@ -280,7 +280,7 @@ export class DataService {
       images: ['https://picsum.photos/seed/kanthacover/400/400'],
       categoryId: 'handicrafts', category: 'Handicrafts',
       vendor: { id: 'v5', name: 'Nakshi Collective', logo: 'https://picsum.photos/seed/nkc/64/64', verified: true },
-      rating: 4.4, reviewCount: 62, tags: ['kantha', 'cushion', 'embroidery'],
+      rating: 4.4, reviewCount: 62, viewCount: 0, tags: ['kantha', 'cushion', 'embroidery'],
       inStock: true, featured: false, isNew: false,
     },
   ];

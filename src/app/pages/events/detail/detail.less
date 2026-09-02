@@ -196,6 +196,28 @@
   color: @text-secondary;
   line-height: 1.8;
   margin: 0;
+  white-space: pre-line;
+
+  // Fix for QA bug #36 — see SQA-FIX.md Fix #24.
+  &--clamped {
+    .clamp(6);
+  }
+}
+
+.event-desc__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: @sp-1;
+  margin-top: @sp-2;
+  background: none;
+  border: none;
+  padding: 0;
+  color: @primary;
+  font-size: @text-sm;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
 }
 
 // ─── Highlights list ─────────────────────────────────────────────────

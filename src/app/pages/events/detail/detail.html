@@ -98,10 +98,25 @@
         <h2 class="section-heading">
           <span nz-icon nzType="info-circle"></span> About This Event
         </h2>
-        <p class="event-desc">{{ ev.description }}</p>
+        <!-- Fix for QA bug #36 — see SQA-FIX.md Fix #24. -->
+        <p class="event-desc" [class.event-desc--clamped]="descIsLong() && !descExpanded()">{{ ev.description }}</p>
+        @if (descIsLong()) {
+          <button type="button" class="event-desc__toggle" (click)="descExpanded.set(!descExpanded())">
+            {{ descExpanded() ? 'Show less' : 'Show more' }}
+            <span nz-icon [nzType]="descExpanded() ? 'up' : 'down'"></span>
+          </button>
+        }
       </section>
 
-      <!-- Event highlights -->
+      <!-- Event highlights
+           Fix for QA bug #38 ("organizer, location, address displayed
+           multiple times") — see SQA-FIX.md Fix #18. Venue/Location/
+           Organised-by used to be listed here AND in the sidebar info
+           card below (near-identical lists) AND in the hero strip above.
+           Kept in the hero (a compact glance) and the sidebar (co-located
+           with price/registration, where the detail is actually useful);
+           removed here so this section only has what's genuinely distinct
+           to it. -->
       <section class="content-card">
         <h2 class="section-heading">
           <span nz-icon nzType="check-square"></span> What to Expect
@@ -118,27 +133,6 @@
                   Single day — {{ ev.date | date: 'EEEE, dd MMMM yyyy' }}
                 }
               </span>
-            </div>
-          </li>
-          <li>
-            <span nz-icon nzType="home" class="hi-icon"></span>
-            <div>
-              <strong>Venue</strong>
-              <span>{{ ev.venue }}</span>
-            </div>
-          </li>
-          <li>
-            <span nz-icon nzType="environment" class="hi-icon"></span>
-            <div>
-              <strong>Location</strong>
-              <span>{{ ev.location }}</span>
-            </div>
-          </li>
-          <li>
-            <span nz-icon nzType="team" class="hi-icon"></span>
-            <div>
-              <strong>Organised by</strong>
-              <span>{{ ev.organizer }}</span>
             </div>
           </li>
           <li>
@@ -379,7 +373,8 @@
             </div>
             <p class="reg-modal__note">
               <span nz-icon nzType="wallet"></span>
-              Deducted from your WEBX balance on confirmation.
+              You'll be redirected to our payment partner to pay securely. Your spot is
+              reserved once payment is confirmed.
             </p>
           } @else {
             <p class="reg-modal__note">

@@ -14,6 +14,9 @@ import { NzInputModule }   from 'ng-zorro-antd/input';
 import { NzSelectModule }  from 'ng-zorro-antd/select';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 
+import { NzMessageService }  from 'ng-zorro-antd/message';
+import { NzModalService }    from 'ng-zorro-antd/modal';
+
 import { ApiService }        from '../../../core/services/api.service';
 import { Category, Product } from '../../../core/models';
 
@@ -27,15 +30,26 @@ type SortKey   = 'newest' | 'name-asc' | 'price-asc' | 'price-desc';
     NzButtonModule, NzIconModule, NzTagModule, NzSpinModule, NzEmptyModule,
     NzInputModule, NzSelectModule, NzToolTipModule,
   ],
+  providers: [NzModalService],
   templateUrl: './products.html',
   styleUrl:    './products.less',
 })
 export class DashProducts implements OnInit {
   private api        = inject(ApiService);
+  private message    = inject(NzMessageService);
+  private modal      = inject(NzModalService);
   private destroyRef = inject(DestroyRef);
 
   loading      = signal(true);
   products     = signal<Product[]>([]);
+  // Fix for QA bugs #71/#72 ("Deleted tab shows nothing" / "no restore
+  // feature") — see SQA-FIX.md Fix #6. The default /dashboard/products
+  // fetch excludes soft-deleted rows entirely (Eloquent's normal
+  // behaviour), so the Deleted tab needs its own fetch — it was never
+  // going to appear by filtering the main list, no matter how that filter
+  // was written.
+  deletedProducts = signal<Product[]>([]);
+  restoringId     = signal<string | null>(null);
   categories   = signal<Category[]>([]);
   activeStatus = signal<StatusKey>('all');
   searchQuery  = signal('');
@@ -84,7 +98,10 @@ export class DashProducts implements OnInit {
       draft:        all.filter(p => p.status === 'draft').length,
       under_qa:     all.filter(p => p.status === 'under_qa').length,
       out_of_stock: all.filter(p => !p.inStock).length,
-      deleted:      all.filter(p => p.status === 'deleted').length,
+      // Fix #71/#72 (SQA-FIX.md Fix #6) — deleted products were never in
+      // `products()` to begin with (see the fetch in ngOnInit), so this is
+      // its own signal rather than a filter over the same list.
+      deleted:      this.deletedProducts().length,
     };
   });
 
@@ -102,13 +119,16 @@ export class DashProducts implements OnInit {
 
   // Products after status filter only
   statusFilteredProducts = computed(() => {
+    // Fix #71 (SQA-FIX.md Fix #6) — deleted products live in their own
+    // signal, fetched separately; see counts() above for why.
+    if (this.activeStatus() === 'deleted') return this.deletedProducts();
+
     const all = this.products();
     switch (this.activeStatus()) {
       case 'live':         return all.filter(p => p.status === 'live');
       case 'draft':        return all.filter(p => p.status === 'draft');
       case 'under_qa':     return all.filter(p => p.status === 'under_qa');
       case 'out_of_stock': return all.filter(p => !p.inStock);
-      case 'deleted':      return all.filter(p => p.status === 'deleted');
       default:             return all;
     }
   });
@@ -168,38 +188,74 @@ export class DashProducts implements OnInit {
     p.variants?.reduce((s, v) => s + v.stock, 0) ?? 0;
 
   statusDotColor(p: Product): string {
+    // Fix #71 (SQA-FIX.md Fix #6) — soft-delete never changes `status`, so
+    // a deleted product would otherwise still show its old "Live"/"Draft"
+    // colour here. `deletedAt` is the real signal.
+    if (p.deletedAt) return '#8c8c8c';
     if (!p.inStock) return '#ff4d4f';
     switch (p.status) {
       case 'live':     return '#28a745';
       case 'draft':    return '#fa8c16';
       case 'under_qa': return '#722ed1';
-      case 'deleted':  return '#8c8c8c';
       default:         return '#8c8c8c';
     }
   }
 
   statusTagLabel(p: Product): string {
+    if (p.deletedAt) return 'Deleted';
     if (!p.inStock) return 'Out of Stock';
     switch (p.status) {
       case 'live':     return 'Live';
       case 'draft':    return 'Draft';
       case 'under_qa': return 'Under Review';
-      case 'deleted':  return 'Deleted';
       default:         return p.status ?? '';
     }
   }
 
   ngOnInit() {
     forkJoin({
-      products:   this.api.getDashboardProducts(),
-      categories: this.api.getCategories(),
+      products:        this.api.getDashboardProducts(),
+      deletedProducts: this.api.getDashboardProducts('deleted'),
+      categories:      this.api.getCategories(),
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: ({ products, categories }) => {
+      next: ({ products, deletedProducts, categories }) => {
         this.products.set(products);
+        this.deletedProducts.set(deletedProducts);
         this.categories.set(categories);
         this.loading.set(false);
       },
       error: () => { this.loading.set(false); },
     });
+  }
+
+  // Fix for QA bug #72 ("no feature to view deleted items and restore").
+  // See SQA-FIX.md Fix #6. The backend endpoint already existed
+  // (POST /dashboard/products/{id}/restore) — nothing in the UI ever
+  // called it.
+  restore(product: Product) {
+    this.modal.confirm({
+      nzTitle:   `Restore "${product.name}"?`,
+      nzContent: 'It will go back to your Drafts so you can review it before resubmitting.',
+      nzOkText:  'Restore',
+      nzOnOk:    () => this.doRestore(product),
+    });
+  }
+
+  private doRestore(product: Product) {
+    this.restoringId.set(product.id);
+    this.api.restoreDashboardProduct(product.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ data }) => {
+          this.deletedProducts.update(list => list.filter(p => p.id !== product.id));
+          this.products.update(list => [data, ...list]);
+          this.restoringId.set(null);
+          this.message.success(`"${product.name}" restored to Drafts.`);
+        },
+        error: () => {
+          this.restoringId.set(null);
+          this.message.error('Failed to restore product. Please try again.');
+        },
+      });
   }
 }

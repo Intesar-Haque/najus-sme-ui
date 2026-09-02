@@ -1,0 +1,103 @@
+<!-- ═══ LOADING ══════════════════════════════════════════════════════════ -->
+@if (loading()) {
+  <div class="loading-wrap container">
+    <nz-spin nzSize="large" nzTip="Loading article…"></nz-spin>
+  </div>
+}
+
+<!-- ═══ NOT FOUND ═══════════════════════════════════════════════════════ -->
+@if (!loading() && notFound()) {
+  <div class="not-found-wrap container">
+    <nz-empty nzNotFoundImage="simple" nzNotFoundContent="Article not found.">
+      <ng-template #nzNotFoundFooter>
+        <button nz-button nzType="primary" (click)="goBack()">
+          <span nz-icon nzType="arrow-left"></span> Back to Blog
+        </button>
+      </ng-template>
+    </nz-empty>
+  </div>
+}
+
+@if (!loading()) { @if (post(); as p) {
+
+  <!-- ═══ BREADCRUMB ════════════════════════════════════════════════════ -->
+  <div class="breadcrumb-bar">
+    <div class="container">
+      <nz-breadcrumb>
+        <nz-breadcrumb-item><a routerLink="/">Home</a></nz-breadcrumb-item>
+        <nz-breadcrumb-item><a routerLink="/blog">Blog</a></nz-breadcrumb-item>
+        <nz-breadcrumb-item>{{ p.title }}</nz-breadcrumb-item>
+      </nz-breadcrumb>
+    </div>
+  </div>
+
+  <!-- ═══ ARTICLE ═══════════════════════════════════════════════════════ -->
+  <article class="article container">
+
+    <div class="article__meta">
+      <nz-tag nzColor="purple" class="cat-tag">{{ p.category }}</nz-tag>
+      <span class="article__date">{{ p.date | date: 'dd MMMM yyyy' }}</span>
+      <span class="article__dot"></span>
+      <span class="article__read">
+        <span nz-icon nzType="clock-circle"></span> {{ p.readTime }} min read
+      </span>
+    </div>
+
+    <h1 class="article__title">{{ p.title }}</h1>
+
+    <div class="article__author">
+      <nz-avatar [nzSrc]="p.authorImage" [nzSize]="40"></nz-avatar>
+      <span class="article__author-name">{{ p.author }}</span>
+    </div>
+
+    <div class="article__img-wrap">
+      <img [src]="p.image" [alt]="p.title" class="article__img" />
+    </div>
+
+    <div class="article__excerpt">{{ p.excerpt }}</div>
+
+    <div class="article__content">
+      @for (para of paragraphs(); track $index) {
+        <p>{{ para }}</p>
+      }
+    </div>
+
+    @if (p.tags.length) {
+      <div class="article__tags">
+        @for (tag of p.tags; track tag) {
+          <a routerLink="/blog" [queryParams]="{ tags: tag }">
+            <nz-tag nzColor="default">#{{ tag }}</nz-tag>
+          </a>
+        }
+      </div>
+    }
+
+    <nz-divider></nz-divider>
+
+    <button nz-button nzType="default" (click)="goBack()">
+      <span nz-icon nzType="arrow-left"></span> Back to all articles
+    </button>
+
+  </article>
+
+  <!-- ═══ RELATED POSTS ═════════════════════════════════════════════════ -->
+  @if (relatedPosts().length) {
+    <div class="related-section">
+      <div class="container">
+        <h2 class="related-title">More in {{ p.category }}</h2>
+        <div class="related-grid">
+          @for (rel of relatedPosts(); track rel.id) {
+            <a [routerLink]="['/blog', rel.id]" class="related-card">
+              <img [src]="rel.image" [alt]="rel.title" class="related-card__img" loading="lazy" />
+              <div class="related-card__body">
+                <span class="related-card__date">{{ rel.date | date: 'dd MMM yyyy' }}</span>
+                <h3 class="related-card__title">{{ rel.title }}</h3>
+              </div>
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+} }

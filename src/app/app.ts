@@ -2,6 +2,7 @@ import { Component, inject, computed } from '@angular/core';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs/operators';
+import { NzFloatButtonModule } from 'ng-zorro-antd/float-button';
 import { Navbar } from './shared/components/navbar/navbar';
 import { Footer } from './shared/components/footer/footer';
 
@@ -10,7 +11,7 @@ const SHELL_EXCLUDED = ['/login', '/join', '/dashboard'];
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Navbar, Footer],
+  imports: [RouterOutlet, Navbar, Footer, NzFloatButtonModule],
   templateUrl: './app.html',
   styleUrl: './app.less',
 })

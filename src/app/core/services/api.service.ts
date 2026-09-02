@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, catchError, map, of, throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { Category, Member, Product, Vendor, BlogPost, SmeEvent, SiteStats } from '../models';
+import { Category, Member, Product, ProductReview, Vendor, BlogPost, SmeEvent, SiteStats } from '../models';
 
 interface ApiList<T> { data: T[] }
 
@@ -174,6 +174,7 @@ const PRODUCT_SORT_MAP: Record<string, string> = {
   'price-desc': 'price_desc',
   'rating':     'rating',
   'popular':    'popular',
+  'most-viewed': 'most_viewed', // Fix #16, see SQA-FIX.md Fix #25.
   'newest':     'newest',
 };
 
@@ -262,6 +263,22 @@ export class ApiService {
     );
   }
 
+  // Fix for QA bug #66 ("Not being able to rate any product") — see
+  // SQA-FIX.md Fix #3.
+  getProductReviews(productId: string): Observable<ProductReview[]> {
+    return this.http.get<ApiList<ProductReview>>(`${this.base}/products/${productId}/reviews`).pipe(
+      map(r => r.data),
+      catchError(() => of([])),
+    );
+  }
+
+  submitProductReview(productId: string, body: { name: string; email: string; rating: number; comment?: string }):
+    Observable<{ data: ProductReview; product: { rating: number; reviewCount: number } }> {
+    return this.http.post<{ data: ProductReview; product: { rating: number; reviewCount: number } }>(
+      `${this.base}/products/${productId}/reviews`, body,
+    );
+  }
+
   // ─── Vendors ─────────────────────────────────────────────────────────────
   getVendors(p: VendorsParams = {}): Observable<VendorsResponse> {
     let params = new HttpParams();
@@ -346,10 +363,32 @@ export class ApiService {
     );
   }
 
-  registerForEvent(id: string, body: { full_name: string; email: string; attendees: number }): Observable<{ message: string; data: { event_id: number; user_id: number; amount_paid: number; registered_at: string } }> {
-    return this.http.post<{ message: string; data: { event_id: number; user_id: number; amount_paid: number; registered_at: string } }>(
-      `${this.base}/events/${id}/register`, body,
-    );
+  registerForEvent(id: string, body: { full_name: string; email: string; attendees: number }): Observable<{
+    message: string;
+    registration_id: string;
+    requires_payment: boolean;
+    // present only when requires_payment is true — the SSLCommerz checkout
+    // page to redirect the browser to (bugs #26/#43, see SQA-FIX.md Fix #2)
+    payment_url?: string;
+  }> {
+    return this.http.post<{
+      message: string;
+      registration_id: string;
+      requires_payment: boolean;
+      payment_url?: string;
+    }>(`${this.base}/events/${id}/register`, body);
+  }
+
+  /** Poll "did my payment go through" after returning from the gateway. */
+  getPaymentStatus(tranId: string): Observable<{
+    transactionStatus: 'Pending' | 'Complete' | 'Failed' | 'Canceled';
+    amount: number;
+    registration: {
+      id: string; status: 'pending' | 'confirmed' | 'cancelled';
+      eventId: string; eventTitle: string | null; amountPaid: number;
+    } | null;
+  }> {
+    return this.http.get<any>(`${this.base}/payment/status/${tranId}`);
   }
 
   // ─── Blog ─────────────────────────────────────────────────────────────────
@@ -393,8 +432,10 @@ export class ApiService {
     );
   }
 
-  getDashboardProducts(): Observable<Product[]> {
-    return this.http.get<ApiList<Product>>(`${this.base}/dashboard/products`).pipe(
+  getDashboardProducts(status?: string): Observable<Product[]> {
+    let params = new HttpParams();
+    if (status) params = params.set('status', status);
+    return this.http.get<ApiList<Product>>(`${this.base}/dashboard/products`, { params }).pipe(
       map(r => r.data),
       catchError(() => of([])),
     );
@@ -489,13 +530,21 @@ export class ApiService {
   }
 
   placeOrder(body: {
-    customer_name?: string;
-    customer_email?: string;
+    customer_name: string;
+    customer_email: string;
+    customer_phone?: string;
+    delivery_address: string;
+    postal_code: string;
+    delivery_zone: 'inside' | 'outside';
     notes?: string;
-    source?: string;
-    items: { product_name: string; quantity: number; unit_price: number }[];
-  }): Observable<{ message: string; id: string; total: number; status: string }> {
-    return this.http.post<{ message: string; id: string; total: number; status: string }>(
+    // product_id/quantity only — price and vendor are resolved server-side
+    // (see CheckoutController::store, fix #64 in SQA-FIX.md). variant_id is
+    // accepted for when a variant selector exists (bug #60, not yet built).
+    items: { product_id: string | number; variant_id?: string | number; quantity: number }[];
+  }): Observable<{ message: string; id: string; total: number; status: string;
+                   orders: { id: string; vendorId: string; total: number; status: string }[] }> {
+    return this.http.post<{ message: string; id: string; total: number; status: string;
+                             orders: { id: string; vendorId: string; total: number; status: string }[] }>(
       `${this.base}/orders`, body,
     ).pipe(
       catchError(err => {

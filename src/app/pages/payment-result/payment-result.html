@@ -1,0 +1,52 @@
+<section class="section result-page">
+  <div class="container result-page__inner">
+
+    @if (checking()) {
+      <div class="result-page__loading">
+        <nz-spin nzSize="large"></nz-spin>
+        <p>Confirming your payment…</p>
+      </div>
+    } @else if (confirmed()) {
+      <nz-result nzStatus="success"
+                 nzTitle="Payment confirmed!"
+                 [nzSubTitle]="eventTitle()
+                    ? 'Your registration for &quot;' + eventTitle() + '&quot; is confirmed. Amount paid: ৳' + amountPaid()
+                    : 'Your payment of ৳' + amountPaid() + ' was received.'">
+        <div nz-result-extra>
+          @if (eventId()) {
+            <a [routerLink]="['/events', eventId()]">
+              <button nz-button nzType="primary">View Event</button>
+            </a>
+          }
+          <a routerLink="/events">
+            <button nz-button>Browse Events</button>
+          </a>
+        </div>
+      </nz-result>
+    } @else if (outcome === 'cancel') {
+      <nz-result nzStatus="info"
+                 nzTitle="Payment cancelled"
+                 nzSubTitle="You cancelled the payment before it completed — your registration was not confirmed and no seat was reserved.">
+        <div nz-result-extra>
+          <a routerLink="/events">
+            <button nz-button nzType="primary">Back to Events</button>
+          </a>
+        </div>
+      </nz-result>
+    } @else {
+      <nz-result nzStatus="error"
+                 nzTitle="Payment didn't go through"
+                 nzSubTitle="Your registration was not confirmed and nothing was charged. Please try registering again, or contact us if this keeps happening.">
+        <div nz-result-extra>
+          <a routerLink="/events">
+            <button nz-button nzType="primary">Back to Events</button>
+          </a>
+          <a routerLink="/contact">
+            <button nz-button>Contact Support</button>
+          </a>
+        </div>
+      </nz-result>
+    }
+
+  </div>
+</section>

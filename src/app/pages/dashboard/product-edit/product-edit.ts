@@ -1,12 +1,12 @@
 import {
   Component, inject, signal, computed, OnInit, AfterViewInit,
-  DestroyRef, ViewChild, ElementRef,
+  DestroyRef, ViewChild, ElementRef, afterNextRender, Injector,
 } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { forkJoin, switchMap } from 'rxjs';
 
 import { NzButtonModule }      from 'ng-zorro-antd/button';
 import { NzIconModule }        from 'ng-zorro-antd/icon';
@@ -27,6 +27,7 @@ import { NzModalService }      from 'ng-zorro-antd/modal';
 
 import { ApiService }        from '../../../core/services/api.service';
 import { Category, Product } from '../../../core/models';
+import { extractErrorMessage } from '../../../core/utils/http-error';
 
 interface ScoreCriterion {
   label: string;
@@ -66,6 +67,7 @@ export class DashProductEdit implements OnInit, AfterViewInit {
   private message    = inject(NzMessageService);
   private modal      = inject(NzModalService);
   private destroyRef = inject(DestroyRef);
+  private injector    = inject(Injector);
 
   @ViewChild('descRte')       descRteEl!:       ElementRef<HTMLDivElement>;
   @ViewChild('highlightsRte') highlightsRteEl!: ElementRef<HTMLDivElement>;
@@ -96,6 +98,11 @@ export class DashProductEdit implements OnInit, AfterViewInit {
   // Status helpers
   isDraft            = computed(() => this.product()?.status === 'draft');
   isDeleted          = computed(() => this.product()?.status === 'deleted');
+  // Fix for QA bug #73 ("a product under review shouldn't be deletable") —
+  // see SQA-FIX.md Fix #21. Backend (DashboardController::destroyProduct())
+  // has the real enforcement; this just keeps the button from offering an
+  // action that would fail.
+  isUnderReview      = computed(() => this.product()?.status === 'under_qa');
   willResetToUnderQa = computed(() => RESETS_TO_UNDER_QA.has(this.product()?.status ?? ''));
   statusLabel        = computed(() =>
     STATUS_LABELS[this.product()?.status ?? ''] ?? (this.product()?.status ?? '')
@@ -330,8 +337,23 @@ export class DashProductEdit implements OnInit, AfterViewInit {
       return_policy:      p.returnPolicy ?? '',
     });
 
-    // Populate RTEs after Angular renders them (they're inside @if)
-    setTimeout(() => {
+    // Fix for QA bug #51 ("description and highlight fields get reset
+    // after submitting for review") — see SQA-FIX.md Fix #24. The real bug
+    // wasn't submit-for-review at all — confirmed live that these RTEs
+    // come up blank on a plain page load too, regardless of submitting
+    // anything. `setTimeout(fn, 0)` is not actually guaranteed to run
+    // after Angular has re-rendered the DOM (this app's change detection
+    // schedules its own updates, which don't have to land inside that
+    // window) — it was a race that happened to lose consistently here,
+    // leaving `this.descRteEl`/`highlightsRteEl` still pointing at nothing
+    // when the callback ran, so `if (v) {...}` never fired and the
+    // *`descEmpty`/`hlEmpty` signals stayed `true`, showing the RTEs as
+    // empty even though the form control (and the underlying product)
+    // genuinely had the content. `afterNextRender` is Angular's actual
+    // supported primitive for "run this after the DOM reflects the latest
+    // render" — unlike setTimeout, it's registered against this specific
+    // render pass, not a guess at timing.
+    afterNextRender(() => {
       if (this.descRteEl?.nativeElement) {
         const v = this.form.get('description')!.value;
         if (v) { this.descRteEl.nativeElement.innerHTML = v; this.descEmpty.set(false); }
@@ -340,7 +362,7 @@ export class DashProductEdit implements OnInit, AfterViewInit {
         const v = this.form.get('highlights')!.value;
         if (v) { this.highlightsRteEl.nativeElement.innerHTML = v; this.hlEmpty.set(false); }
       }
-    });
+    }, { injector: this.injector });
   }
 
   addVariant() {
@@ -385,53 +407,88 @@ export class DashProductEdit implements OnInit, AfterViewInit {
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
     this.saving.set(true);
-    this.api.updateDashboardProduct(this.productId, this.buildFormData())
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: ({ data }) => {
-          this.product.set(data);
-          this.existingImages.set(data.images ?? []);
-          this.existingVideoUrl.set(data.videoUrl ?? null);
-          this.newImageFiles.set([]);
-          this.newImagePreviews.set([]);
-          this.removeVideo.set(false);
-          this.message.success(`"${data.name}" updated successfully!`);
-          this.saving.set(false);
-        },
-        error: () => {
-          this.message.error('Failed to update product. Please try again.');
-          this.saving.set(false);
-        },
-      });
+    this.saveProduct().subscribe({
+      next: ({ data }) => {
+        this.applySavedProduct(data);
+        this.message.success(`"${data.name}" updated successfully!`);
+        this.saving.set(false);
+      },
+      error: err => {
+        // Fix #50 (SQA-FIX.md Fix #9) — same fix as product-create.ts:
+        // show the real validation reason (e.g. an oversized image)
+        // instead of a one-size-fits-all message.
+        this.message.error(extractErrorMessage(err, 'Failed to update product. Please try again.'));
+        this.saving.set(false);
+      },
+    });
   }
 
   submitForReview() {
+    // Fix for QA bug #69 ("resubmission doesn't send the latest edited
+    // info"). See SQA-FIX.md Fix #10 — this used to act on whatever was
+    // last SAVED, not what's currently in the form. Editing a field after
+    // a rejection and clicking "Submit for Review" without first clicking
+    // "Save Changes" silently discarded the edit and resent the old
+    // (already-rejected) data instead. doSubmitForReview() below now
+    // always saves first.
+    this.form.markAllAsTouched();
+    if (this.form.invalid) return;
+
     this.modal.confirm({
       nzTitle:   'Submit for Review?',
-      nzContent: 'The NAJUS team will review your product before it goes live. This cannot be undone.',
-      nzOkText:  'Submit',
+      nzContent: 'This saves your latest changes and sends the product to the NAJUS team for review. This cannot be undone.',
+      nzOkText:  'Save & Submit',
       nzOnOk:    () => this.doSubmitForReview(),
     });
   }
 
   private doSubmitForReview() {
     this.submitting.set(true);
-    this.api.submitDashboardProductForReview(this.productId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: ({ data }) => {
-          this.product.set(data);
-          this.message.success('Product submitted for review.');
-          this.submitting.set(false);
-        },
-        error: () => {
-          this.message.error('Failed to submit product for review.');
-          this.submitting.set(false);
-        },
-      });
+    this.saveProduct().pipe(
+      switchMap(() => this.api.submitDashboardProductForReview(this.productId)),
+    ).subscribe({
+      next: ({ data }) => {
+        this.applySavedProduct(data);
+        this.message.success('Product submitted for review.');
+        this.submitting.set(false);
+        // Fix for QA bug #75 ("after submitting for review, user should be
+        // redirected to My Products") — see SQA-FIX.md Fix #21. Previously
+        // this only updated local state and toasted; the user was left
+        // sitting on the edit page for a product that's now locked for
+        // review, with no next step surfaced.
+        this.router.navigate(['/dashboard/products']);
+      },
+      error: err => {
+        // Careful: this fires for either the save step or the submit step
+        // failing. Either way nothing was left half-applied — saveProduct()
+        // failing means the product wasn't updated at all, and it only
+        // reaches submitDashboardProductForReview() once the save succeeded.
+        this.message.error(extractErrorMessage(err, 'Failed to submit product for review.'));
+        this.submitting.set(false);
+      },
+    });
+  }
+
+  private saveProduct() {
+    return this.api.updateDashboardProduct(this.productId, this.buildFormData())
+      .pipe(takeUntilDestroyed(this.destroyRef));
+  }
+
+  private applySavedProduct(data: Product) {
+    this.product.set(data);
+    this.existingImages.set(data.images ?? []);
+    this.existingVideoUrl.set(data.videoUrl ?? null);
+    this.newImageFiles.set([]);
+    this.newImagePreviews.set([]);
+    this.removeVideo.set(false);
   }
 
   confirmDelete() {
+    if (this.isUnderReview()) {
+      this.message.error('This product is currently under review and can\'t be deleted until that\'s resolved.');
+      return;
+    }
+
     this.modal.confirm({
       nzTitle:    'Delete this product?',
       nzContent:  `"${this.product()?.name}" will be removed. You can restore it later.`,

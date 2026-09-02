@@ -131,6 +131,12 @@
     @media (max-width: @bp-md) { font-size: @text-2xl; }
   }
 
+  // Fix #23 (SQA-FIX.md) — title is now a link.
+  &__title-link {
+    color: inherit;
+    &:hover { color: @primary; }
+  }
+
   &__excerpt {
     font-size: @text-base;
     color: @text-secondary;
@@ -300,8 +306,10 @@
     box-shadow: 0 0 0 2px rgba(156,39,176,.1);
   }
 
-  // Image
+  // Image — an <a> since Fix #23 (SQA-FIX.md), needs display:block same as
+  // the <div> it replaced.
   &__img-wrap {
+    display: block;
     position: relative;
     height: 200px;
     overflow: hidden;
@@ -340,6 +348,12 @@
     margin: 0;
     line-height: 1.35;
     .clamp(2);
+
+    // Fix #23 (SQA-FIX.md) — title is now a link.
+    a {
+      color: inherit;
+      &:hover { color: @primary; }
+    }
   }
 
   &__excerpt {

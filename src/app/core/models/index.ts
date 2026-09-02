@@ -56,11 +56,33 @@ export interface Product {
   vendor: VendorSummary;
   rating: number;
   reviewCount: number;
+  // Fix for QA bug #16 ("no way to understand if the 'Most Viewed' filter
+  // works") — see SQA-FIX.md Fix #25. Real page-view tracking.
+  viewCount: number;
   tags: string[];
   inStock: boolean;
   featured: boolean;
   isNew: boolean;
   status?: string;
+  // Fix for QA bug #68 ("business user should be able to view why their
+  // product was rejected") — see SQA-FIX.md Fix #22. Only ever set on a
+  // rejected (draft-status) product.
+  rejectionReason?: string | null;
+  // Fix for QA bugs #71/#72 ("Deleted tab shows nothing" / "no restore
+  // feature") — see SQA-FIX.md Fix #6. Soft-delete leaves `status`
+  // untouched, so this is the only reliable signal that a product is
+  // actually in the trash.
+  deletedAt?: string | null;
+}
+
+// Fix for QA bug #66 ("Not being able to rate any product") — see
+// SQA-FIX.md Fix #3.
+export interface ProductReview {
+  id: string;
+  name: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
 }
 
 // ─── Vendor / SME ─────────────────────────────────────────────────────────────
@@ -98,6 +120,11 @@ export interface BlogPost {
   category: string;
   readTime: number;
   featured: boolean;
+  // Fix for QA bug #28 ("Read More" button did nothing — no blog detail
+  // page existed at all) — see SQA-FIX.md Fix #23. Only populated by the
+  // single-post response (BlogPostResource only includes it on the
+  // blog.show route) — undefined on the list.
+  content?: string;
 }
 
 // ─── Event ────────────────────────────────────────────────────────────────────
@@ -121,6 +148,14 @@ export interface SmeEvent {
   maxTickets: number | null;
   ticketsSold: number;
   ticketsRemaining: number | null;
+  /**
+   * Fix for QA bug #41 ("should display user as registered while viewing
+   * the event detail again") — see SQA-FIX.md Fix #20. Only populated on
+   * the single-event detail response (EventController::show()), never on
+   * the events list — `undefined` there. `null` means either the viewer
+   * is a guest (not logged in) or is logged in but hasn't registered.
+   */
+  alreadyRegistered?: boolean | null;
 }
 
 // ─── Member (authenticated user) ─────────────────────────────────────────────
@@ -139,6 +174,11 @@ export interface Member {
 export interface CartItem {
   product: Product;
   quantity: number;
+  // Fix for QA bug #60 ("no product variant selector") — see SQA-FIX.md
+  // Fix #4. The chosen variant, if the product has any; its price/id take
+  // precedence over the base product's wherever the cart displays or
+  // submits this line.
+  variant?: ProductVariant;
 }
 
 // ─── Site Stats ───────────────────────────────────────────────────────────────

@@ -50,7 +50,10 @@
               <span nz-icon nzType="clock-circle"></span> {{ fp.readTime }} min read
             </span>
           </div>
-          <h2 class="featured-card__title">{{ fp.title }}</h2>
+          <!-- Fix for QA bug #28 — see SQA-FIX.md Fix #23. -->
+          <h2 class="featured-card__title">
+            <a [routerLink]="['/blog', fp.id]" class="featured-card__title-link">{{ fp.title }}</a>
+          </h2>
           <p class="featured-card__excerpt">{{ fp.excerpt }}</p>
           <div class="featured-card__footer">
             <div class="post-author">
@@ -133,11 +136,11 @@
         @for (post of posts(); track post.id) {
           <article class="post-card" [class.post-card--featured]="post.featured">
 
-            <!-- Image -->
-            <div class="post-card__img-wrap">
+            <!-- Image — Fix for QA bug #28, see SQA-FIX.md Fix #23. -->
+            <a [routerLink]="['/blog', post.id]" class="post-card__img-wrap">
               <img [src]="post.image" [alt]="post.title" class="post-card__img" loading="lazy" />
               <nz-tag [nzColor]="'purple'" class="post-card__cat">{{ post.category }}</nz-tag>
-            </div>
+            </a>
 
             <!-- Body -->
             <div class="post-card__body">
@@ -149,7 +152,9 @@
                 </span>
               </div>
 
-              <h3 class="post-card__title">{{ post.title }}</h3>
+              <h3 class="post-card__title">
+                <a [routerLink]="['/blog', post.id]">{{ post.title }}</a>
+              </h3>
               <p class="post-card__excerpt">{{ post.excerpt }}</p>
 
               <div class="post-card__tags">
@@ -168,9 +173,12 @@
                 <nz-avatar [nzSrc]="post.authorImage" [nzSize]="28"></nz-avatar>
                 <span class="post-author__name">{{ post.author }}</span>
               </div>
-              <button nz-button nzType="link" nzSize="small" class="read-btn">
+              <!-- Fix for QA bug #28 ("Read More does nothing") — see
+                   SQA-FIX.md Fix #23. Was a plain <button> with no
+                   (click) handler and no routerLink at all. -->
+              <a [routerLink]="['/blog', post.id]" nz-button nzType="link" nzSize="small" class="read-btn">
                 Read more <span nz-icon nzType="arrow-right"></span>
-              </button>
+              </a>
             </div>
 
           </article>

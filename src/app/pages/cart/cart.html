@@ -44,7 +44,7 @@
 
         <!-- Items -->
         <div class="cart-items">
-          @for (item of cart.items(); track item.product.id) {
+          @for (item of cart.items(); track item.product.id + (item.variant?.id ?? '')) {
             <div class="cart-item">
               <a [routerLink]="['/products', item.product.id]" class="cart-item__image-link">
                 <img [src]="item.product.images[0]" [alt]="item.product.name" class="cart-item__image" />
@@ -52,26 +52,34 @@
               <div class="cart-item__info">
                 <span class="cart-item__category">{{ item.product.category }}</span>
                 <a [routerLink]="['/products', item.product.id]" class="cart-item__name">{{ item.product.name }}</a>
+                @if (item.variant) {
+                  <span class="cart-item__variant">
+                    @if (item.variant.colorHex) {
+                      <span class="variant-swatch" [style.background]="item.variant.colorHex"></span>
+                    }
+                    {{ item.variant.colorName }}
+                  </span>
+                }
                 <span class="cart-item__vendor">by {{ item.product.vendor.name }}</span>
                 <div class="cart-item__price-row">
-                  <span class="cart-item__price">৳ {{ item.product.price | number }}</span>
-                  @if (item.product.originalPrice) {
+                  <span class="cart-item__price">৳ {{ cart.unitPrice(item) | number }}</span>
+                  @if (!item.variant && item.product.originalPrice) {
                     <span class="cart-item__original">৳ {{ item.product.originalPrice | number }}</span>
                   }
                 </div>
               </div>
               <div class="cart-item__controls">
                 <div class="qty-control">
-                  <button nz-button nzSize="small" (click)="cart.setQuantity(item.product.id, item.quantity - 1)">
+                  <button nz-button nzSize="small" (click)="cart.setQuantity(item.product.id, item.quantity - 1, item.variant?.id)">
                     <span nz-icon nzType="minus"></span>
                   </button>
                   <span class="qty-value">{{ item.quantity }}</span>
-                  <button nz-button nzSize="small" (click)="cart.setQuantity(item.product.id, item.quantity + 1)">
+                  <button nz-button nzSize="small" (click)="cart.setQuantity(item.product.id, item.quantity + 1, item.variant?.id)">
                     <span nz-icon nzType="plus"></span>
                   </button>
                 </div>
-                <span class="cart-item__subtotal">৳ {{ (item.product.price * item.quantity) | number }}</span>
-                <button nz-button nzType="text" nzDanger (click)="cart.remove(item.product.id)" class="remove-btn">
+                <span class="cart-item__subtotal">৳ {{ (cart.unitPrice(item) * item.quantity) | number }}</span>
+                <button nz-button nzType="text" nzDanger (click)="cart.remove(item.product.id, item.variant?.id)" class="remove-btn">
                   <span nz-icon nzType="delete"></span>
                 </button>
               </div>

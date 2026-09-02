@@ -9,3 +9,13 @@
 @if (showShell()) {
   <app-footer></app-footer>
 }
+
+@if (showShell()) {
+  <!-- "Jump to top" arrow — shows once scrolled down, on every page with
+       the shared shell (skipped on dashboard/login/join, which have their
+       own layout and scroll containers). nz-back-top's content projection
+       needs a TemplateRef (not plain child content) and is deprecated
+       anyway in favor of nz-float-button-top, which takes the icon as a
+       plain input — simpler and future-proof. -->
+  <nz-float-button-top nzType="primary" nzIcon="up" [nzVisibilityHeight]="200" />
+}

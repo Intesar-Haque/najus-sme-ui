@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { NzCardModule } from 'ng-zorro-antd/card';
@@ -10,6 +10,7 @@ import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { FormsModule } from '@angular/forms';
 import { Product } from '../../../core/models';
+import { FavoritesService } from '../../../core/services/favorites.service';
 
 @Component({
   selector: 'app-product-card',
@@ -22,6 +23,8 @@ import { Product } from '../../../core/models';
   styleUrl: './product-card.less',
 })
 export class ProductCard {
+  private favorites = inject(FavoritesService);
+
   product = input.required<Product>();
   addToCart = output<Product>();
 
@@ -31,9 +34,22 @@ export class ProductCard {
     return Math.round((1 - p.price / p.originalPrice) * 100);
   }
 
+  get isFavorite(): boolean {
+    return this.favorites.isFavorite(this.product().id);
+  }
+
   onAddToCart(e: Event) {
     e.preventDefault();
     e.stopPropagation();
     this.addToCart.emit(this.product());
+  }
+
+  // Fix for QA bug #67 ("Not being able to mark any product as
+  // favourite") — this used to only preventDefault() and do nothing else.
+  // See SQA-FIX.md Fix #3.
+  onToggleFavorite(e: Event) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.favorites.toggle(this.product().id);
   }
 }

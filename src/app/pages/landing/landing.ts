@@ -81,10 +81,16 @@ export class Landing {
   }
 
   onAddToCart(product: Product) {
-    const wasEmpty = this.cart.count() === 0;
-    this.cart.add(product);
-    this.message.success(`${product.name} added to cart`);
-    if (wasEmpty) this.router.navigate(['/cart']);
+    // Fix for QA bug #62 — see SQA-FIX.md Fix #22.
+    const { wasAlreadyInCart } = this.cart.add(product);
+    this.message.success(
+      wasAlreadyInCart ? `${product.name} is already in your cart — quantity updated` : `${product.name} added to cart`
+    );
+    // Fix for QA bug #61 ("adding to cart shouldn't redirect — user should
+    // stay on the current page") — see SQA-FIX.md Fix #25. Previously
+    // redirected to /cart on the first add of a session; the toast above
+    // is enough confirmation, and the cart badge in the header updates
+    // live from the same signal.
   }
 
   getEventTypeColor(type: string): string {
