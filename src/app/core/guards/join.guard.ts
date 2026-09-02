@@ -11,11 +11,14 @@ export const joinGuard: CanActivateFn = () => {
 
   const status = auth.currentMember()?.registrationStatus;
 
-  if (status === 'rejected') return router.createUrlTree(['/login']);
   if (status === 'pending' || status === 'approved') {
     return router.createUrlTree(['/dashboard']);
   }
 
-  // status === null or undefined (never submitted) — allow through
+  // status === 'rejected' or null/undefined (never submitted) — allow
+  // through. A rejected applicant needs a way to fix the issue and
+  // resubmit; the backend (RegistrationController::store()) never blocked
+  // this, only this guard did — permanently locking rejected applicants
+  // out with no path forward.
   return true;
 };
