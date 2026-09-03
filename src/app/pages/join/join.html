@@ -282,7 +282,12 @@
             @for (field of fileFields; track field) {
               <div class="doc-item" [class.doc-item--uploaded]="files[field]">
                 <div class="doc-item__label">
-                  {{ fileLabels[field] }} <span class="req">*</span>
+                  {{ fileLabels[field] }}
+                  @if (isFileOptional(field)) {
+                    <span class="optional">(Optional)</span>
+                  } @else {
+                    <span class="req">*</span>
+                  }
                 </div>
                 <label class="doc-upload-btn" [for]="'file_' + field">
                   @if (files[field]) {

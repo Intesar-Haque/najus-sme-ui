@@ -24,6 +24,11 @@ const FILE_FIELDS = [
 
 type FileField = (typeof FILE_FIELDS)[number];
 
+// BIN is optional business-wise (not every company has one yet) — every other
+// attachment stays required. Kept as a small set so both the template's
+// required-marker and submit()'s validation read from one place.
+const OPTIONAL_FILE_FIELDS: ReadonlySet<FileField> = new Set(['attachment_bin']);
+
 @Component({
   selector: 'app-join',
   imports: [
@@ -77,6 +82,10 @@ export class Join {
   };
 
   readonly fileFields = FILE_FIELDS;
+
+  isFileOptional(field: FileField): boolean {
+    return OPTIONAL_FILE_FIELDS.has(field);
+  }
 
   // ── Dropdown options ─────────────────────────────────────────────────────────
   readonly companyTypeOptions = [
@@ -143,9 +152,9 @@ export class Join {
       return;
     }
 
-    // Validate all files present
+    // Validate all required files present (BIN is optional — see OPTIONAL_FILE_FIELDS)
     for (const field of FILE_FIELDS) {
-      if (!this.files[field]) {
+      if (!this.isFileOptional(field) && !this.files[field]) {
         this.errorMessage.set(`Please upload ${this.fileLabels[field]}.`);
         return;
       }
