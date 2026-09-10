@@ -97,35 +97,80 @@
   }
 }
 
-// ── Language Switcher ─────────────────────────────────────────────────────────
-.lang-switcher {
+// ── Search ────────────────────────────────────────────────────────────────────
+// Fix — no way to search except from inside /products itself. A deliberately
+// simple "jump box": submits straight to /products?q=..., which already
+// reads that query param on init.
+.navbar-search {
   display: flex;
   align-items: center;
-  gap: @sp-1;
-}
-
-.lang-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: @text-sm;
-  color: @text-muted;
-  padding: @sp-1 @sp-2;
-  border-radius: @radius-sm;
+  gap: @sp-2;
+  width: 220px;
+  padding: 0 @sp-3;
+  height: 36px;
+  border: 1px solid @border-color;
+  border-radius: @radius-md;
+  background: @bg-subtle;
   transition: @transition-base;
-  font-family: @font-body;
 
-  &:hover { color: @primary; }
+  &:focus-within {
+    border-color: @primary;
+    background: #fff;
+  }
 
-  &--active {
-    color: @primary;
-    font-weight: 600;
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: @text-muted;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: @transition-base;
+
+    &:hover { color: @primary; }
+  }
+
+  &__input {
+    border: none;
+    background: none;
+    outline: none;
+    font-size: @text-sm;
+    font-family: @font-body;
+    color: @text-primary;
+    width: 100%;
+
+    &::placeholder { color: @text-muted; }
+  }
+
+  &--mobile {
+    width: 100%;
+    margin-bottom: @sp-3;
   }
 }
 
-.lang-divider {
-  color: @border-color;
-  font-size: @text-xs;
+// ── Generic icon button (mobile search toggle) ─────────────────────────────────
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: none;
+  border-radius: @radius-md;
+  color: @text-secondary;
+  font-size: 18px;
+  cursor: pointer;
+  transition: @transition-base;
+
+  &:hover {
+    background: @bg-subtle;
+    color: @primary;
+  }
 }
 
 // ── Cart Icon ─────────────────────────────────────────────────────────────────
@@ -147,6 +192,45 @@
 
   .cart-icon {
     font-size: 20px;
+  }
+}
+
+// ── Mobile Search Bar ─────────────────────────────────────────────────────────
+// The row that expands under the header when the mobile search icon (.icon-btn
+// above) is tapped — a faster path to search than opening the full drawer.
+.mobile-search-bar {
+  display: flex;
+  align-items: center;
+  gap: @sp-2;
+  padding: @sp-2 @sp-4;
+  border-top: 1px solid @border-light;
+  background: #fff;
+
+  &__input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: none;
+    font-size: @text-sm;
+    font-family: @font-body;
+    color: @text-primary;
+    height: 36px;
+
+    &::placeholder { color: @text-muted; }
+  }
+
+  &__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: none;
+    color: @text-muted;
+    cursor: pointer;
+
+    &:hover { color: @primary; }
   }
 }
 
@@ -206,14 +290,9 @@
   }
 }
 
-.mobile-lang {
-  display: flex;
-  gap: @sp-2;
-}
-
 // ── Utilities ─────────────────────────────────────────────────────────────────
 // Navbar collapses at @bp-lg (992px) — wider than the global @bp-md (768px)
-// so the 4 nav links + lang switcher + login button don't overflow.
+// so the 4 nav links + search box + login button don't overflow.
 .hide-mobile {
   @media (max-width: @bp-lg) { display: none !important; }
 }

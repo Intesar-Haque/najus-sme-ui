@@ -1,6 +1,7 @@
 import { Component, inject, signal, HostListener } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { CartService } from '../../../core/services/cart.service';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -14,6 +15,7 @@ import { NzDrawerModule } from 'ng-zorro-antd/drawer';
   selector: 'app-navbar',
   imports: [
     RouterLink, RouterLinkActive,
+    FormsModule,
     TranslateModule,
     NzButtonModule, NzIconModule, NzDropDownModule,
     NzMenuModule, NzBadgeModule, NzDrawerModule,
@@ -22,21 +24,16 @@ import { NzDrawerModule } from 'ng-zorro-antd/drawer';
   styleUrl: './navbar.less',
 })
 export class Navbar {
-  private translate = inject(TranslateService);
   private auth      = inject(AuthService);
   private cart      = inject(CartService);
+  private router    = inject(Router);
 
   isAuthenticated = this.auth.isAuthenticated;
   cartCount       = this.cart.count;
 
-  // Bangla temporarily disabled — see app.config.ts. Forced to 'en'
-  // regardless of any stale localStorage['lang'] from before this change.
-  // lang = signal<'en' | 'bn'>(
-  //   (localStorage.getItem('lang') as 'en' | 'bn') ?? 'en'
-  // );
-  lang = signal<'en' | 'bn'>('en');
   scrolled = signal(false);
   mobileOpen = signal(false);
+  mobileSearchOpen = signal(false);
 
   navLinks = [
     { label: 'nav.products',   path: '/products',   icon: 'shopping' },
@@ -45,30 +42,26 @@ export class Navbar {
     { label: 'nav.blog',       path: '/blog',        icon: 'read' },
   ];
 
-  constructor() {
-    // Translation bootstrap (addLangs / setDefaultLang / initial use())
-    // is handled by APP_INITIALIZER in app.config.ts.
-    // Only apply the body class for the persisted language.
-    document.body.classList.add(`lang-${this.lang()}`);
-  }
+  // Translation bootstrap (addLangs / setDefaultLang / initial use()) is
+  // handled by APP_INITIALIZER in app.config.ts — English-only, see
+  // LAUNCH-GAPS.md #1. The language switcher itself was dropped for good
+  // (there's nothing in this template to toggle it), not just hidden.
 
   @HostListener('window:scroll')
   onScroll() {
     this.scrolled.set(window.scrollY > 20);
   }
 
-  // Bangla temporarily disabled — see app.config.ts. Commented out rather
-  // than removed (not called from any template currently anyway) so a
-  // stray call can't re-enable 'bn' while this is off.
-  // switchLang(lang: 'en' | 'bn') {
-  //   this.lang.set(lang);
-  //   this.applyLang(lang);
-  // }
-  //
-  // private applyLang(lang: 'en' | 'bn') {
-  //   localStorage.setItem('lang', lang);
-  //   this.translate.use(lang);
-  //   document.body.classList.remove('lang-en', 'lang-bn');
-  //   document.body.classList.add(`lang-${lang}`);
-  // }
+  // Fix — there was no search anywhere except the /products page's own
+  // filter sidebar, so a visitor browsing from the homepage (or anywhere
+  // else) had no way to search at all without first navigating to
+  // Products manually. This is deliberately a simple "jump box" — it
+  // doesn't try to two-way-sync with that page's own `searchQuery` state,
+  // it just lands there with `?q=` already set, which products.ts already
+  // reads on init (see its ngOnInit query-param handling).
+  search(term: string) {
+    const q = term.trim();
+    this.router.navigate(['/products'], q ? { queryParams: { q } } : {});
+    this.mobileSearchOpen.set(false);
+  }
 }

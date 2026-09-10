@@ -279,6 +279,14 @@ export class ApiService {
     );
   }
 
+  // ─── Contact ─────────────────────────────────────────────────────────────
+  // Fix for LAUNCH-GAPS.md #2 — contact.ts previously faked this entirely
+  // client-side (a setTimeout + a success toast); this now hits the real
+  // endpoint, which persists the message and notifies the team.
+  submitContact(body: { name: string; email: string; subject: string; message: string }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.base}/contact`, body);
+  }
+
   // ─── Vendors ─────────────────────────────────────────────────────────────
   getVendors(p: VendorsParams = {}): Observable<VendorsResponse> {
     let params = new HttpParams();
@@ -512,10 +520,15 @@ export class ApiService {
 
   // ─── Vendor Registration (public) ─────────────────────────────────────────
   // ─── Orders ───────────────────────────────────────────────────────────────
+  // This used to hit the public GET /orders (OrderController::index()),
+  // which has no auth and no vendor filter — every vendor's dashboard was
+  // showing every other vendor's orders, including customer name/email.
+  // /dashboard/placed-orders is auth:sanctum-protected and already scopes to
+  // the logged-in member's own vendor (DashboardController::placedOrders()),
+  // so this now returns only orders that actually belong to this vendor. The
+  // response shape is the same (same field names, same paginator keys).
   getOrders(p: OrdersParams = {}): Observable<OrdersResponse> {
     let params = new HttpParams();
-    if (p.membership_id) params = params.set('membership_id', p.membership_id);
-    if (p.source)        params = params.set('source',        p.source);
     if (p.status)        params = params.set('status',        p.status);
     if (p.per_page)      params = params.set('per_page',      p.per_page);
     if (p.page)          params = params.set('page',          p.page);
@@ -524,7 +537,7 @@ export class ApiService {
       data: [],
       meta: { currentPage: 1, lastPage: 1, total: 0, perPage: 20 },
     };
-    return this.http.get<OrdersResponse>(`${this.base}/orders`, { params }).pipe(
+    return this.http.get<OrdersResponse>(`${this.base}/dashboard/placed-orders`, { params }).pipe(
       catchError(() => of(empty)),
     );
   }

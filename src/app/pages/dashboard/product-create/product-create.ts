@@ -226,7 +226,10 @@ export class DashProductCreate implements OnInit, AfterViewInit {
     this.variants.push(this.fb.group({
       color_name: ['', Validators.required],
       color_hex:  ['#4caf50'],
-      price:      [null, [Validators.required, Validators.min(0)]],
+      // Fix for LAUNCH-GAPS.md #6 — min(0) let a variant's price be
+      // exactly zero. min(1) requires a real, non-zero price (BDT has no
+      // meaningful sub-taka denomination for this catalogue).
+      price:      [null, [Validators.required, Validators.min(1)]],
       stock:      [0,    [Validators.required, Validators.min(0)]],
     }));
   }
@@ -285,6 +288,27 @@ export class DashProductCreate implements OnInit, AfterViewInit {
   submitAndReview() {
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
+
+    // Fix for LAUNCH-GAPS.md #6 — a product with no photo or no priced,
+    // in-stock variant could previously be submitted for review and later
+    // approved with nothing a customer could actually buy. "Save Draft"
+    // (submit(), above) is left alone — a vendor should still be able to
+    // save partial progress — this only blocks the step that sends it to
+    // NAJUS for review.
+    if (this.imageFiles().length === 0) {
+      this.message.error('Please upload at least one product image before submitting for review.');
+      return;
+    }
+    const hasSellableVariant = this.variants.controls.some(v => {
+      const price = Number(v.get('price')?.value);
+      const stock = Number(v.get('stock')?.value);
+      return price > 0 && stock > 0;
+    });
+    if (!hasSellableVariant) {
+      this.message.error('Please add at least one colour variant with a real price and stock before submitting for review.');
+      return;
+    }
+
     this.submitting.set(true);
     this.api.createDashboardProduct(this.buildFormData())
       .pipe(takeUntilDestroyed(this.destroyRef))

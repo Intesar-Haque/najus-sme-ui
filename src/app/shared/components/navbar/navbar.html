@@ -20,6 +20,22 @@
     <!-- Actions -->
     <div class="navbar__actions">
 
+      <!-- Search -->
+      <form class="navbar-search hide-mobile" (ngSubmit)="search(searchBox.value)">
+        <button type="submit" class="navbar-search__icon" aria-label="Search">
+          <span nz-icon nzType="search"></span>
+        </button>
+        <input #searchBox type="text" class="navbar-search__input" placeholder="Search products…" />
+      </form>
+
+      <!-- Mobile search toggle — the desktop search box above is hidden at
+           this width (.hide-mobile), so this is the only way to reach
+           search without first opening the full hamburger menu. -->
+      <button type="button" class="icon-btn hide-desktop" aria-label="Search"
+              (click)="mobileSearchOpen.set(!mobileSearchOpen())">
+        <span nz-icon nzType="search"></span>
+      </button>
+
       <!-- Cart Icon -->
       <a routerLink="/cart" class="cart-icon-btn">
         <nz-badge [nzCount]="cartCount()" [nzOverflowCount]="99">
@@ -50,6 +66,22 @@
       </button>
     </div>
   </div>
+
+  <!-- Mobile search bar — expands under the header when the icon above is
+       tapped, instead of forcing a trip through the full drawer. -->
+  @if (mobileSearchOpen()) {
+    <form class="mobile-search-bar hide-desktop" (ngSubmit)="search(mobileTopSearchBox.value)">
+      <button type="submit" class="navbar-search__icon" aria-label="Search">
+        <span nz-icon nzType="search"></span>
+      </button>
+      <input #mobileTopSearchBox type="text" class="mobile-search-bar__input"
+             placeholder="Search products…" autofocus />
+      <button type="button" class="mobile-search-bar__close" aria-label="Close search"
+              (click)="mobileSearchOpen.set(false)">
+        <span nz-icon nzType="close"></span>
+      </button>
+    </form>
+  }
 </header>
 
 <!-- Mobile Drawer -->
@@ -60,6 +92,14 @@
   [nzWidth]="280"
   (nzOnClose)="mobileOpen.set(false)">
   <ng-container *nzDrawerContent>
+    <form class="navbar-search navbar-search--mobile"
+          (ngSubmit)="search(mobileSearchBox.value); mobileOpen.set(false)">
+      <button type="submit" class="navbar-search__icon" aria-label="Search">
+        <span nz-icon nzType="search"></span>
+      </button>
+      <input #mobileSearchBox type="text" class="navbar-search__input" placeholder="Search products…" />
+    </form>
+
     <nav class="mobile-nav">
       @for (link of navLinks; track link.path) {
         <a class="mobile-nav__link"

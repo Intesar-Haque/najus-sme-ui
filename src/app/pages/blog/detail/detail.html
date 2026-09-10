@@ -50,9 +50,12 @@
       <span class="article__author-name">{{ p.author }}</span>
     </div>
 
-    <div class="article__img-wrap">
-      <img [src]="p.image" [alt]="p.title" class="article__img" />
-    </div>
+    <!-- Guard for a missing image — see LAUNCH-GAPS.md #23 / SQA-FIX.md Fix #36. -->
+    @if (p.image) {
+      <div class="article__img-wrap">
+        <img [src]="p.image" [alt]="p.title" class="article__img" />
+      </div>
+    }
 
     <div class="article__excerpt">{{ p.excerpt }}</div>
 
@@ -88,7 +91,9 @@
         <div class="related-grid">
           @for (rel of relatedPosts(); track rel.id) {
             <a [routerLink]="['/blog', rel.id]" class="related-card">
-              <img [src]="rel.image" [alt]="rel.title" class="related-card__img" loading="lazy" />
+              @if (rel.image) {
+                <img [src]="rel.image" [alt]="rel.title" class="related-card__img" loading="lazy" />
+              }
               <div class="related-card__body">
                 <span class="related-card__date">{{ rel.date | date: 'dd MMM yyyy' }}</span>
                 <h3 class="related-card__title">{{ rel.title }}</h3>

@@ -20,21 +20,19 @@ registerLocaleData(en);
 const httpLoaderFactory = (http: HttpClient) =>
   new TranslateHttpLoader(http, './assets/i18n/', '.json');
 
-// Block app startup until the active translation file is fully loaded
-// so that | translate pipes always have data on first render.
+// Block app startup until the active translation file is fully loaded so
+// that | translate pipes always have data on first render.
 //
-// Bangla temporarily disabled — commented out, not removed, so it's a
-// one-line revert to bring back. Forces English regardless of any
-// previously-saved localStorage['lang'] value from before this change
-// (that's also why navbar.ts's switchLang()/applyLang() are commented
-// out below — leaving them live would let a stray call re-enable 'bn').
+// Fix for LAUNCH-GAPS.md #1 (Bengali translations) — the language switcher
+// is dropped for good (not "temporarily disabled" anymore): the 140
+// translation keys were never more than ~9 wired up in practice, and
+// building out the rest wasn't worth it for a single-language launch.
+// English-only from here on; the ngx-translate setup stays only because a
+// handful of templates still use the `| translate` pipe for those ~9 keys.
 function initTranslate(translate: TranslateService) {
   return () => {
-    // translate.addLangs(['en', 'bn']);
     translate.addLangs(['en']);
     translate.setDefaultLang('en');
-    // const saved = (localStorage.getItem('lang') as 'en' | 'bn') ?? 'en';
-    // return firstValueFrom(translate.use(saved));
     return firstValueFrom(translate.use('en'));
   };
 }

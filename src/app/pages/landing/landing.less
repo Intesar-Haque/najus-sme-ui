@@ -327,6 +327,10 @@
     .flex-center();
     font-size: 22px;
     transition: @transition-base;
+    // Fix for LAUNCH-GAPS.md #9 — was relying on cat.bgColor/cat.color,
+    // which the API never actually sends (see landing.html). A single
+    // static tint replaces that always-empty per-category color.
+    background: fade(@primary, 12%);
 
     .cat-card:hover & { transform: scale(1.1); }
   }

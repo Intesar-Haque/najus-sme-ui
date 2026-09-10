@@ -7,6 +7,8 @@ import { NzIconModule }    from 'ng-zorro-antd/icon';
 import { NzSelectModule }  from 'ng-zorro-antd/select';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
+import { ApiService } from '../../core/services/api.service';
+
 @Component({
   selector: 'app-contact',
   imports: [
@@ -18,6 +20,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 })
 export class Contact {
   private msg = inject(NzMessageService);
+  private api = inject(ApiService);
 
   readonly submitting = signal(false);
   readonly submitted  = signal(false);
@@ -55,12 +58,24 @@ export class Contact {
       return;
     }
     this.submitting.set(true);
-    setTimeout(() => {
-      this.submitting.set(false);
-      this.submitted.set(true);
-      this.form.reset();
-      this.msg.success('Your message has been sent! We\'ll respond within 24 hours.');
-    }, 1200);
+    const v = this.form.value;
+    this.api.submitContact({
+      name:    v.name!,
+      email:   v.email!,
+      subject: v.subject!,
+      message: v.message!,
+    }).subscribe({
+      next: res => {
+        this.submitting.set(false);
+        this.submitted.set(true);
+        this.form.reset();
+        this.msg.success(res.message);
+      },
+      error: err => {
+        this.submitting.set(false);
+        this.msg.error(err.error?.message ?? 'Failed to send your message. Please try again.');
+      },
+    });
   }
 
   sendAnother() {

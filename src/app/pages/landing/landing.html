@@ -153,8 +153,17 @@
         <button class="cat-card"
                 [class.cat-card--active]="activeCategory() === cat.id"
                 (click)="onCategoryClick(cat.id)">
-          <div class="cat-card__icon" [style.background]="cat.bgColor" [style.color]="cat.color">
-            <span nz-icon [nzType]="cat.icon || 'appstore'" nzTheme="outline"></span>
+          <!-- Fix for LAUNCH-GAPS.md #9 — cat.icon is a literal emoji
+               character (e.g. "📱"), same as what the product-list sidebar
+               already renders correctly as plain text. Routing it through
+               nz-icon's [nzType] treated it as an Ant Design icon *name*
+               instead, which silently renders nothing for an emoji string
+               — hence the blank cards. cat.bgColor/cat.color are never
+               actually sent by the API (CategoryResource only emits
+               `icon`), so a static background replaces those always-empty
+               bindings instead of leaving the badge uncoloured. -->
+          <div class="cat-card__icon">
+            <span>{{ cat.icon || '📦' }}</span>
           </div>
           <div class="cat-card__name">{{ cat.name }}</div>
           <div class="cat-card__count">{{ cat.productCount }} items</div>
@@ -305,7 +314,10 @@
       @for (post of posts(); track post.id; let first = $first) {
         <article class="blog-card" [class.blog-card--featured]="first">
           <a [routerLink]="['/blog', post.id]" class="blog-card__image-wrap">
-            <img [src]="post.image" [alt]="post.title" loading="lazy" />
+            <!-- Guard for a missing image — see LAUNCH-GAPS.md #23 / SQA-FIX.md Fix #36. -->
+            @if (post.image) {
+              <img [src]="post.image" [alt]="post.title" loading="lazy" />
+            }
             <div class="blog-card__category">{{ post.category }}</div>
           </a>
           <div class="blog-card__body">

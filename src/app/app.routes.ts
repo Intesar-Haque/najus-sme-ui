@@ -29,6 +29,7 @@ import { Terms }              from './pages/terms/terms';
 import { Join }               from './pages/join/join';
 import { Cart }               from './pages/cart/cart';
 import { PaymentResult }      from './pages/payment-result/payment-result';
+import { NotFound }           from './pages/not-found/not-found';
 
 export const routes: Routes = [
   { path: '',               component: Landing        },
@@ -74,5 +75,9 @@ export const routes: Routes = [
   { path: 'payment-fail',    component: PaymentResult, data: { outcome: 'fail' }    },
   { path: 'payment-cancel',  component: PaymentResult, data: { outcome: 'cancel' }  },
   { path: 'payment-error',   component: PaymentResult, data: { outcome: 'error' }   },
-  { path: '**',              redirectTo: ''            },
+  // Fix for LAUNCH-GAPS.md's "would be nice" list — this used to
+  // `redirectTo: ''`, silently bouncing any unknown URL to the homepage
+  // with no explanation. See NotFound's own comment for why this is a
+  // client-side-only fix (no SSR, so the HTTP status is still 200).
+  { path: '**',              component: NotFound       },
 ];

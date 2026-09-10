@@ -2,61 +2,61 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
   <url>
-    <loc>https://sme.najus.org/</loc>
+    <loc>https://www.najus-msme.com/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
-    <loc>https://sme.najus.org/products</loc>
+    <loc>https://www.najus-msme.com/products</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://sme.najus.org/businesses</loc>
+    <loc>https://www.najus-msme.com/businesses</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://sme.najus.org/events</loc>
+    <loc>https://www.najus-msme.com/events</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://sme.najus.org/blog</loc>
+    <loc>https://www.najus-msme.com/blog</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://sme.najus.org/about</loc>
+    <loc>https://www.najus-msme.com/about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://sme.najus.org/contact</loc>
+    <loc>https://www.najus-msme.com/contact</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://sme.najus.org/faq</loc>
+    <loc>https://www.najus-msme.com/faq</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://sme.najus.org/privacy</loc>
+    <loc>https://www.najus-msme.com/privacy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
 
   <url>
-    <loc>https://sme.najus.org/terms</loc>
+    <loc>https://www.najus-msme.com/terms</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

@@ -308,7 +308,8 @@ export class DashProductEdit implements OnInit, AfterViewInit {
         this.variants.push(this.fb.group({
           color_name: [v.colorName, Validators.required],
           color_hex:  [v.colorHex ?? '#4caf50'],
-          price:      [v.price,  [Validators.required, Validators.min(0)]],
+          // Fix for LAUNCH-GAPS.md #6 — see product-create.ts's addVariant().
+          price:      [v.price,  [Validators.required, Validators.min(1)]],
           stock:      [v.stock,  [Validators.required, Validators.min(0)]],
         }));
       });
@@ -369,7 +370,8 @@ export class DashProductEdit implements OnInit, AfterViewInit {
     this.variants.push(this.fb.group({
       color_name: ['', Validators.required],
       color_hex:  ['#4caf50'],
-      price:      [null, [Validators.required, Validators.min(0)]],
+      // Fix for LAUNCH-GAPS.md #6 — see product-create.ts's addVariant().
+      price:      [null, [Validators.required, Validators.min(1)]],
       stock:      [0,    [Validators.required, Validators.min(0)]],
     }));
   }
@@ -433,6 +435,24 @@ export class DashProductEdit implements OnInit, AfterViewInit {
     // always saves first.
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
+
+    // Fix for LAUNCH-GAPS.md #6 — same guard as product-create.ts's
+    // submitAndReview(). "Save Changes" is left alone; this only blocks
+    // sending an unsellable product to NAJUS for review.
+    const imgCount = this.existingImages().length + this.newImageFiles().length;
+    if (imgCount === 0) {
+      this.message.error('Please upload at least one product image before submitting for review.');
+      return;
+    }
+    const hasSellableVariant = this.variants.controls.some(v => {
+      const price = Number(v.get('price')?.value);
+      const stock = Number(v.get('stock')?.value);
+      return price > 0 && stock > 0;
+    });
+    if (!hasSellableVariant) {
+      this.message.error('Please add at least one colour variant with a real price and stock before submitting for review.');
+      return;
+    }
 
     this.modal.confirm({
       nzTitle:   'Submit for Review?',

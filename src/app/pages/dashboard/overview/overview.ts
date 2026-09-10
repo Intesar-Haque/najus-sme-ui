@@ -13,7 +13,7 @@ import { NzSpinModule }   from 'ng-zorro-antd/spin';
 import { NzEmptyModule }  from 'ng-zorro-antd/empty';
 
 import { AuthService } from '../../../core/services/auth.service';
-import { ApiService, DashboardOverview, DashApiOrder } from '../../../core/services/api.service';
+import { ApiService, DashboardOverview, Order } from '../../../core/services/api.service';
 import { EventType, SmeEvent, Vendor } from '../../../core/models';
 
 export interface DashOrder {
@@ -40,7 +40,7 @@ export class DashOverview implements OnInit {
   loading    = signal(true);
 
   private overviewData = signal<DashboardOverview | null>(null);
-  private rawOrders    = signal<DashApiOrder[]>([]);
+  private rawOrders    = signal<Order[]>([]);
   dashEvents           = signal<SmeEvent[]>([]);
 
   vendor = computed<Vendor | null>(() => this.overviewData()?.vendor ?? null);
@@ -52,22 +52,32 @@ export class DashOverview implements OnInit {
     { icon: 'star',      label: 'Store Rating',    value: this.vendor()?.rating                ?? 0, prefix: '',     suffix: '/5', color: '#f59f00', bg: '#fff8e1' },
   ]);
 
+  // Each PlacedOrder can hold several line items (unlike the old single-
+  // product Order model this used to read) — show the first item's name
+  // and note how many more, rather than pretending there's only one.
   dashOrders = computed<DashOrder[]>(() =>
-    this.rawOrders().map(o => ({
-      id: String(o.id), product: o.product_name, customer: o.customer_name,
-      amount: o.amount, date: o.order_date, status: o.status,
-    }))
+    this.rawOrders().map(o => {
+      const [first, ...rest] = o.items;
+      const product = first
+        ? (rest.length ? `${first.productName} +${rest.length} more` : first.productName)
+        : '—';
+      return {
+        id: o.id, product, customer: o.customerName ?? 'Guest',
+        amount: o.totalAmount, date: o.createdAt,
+        status: o.status as DashOrder['status'],
+      };
+    })
   );
 
   ngOnInit() {
     forkJoin({
       overview: this.api.getDashboardOverview(),
-      orders:   this.api.getDashboardOrders(),
+      orders:   this.api.getOrders({ per_page: 5 }),
       events:   this.api.getDashboardEvents(),
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: ({ overview, orders, events }) => {
         this.overviewData.set(overview);
-        this.rawOrders.set(orders);
+        this.rawOrders.set(orders.data);
         this.dashEvents.set(events);
         if (overview?.member) this.auth.updateMember(overview.member);
         this.loading.set(false);

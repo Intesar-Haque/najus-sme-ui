@@ -37,7 +37,14 @@
     <div class="container">
       <div class="featured-card">
         <div class="featured-card__img-wrap">
-          <img [src]="fp.image" [alt]="fp.title" class="featured-card__img" />
+          <!-- Fix for LAUNCH-GAPS.md #23 — a post with no cover image was
+               rendering a broken-image icon (unguarded [src]). Every seeded
+               post always had a photo, so this never surfaced until the new
+               admin form made "no image" a real case — see SQA-FIX.md Fix
+               #36's "left out of scope" note. -->
+          @if (fp.image) {
+            <img [src]="fp.image" [alt]="fp.title" class="featured-card__img" />
+          }
           <span class="featured-badge">
             <span nz-icon nzType="star" nzTheme="fill"></span> Featured
           </span>
@@ -136,9 +143,12 @@
         @for (post of posts(); track post.id) {
           <article class="post-card" [class.post-card--featured]="post.featured">
 
-            <!-- Image — Fix for QA bug #28, see SQA-FIX.md Fix #23. -->
+            <!-- Image — Fix for QA bug #28, see SQA-FIX.md Fix #23.
+                 Guard for a missing image — see LAUNCH-GAPS.md #23 / Fix #36. -->
             <a [routerLink]="['/blog', post.id]" class="post-card__img-wrap">
-              <img [src]="post.image" [alt]="post.title" class="post-card__img" loading="lazy" />
+              @if (post.image) {
+                <img [src]="post.image" [alt]="post.title" class="post-card__img" loading="lazy" />
+              }
               <nz-tag [nzColor]="'purple'" class="post-card__cat">{{ post.category }}</nz-tag>
             </a>
 
