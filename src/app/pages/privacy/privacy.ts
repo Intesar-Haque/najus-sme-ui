@@ -93,7 +93,7 @@ export class Privacy {
         'Deletion: Request deletion of your personal data, subject to certain legal obligations.',
         'Portability: Receive your data in a structured, commonly used, machine-readable format.',
         'Opt-out: Unsubscribe from marketing communications at any time via any email or by contacting us.',
-        'To exercise any of these rights, contact us at privacy@najussme.org. We will respond within 30 days.',
+        'To exercise any of these rights, contact us at privacy@najus-msme.com. We will respond within 30 days.',
       ],
     },
     {
@@ -101,7 +101,7 @@ export class Privacy {
       title: '8. Contact Us',
       content: [
         'If you have questions or concerns about this Privacy Policy, please reach out:',
-        'Email: privacy@najussme.org',
+        'Email: privacy@najus-msme.com',
         'Address: NAJUS NGO Head Office, 123 NGO Road, Mohakhali, Dhaka 1212, Bangladesh',
         'Phone: +880-1700-000000',
         'We are committed to resolving any complaints about our collection or use of your personal data.',

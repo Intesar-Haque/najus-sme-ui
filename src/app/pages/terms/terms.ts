@@ -46,7 +46,7 @@ export class Terms {
       content: [
         'NAJUS membership is granted upon successful completion of our verification process. Members receive a unique Membership Code.',
         'You are responsible for maintaining the confidentiality of your Membership Code and any OTPs sent to your registered email.',
-        'You must notify us immediately at security@najussme.org if you suspect unauthorised use of your account.',
+        'You must notify us immediately at security@najus-msme.com if you suspect unauthorised use of your account.',
         'NAJUS reserves the right to suspend or terminate accounts that violate these Terms or engage in fraudulent or harmful behaviour.',
         'Members must keep their profile and business information accurate and up to date.',
       ],
@@ -81,7 +81,7 @@ export class Terms {
         'Perishable goods, customised/personalised items, and digital products are non-returnable.',
         'Refunds are processed to the original payment method within 7–10 business days of return approval.',
         'Shipping costs for returns are borne by the customer unless the return is due to a defective or incorrect item.',
-        'For disputes, contact our support team at support@najussme.org. We aim to resolve all disputes within 14 business days.',
+        'For disputes, contact our support team at support@najus-msme.com. We aim to resolve all disputes within 14 business days.',
       ],
     },
     {
@@ -91,7 +91,7 @@ export class Terms {
         'The NAJUS MSME brand, logo, platform design, and all original content are the exclusive property of NAJUS NGO.',
         'You may not reproduce, distribute, modify, or create derivative works from any platform content without prior written permission.',
         'Vendors retain ownership of their product listings and images. By listing on the Platform, vendors grant NAJUS a non-exclusive licence to display their content for marketplace purposes.',
-        'If you believe any content on the Platform infringes your intellectual property rights, contact legal@najussme.org.',
+        'If you believe any content on the Platform infringes your intellectual property rights, contact legal@najus-msme.com.',
       ],
     },
     {
@@ -118,7 +118,7 @@ export class Terms {
       title: '10. Contact Us',
       content: [
         'For questions or concerns regarding these Terms of Use, please contact:',
-        'Email: legal@najussme.org',
+        'Email: legal@najus-msme.com',
         'Address: NAJUS NGO Head Office, 123 NGO Road, Mohakhali, Dhaka 1212, Bangladesh',
         'Phone: +880-1700-000000',
       ],
