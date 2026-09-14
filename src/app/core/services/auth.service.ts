@@ -5,6 +5,7 @@ import { catchError, map } from 'rxjs/operators';
 
 import { Member } from '../models';
 import { environment } from '../../../environments/environment';
+import { friendlyApiError } from './http-error.util';
 
 const TOKEN_KEY  = 'najus_token';
 const MEMBER_KEY = 'najus_member';
@@ -31,7 +32,7 @@ export class AuthService {
       { identifier: memberCode.trim() },
     ).pipe(
       catchError(err => throwError(() => new Error(
-        err.error?.message ?? 'Membership code not found. Please check and try again.'
+        friendlyApiError(err, 'Membership code not found. Please check and try again.')
       ))),
     );
   }
@@ -50,7 +51,7 @@ export class AuthService {
         return res.member;
       }),
       catchError(err => throwError(() => new Error(
-        err.error?.message ?? 'Invalid or expired OTP. Please try again.'
+        friendlyApiError(err, 'Invalid or expired OTP. Please try again.')
       ))),
     );
   }
@@ -69,7 +70,7 @@ export class AuthService {
       catchError(err => {
         if (err.status === 401) this.invalidateSession();
         return throwError(() => new Error(
-          err.error?.message ?? 'Session expired. Please log in again.'
+          friendlyApiError(err, 'Session expired. Please log in again.')
         ));
       }),
     );
