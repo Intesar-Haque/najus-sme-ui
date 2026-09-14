@@ -542,6 +542,10 @@ export class ApiService {
     );
   }
 
+  cancelOrder(id: string): Observable<{ data: Order }> {
+    return this.http.post<{ data: Order }>(`${this.base}/dashboard/placed-orders/${id}/cancel`, {});
+  }
+
   placeOrder(body: {
     customer_name: string;
     customer_email: string;

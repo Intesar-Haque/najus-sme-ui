@@ -9,10 +9,17 @@ import { NzSpinModule }       from 'ng-zorro-antd/spin';
 import { NzEmptyModule }      from 'ng-zorro-antd/empty';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzToolTipModule }    from 'ng-zorro-antd/tooltip';
+import { NzMessageService }   from 'ng-zorro-antd/message';
+import { NzModalService }     from 'ng-zorro-antd/modal';
 
 import { ApiService, Order, OrderStatus, OrdersResponse } from '../../../core/services/api.service';
 
 type StatusFilter = 'all' | OrderStatus;
+
+// Orders whose status is one of these can still be cancelled. Fix for
+// SQA_REPORT.md B-04 — see DashboardController::cancelOrder(). Once an
+// order is delivered or already cancelled, there's nothing left to cancel.
+const CANCELLABLE_STATUSES: OrderStatus[] = ['pending', 'processing'];
 
 @Component({
   selector: 'app-dash-orders',
@@ -21,11 +28,14 @@ type StatusFilter = 'all' | OrderStatus;
     NzButtonModule, NzIconModule, NzTagModule,
     NzSpinModule, NzEmptyModule, NzPaginationModule, NzToolTipModule,
   ],
+  providers: [NzModalService],
   templateUrl: './orders.html',
   styleUrl:    './orders.less',
 })
 export class DashOrders implements OnInit {
   private api        = inject(ApiService);
+  private message    = inject(NzMessageService);
+  private modal       = inject(NzModalService);
   private destroyRef = inject(DestroyRef);
 
   loading       = signal(true);
@@ -35,6 +45,7 @@ export class DashOrders implements OnInit {
   });
   statusFilter  = signal<StatusFilter>('all');
   expandedIds   = signal<Set<string>>(new Set());
+  cancellingId  = signal<string | null>(null);
 
   readonly statusTabs: { label: string; value: StatusFilter }[] = [
     { label: 'All',        value: 'all'       },
@@ -82,6 +93,42 @@ export class DashOrders implements OnInit {
 
   statusColor(s: OrderStatus): string {
     return ({ pending: 'orange', processing: 'blue', delivered: 'green', cancelled: 'red' })[s] ?? 'default';
+  }
+
+  canCancel(order: Order): boolean {
+    return CANCELLABLE_STATUSES.includes(order.status);
+  }
+
+  cancel(order: Order, event: Event) {
+    event.stopPropagation(); // don't also toggle the card's expand/collapse
+    this.modal.confirm({
+      nzTitle:   `Cancel order #${order.id}?`,
+      nzContent: 'The customer will need to be informed separately. Any reserved stock for this order will be returned.',
+      nzOkText:  'Cancel order',
+      nzOkDanger: true,
+      nzCancelText: 'Keep order',
+      nzOnOk:    () => this.doCancel(order),
+    });
+  }
+
+  private doCancel(order: Order) {
+    this.cancellingId.set(order.id);
+    this.api.cancelOrder(order.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ data }) => {
+          this.response.update(r => ({
+            ...r,
+            data: r.data.map(o => o.id === order.id ? data : o),
+          }));
+          this.cancellingId.set(null);
+          this.message.success(`Order #${order.id} cancelled.`);
+        },
+        error: (err) => {
+          this.cancellingId.set(null);
+          this.message.error(err.error?.message ?? 'Failed to cancel order. Please try again.');
+        },
+      });
   }
 
   /** Extract contact number from notes string */

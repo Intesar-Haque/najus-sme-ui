@@ -43,6 +43,14 @@
             </div>
             <div class="order-card__right">
               <span class="order-total">৳ {{ order.totalAmount | number }}</span>
+              @if (canCancel(order)) {
+                <button nz-button nzDanger nzSize="small" nzType="text"
+                        nz-tooltip nzTooltipTitle="Cancel this order"
+                        [nzLoading]="cancellingId() === order.id"
+                        (click)="cancel(order, $event)">
+                  <span nz-icon nzType="close-circle"></span> Cancel
+                </button>
+              }
               <span nz-icon
                     [nzType]="isExpanded(order.id) ? 'up' : 'down'"
                     class="expand-icon"></span>
