@@ -136,7 +136,14 @@
 
           <p class="form-footer-note">
             Not a member yet?
-            <a routerLink="/join">Join NAJUS MSME →</a>
+            <!-- Deliberately an external link, not routerLink="/join" — the
+                 in-app /join flow is guarded to require an existing,
+                 authenticated NAJUS member (see joinGuard), so it bounced
+                 anyone clicking this from the (unauthenticated) login page
+                 straight back to /login. NAJUS membership itself is granted
+                 on the main NAJUS site; this SME platform's /join is for an
+                 already-approved member applying to become a vendor. -->
+            <a href="https://najus.org/membership" target="_blank" rel="noopener">Join NAJUS MSME →</a>
           </p>
         </div>
       }

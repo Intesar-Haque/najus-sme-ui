@@ -44,7 +44,7 @@
       <!-- Popular tags -->
       <div class="hero__tags">
         <span class="hero__tags-label">Popular:</span>
-        @for (term of popular; track term) {
+        @for (term of popular(); track term) {
           <nz-tag class="hero-tag" (click)="onPopularSearch(term)">{{ term }}</nz-tag>
         }
       </div>

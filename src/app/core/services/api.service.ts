@@ -182,6 +182,13 @@ const EMPTY_STATS: SiteStats = {
   members: 0, products: 0, categories: 0, events: 0, districts: 0, yearsActive: 0,
 };
 
+// Same fallback set as StatsController::popularSearches()'s own cold-start
+// fallback — used here only if the request itself fails (offline, API
+// down), so the tag row never just disappears.
+const FALLBACK_POPULAR_SEARCHES = [
+  'Jamdani Saree', 'Organic Tea', 'Nakshi Kantha', 'Mustard Oil', 'Handicrafts',
+];
+
 const EMPTY_EVENTS: EventsResponse = { data: [] };
 
 const EMPTY_VENDORS: VendorsResponse = {
@@ -204,6 +211,13 @@ export class ApiService {
   getStats(): Observable<SiteStats> {
     return this.http.get<SiteStats>(`${this.base}/stats`).pipe(
       catchError(() => of(EMPTY_STATS)),
+    );
+  }
+
+  getPopularSearches(): Observable<string[]> {
+    return this.http.get<{ data: string[] }>(`${this.base}/stats/popular-searches`).pipe(
+      map(r => r.data),
+      catchError(() => of(FALLBACK_POPULAR_SEARCHES)),
     );
   }
 

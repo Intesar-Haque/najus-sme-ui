@@ -18,6 +18,16 @@
         Verified
       </span>
     }
+    <!-- Featured badge — vendor().featured comes through from the API
+         (VendorResource already exposed it, VendorController already
+         sorted by it) but nothing ever rendered it, so toggling "Featured"
+         in the admin panel had no visible effect anywhere on the site. -->
+    @if (vendor().featured) {
+      <span class="vendor-card__featured-badge" nzTooltipTitle="Featured Business" nz-tooltip>
+        <span nz-icon nzType="star" nzTheme="fill"></span>
+        Featured
+      </span>
+    }
   </div>
 
   <!-- Logo -->

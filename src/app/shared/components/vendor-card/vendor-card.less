@@ -65,6 +65,23 @@
     font-weight: 500;
   }
 
+  // Left side so it never overlaps the verified badge (top-right) when a
+  // vendor is both verified and featured.
+  &__featured-badge {
+    position: absolute;
+    top: @sp-2;
+    left: @sp-2;
+    background: #f59e0b;
+    color: #fff;
+    font-size: @text-xs;
+    padding: 2px @sp-2;
+    border-radius: @radius-full;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-weight: 500;
+  }
+
   // ── Logo ───────────────────────────────────────────────────────────────
   &__logo-wrap {
     position: absolute;

@@ -82,6 +82,11 @@
                 <span nz-icon nzType="safety-certificate" nzTheme="fill"></span> Verified
               </nz-tag>
             }
+            @if (v.featured) {
+              <nz-tag [nzColor]="'gold'" class="verified-tag">
+                <span nz-icon nzType="star" nzTheme="fill"></span> Featured
+              </nz-tag>
+            }
           </div>
 
           <div class="vendor-meta__info">

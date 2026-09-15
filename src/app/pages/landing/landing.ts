@@ -28,6 +28,12 @@ const EMPTY_STATS: SiteStats = {
   members: 0, products: 0, categories: 0, events: 0, districts: 0, yearsActive: 0,
 };
 
+// Shown only until the real, signal-derived tags load from the API (or as
+// a fallback if that request fails) — see StatsController::popularSearches().
+const FALLBACK_POPULAR = [
+  'Jamdani Saree', 'Organic Tea', 'Nakshi Kantha', 'Mustard Oil', 'Handicrafts',
+];
+
 @Component({
   selector: 'app-landing',
   imports: [
@@ -57,9 +63,7 @@ export class Landing {
   readonly events     = toSignal(this.api.getFeaturedEvents(3),    { initialValue: [] });
   readonly posts      = toSignal(this.api.getFeaturedBlogPosts(3), { initialValue: [] });
 
-  readonly popular = [
-    'Jamdani Saree', 'Organic Tea', 'Nakshi Kantha', 'Mustard Oil', 'Handicrafts',
-  ];
+  readonly popular = toSignal(this.api.getPopularSearches(), { initialValue: FALLBACK_POPULAR });
 
   // ── State ────────────────────────────────────────────────────────────
   searchQuery = '';
