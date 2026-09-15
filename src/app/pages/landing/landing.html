@@ -57,13 +57,28 @@
             Explore Products
           </button>
         </a>
-        <a routerLink="/join">
+        <!-- Becoming a NAJUS MSME member (buying membership) happens on
+             najus.org, not in this app — see team decision, Sept 2026:
+             "join or become a member both buttons will redirect to the
+             najus membership registration page." This app's own /join
+             page is a separate step (an already-purchased member using
+             their membership code to apply as a vendor here), not a
+             signup flow, so this button no longer points at it. -->
+        <a href="https://najus.org/membership" target="_blank" rel="noopener">
           <button nz-button nzSize="large" class="cta-secondary">
             Join NAJUS MSME
             <span nz-icon nzType="arrow-right"></span>
           </button>
         </a>
       </div>
+
+      <!-- New sign-in option — same team decision: a "Sign In" path was
+           missing from the hero itself (only in the header nav before),
+           which was part of why "Join" kept getting clicked by people who
+           already had an account and just wanted to log in. -->
+      <p class="hero__signin-note">
+        Already a member? <a routerLink="/login">Sign In</a>
+      </p>
     </div>
 
     <!-- Right: product showcase grid -->
@@ -365,7 +380,10 @@
       </ul>
     </div>
     <div class="cta-banner__action">
-      <a routerLink="/join">
+      <!-- Same najus.org redirect as the hero's "Join NAJUS MSME" — see
+           team decision above. The "Sign In"/"Go to Dashboard" button
+           right below already covers the sign-in side of this pairing. -->
+      <a href="https://najus.org/membership" target="_blank" rel="noopener">
         <button nz-button nzSize="large" class="cta-join-btn">
           Become a Member
           <span nz-icon nzType="arrow-right"></span>
